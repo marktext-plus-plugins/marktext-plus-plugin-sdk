@@ -1,4 +1,6 @@
 # MarkText Plus Plugin SDK
+Main application: [MarkText Plus](https://github.com/SugarFatFree/marktext-plus)
+
 
 SDK and protocol reference for MarkText Plus plugins.
 
