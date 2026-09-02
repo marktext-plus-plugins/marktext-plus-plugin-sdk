@@ -1,0 +1,7 @@
+name: marktext_plus_plugin_sdk
+description: JSON-RPC protocol helpers for MarkText Plus plugins.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.0.0
