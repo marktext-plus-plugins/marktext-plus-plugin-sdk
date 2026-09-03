@@ -1,6 +1,8 @@
 # Changelog
 
-## [0.2.0] - 2026-09-03
+## [0.1.1] - 2026-09-03
+
+Pre-release. The SDK stays at 0.x while the plugin system is still settling.
 
 The first release described one kind of plugin: a separate process speaking
 JSON-RPC. That is now one of four, and no longer the one to reach for.
@@ -47,9 +49,12 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
 - `repository` in the manifest, so an installed plugin's detail page can still
   say where the plugin came from.
 
-- `examples/lua-plugin` and `examples/js-plugin`: complete, runnable plugins,
-  the same one written in each language. The only example before was Dart —
-  the one runtime an author should reach for last.
+- `examples/lua`, `examples/js` and `examples/process`: one complete, runnable
+  plugin per runtime, named after the `runtime` value each one declares. The
+  only example before was Dart — the runtime an author should reach for last —
+  and it sat at the repository root rather than with the others.
+- The Dart helper library moved to `packages/dart`. It was `dart/`, which held
+  a library and an example at once and read as though Dart were the default.
 
 ### Changed
 

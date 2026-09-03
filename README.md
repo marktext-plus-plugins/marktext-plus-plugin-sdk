@@ -5,6 +5,9 @@ Main application: [MarkText Plus](https://github.com/SugarFatFree/marktext-plus)
 How to write a plugin for MarkText Plus, and what the editor will and will not
 let one do.
 
+**Pre-release.** This SDK stays at 0.x while the plugin system settles, and the
+manifest and protocol described here can still change between versions.
+
 ## Pick a runtime first
 
 A plugin runs on machines that have the editor and nothing else — no Dart SDK,
@@ -38,24 +41,26 @@ LICENSE
 One script, one manifest, and three files that are documentation. No Dart
 anywhere.
 
-## Examples
-
-Three complete plugins, one per runtime. [`examples/lua-plugin`](examples/lua-plugin)
-and [`examples/js-plugin`](examples/js-plugin) are the *same* plugin written
-twice — same manifest, same permissions, same behaviour — so the two files can
-be read side by side to see what changes and what does not.
-[`dart/example`](dart/example) is the compiled kind.
+## What is in this repository
 
 ```
-examples/lua-plugin/    manifest.json + plugin.lua     ← start here
-examples/js-plugin/     manifest.json + plugin.js      ← or here
-dart/example/           plugin.dart, compiled to an executable
+examples/lua/       manifest.json + plugin.lua      ← start here
+examples/js/        manifest.json + plugin.js       ← or here
+examples/process/   manifest.json + plugin.dart     ← only if a script will not do
+packages/dart/      the Dart helper library, for a process plugin
+schema/             manifest.schema.json
 ```
 
-**Ship one.** A plugin declares one `runtime` and one entrypoint; a directory
-holding a `.lua` and a `.js` and an executable is three plugins wearing one
-manifest, and only whichever the manifest names would ever run. Copy the one
-whose language you want and delete the rest.
+Each example directory is named after the `runtime` it declares, and each is a
+complete plugin: a manifest and the code, nothing else needed. `lua` and `js`
+are deliberately the *same* plugin written twice — same manifest, same
+permissions, same behaviour — so the two can be read side by side to see what
+changes and what does not.
+
+**Copy one.** A plugin declares one `runtime` and one entrypoint; a directory
+holding a `.lua`, a `.js` and an executable is three plugins wearing one
+manifest, and only whichever the manifest names would ever run. Take the
+example whose language you want and leave the others here.
 
 ## Manifest
 
@@ -299,7 +304,7 @@ the editor's.
 
 The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The
-[`dart/`](dart) package in this repository implements that protocol for plugins
+[`packages/dart`](packages/dart) library in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
 
 ### You may not ship source that needs a toolchain to run
@@ -345,7 +350,7 @@ subcommand that produces a C-callable `.so` or `.dll`.)
   ```
 
   ```
-  dart compile exe example/plugin.dart -o bin/linux-x64/plugin
+  dart compile exe plugin.dart -o bin/linux/plugin
   ```
 
 - **Say what you are when someone runs you directly.** Your executable sits in
