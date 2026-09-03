@@ -1,4 +1,4 @@
-/// <reference path="./sdk/marktext-plus.d.ts" />
+/// <reference path="./lib/marktext-plus.d.ts" />
 //
 // The reference above is for your editor, not for the runtime: it is what
 // makes `storage`, `t` and `ctx` complete and typo-check. Those are injected

@@ -1,7 +1,7 @@
----@module 'sdk.marktext-plus'
+---@module 'lib.marktext-plus'
 --- The reference above is for your editor, not for the runtime: it is what
 --- makes `storage`, `t` and `ctx` complete and typo-check against
---- sdk/marktext-plus.lua. Those are injected by the editor before this file is
+--- lib/marktext-plus.lua. Those are injected by the editor before this file is
 --- read, so there is nothing to load them from.
 ---
 --- `require` below is a different thing: it loads this plugin's *own* files.

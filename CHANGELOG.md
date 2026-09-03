@@ -53,13 +53,16 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   plugin per runtime, named after the `runtime` value each one declares. The
   only example before was Dart — the runtime an author should reach for last —
   and it sat at the repository root rather than with the others.
-- One directory per runtime under `packages/`, each a complete plugin with its
-  own `sdk/`: `packages/lua`, `packages/js`, `packages/process`. Before this
+- One directory per language under `packages/`, each a complete plugin:
+  `packages/lua`, `packages/js`, `packages/dart`. Named after the language
+  because that is what an author chooses; `runtime` in the manifest still names
+  how a plugin runs, and the Dart one is a `process` plugin. Before this
   the Dart library sat at the repository root holding a library and an example
   at once, while the scripts were `examples/*-plugin` — three runtimes, three
   namings, and the one to reach for last in the most prominent place.
-- Each entrypoint now references its `sdk/` and uses every capability the
-  editor offers once, so the example is the documentation.
+- Each entrypoint references its type definitions and uses every capability the
+  editor offers once, so the example is the documentation. Definitions sit in
+  `lib/` beside the plugin's own modules and are not shipped with a plugin.
 
 - A per-launch token in `MARKTEXT_PLUS_PLUGIN_TOKEN`, replacing the fixed
   `--marktext-plus-plugin-host` argument. The old one could be typed by anyone

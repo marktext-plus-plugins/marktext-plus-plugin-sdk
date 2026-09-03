@@ -1,0 +1,9 @@
+name: marktext_plus_plugin_sdk
+description: >-
+  The library a compiled MarkText Plus plugin imports, and an example plugin
+  that imports it. lib/ is the library; plugin.dart is the example.
+version: 0.1.1
+publish_to: none
+
+environment:
+  sdk: ^3.0.0

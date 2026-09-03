@@ -45,51 +45,57 @@ anywhere.
 
 ## What is in this repository
 
-One directory per runtime, each a complete plugin you can copy:
+One directory per language, each a complete plugin you can copy:
 
 ```
 packages/lua/       ← start here
   manifest.json
-  plugin.lua          the entrypoint
-  lib/prompt.lua      a second file, loaded with require("lib.prompt")
-  sdk/                type definitions, for your editor
+  plugin.lua              the entrypoint
+  lib/prompt.lua          a second file, loaded with require("lib.prompt")
+  lib/marktext-plus.lua   type definitions, for your editor
 
 packages/js/        ← or here
   manifest.json
   plugin.js
-  lib/prompt.js       loaded with require("lib/prompt")
-  jsconfig.json       points your editor at sdk/
-  sdk/
+  lib/prompt.js           loaded with require("lib/prompt")
+  lib/marktext-plus.d.ts  type definitions, for your editor
+  jsconfig.json           points your editor at them
 
-packages/process/   ← only if a script will not do
+packages/dart/      ← only if a script will not do
   manifest.json
-  plugin.dart
+  plugin.dart             the entrypoint, compiled to an executable
+  lib/                    the library it imports
   pubspec.yaml
-  sdk/                a real library, imported and compiled in
 
 schema/manifest.schema.json
 ```
+
+Named after the **language**, because that is what you choose. `runtime` in the
+manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
+`process` plugin: Dart is simply the language its example is written in.
 
 `lua` and `js` are deliberately the *same* plugin written twice — same
 manifest, same permissions, same behaviour — so the two can be read against
 each other. **Copy one.** A plugin declares one `runtime` and one entrypoint;
 a directory holding all three is three plugins wearing one manifest.
 
-### What `sdk/` is, and whether you ship it
+### What is in `lib/`, and what ships
+
+Two kinds of file, and the difference matters:
 
 | | What it is | Ships with your plugin? |
 |---|---|---|
-| `lua/sdk`, `js/sdk` | **Type definitions only.** Nothing in them runs. They are what makes your editor complete `storage.get` and tell you when you have typed `sotrage` | **No.** Keep them beside you while you write |
-| `process/sdk` | **A real library** your plugin imports: the JSON-RPC loop, the launch check, the shutdown | Compiled into your executable |
+| `lib/prompt.lua`, `lib/prompt.js` | **Your plugin's own code**, loaded with `require` | Yes. It is your plugin |
+| `lib/marktext-plus.lua`, `lib/marktext-plus.d.ts` | **Type definitions only.** Nothing in them runs. They are what makes your editor complete `storage.get` and tell you when you have typed `sotrage` | **No.** They describe the editor, not your plugin |
+| `packages/dart/lib/` | **A real library** your plugin imports: the JSON-RPC loop, the launch check, the shutdown | Compiled into your executable |
 
 A script plugin has nothing to import *from the SDK* at runtime: the editor
 injects `storage`, `t`, `require` and the context as globals before your file
-is read, so there is no transport to wrap. A process plugin is on the other
-side of a pipe, and that pipe is what `process/sdk` implements.
-
-That is why the reference at the top of `plugin.lua` and `plugin.js` is an
-editor directive (`---@module`, `/// <reference>`) rather than a runtime
-import, while `plugin.dart` has a real `import`.
+is read, so there is no transport to wrap. That is why the reference at the top
+of `plugin.lua` and `plugin.js` is an editor directive (`---@module`,
+`/// <reference>`) rather than a runtime import, while `plugin.dart` has a real
+`import` — a process plugin is on the other side of a pipe, and that pipe is
+what `packages/dart/lib` implements.
 
 ## A plugin can be several files
 
