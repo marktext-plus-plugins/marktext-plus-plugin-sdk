@@ -1,14 +1,174 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MarkText Plus plugin manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "name", "version", "entrypoint"],
+  "required": ["id", "name", "version"],
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"},
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$",
+      "description": "Reverse-domain id. Also the name of the plugin's own directory."
+    },
     "name": {"type": "string", "minLength": 1},
     "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-    "entrypoint": {"type": "string", "minLength": 1},
-    "minAppVersion": {"type": "string"},
-    "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
-  }
+    "minAppVersion": {
+      "type": "string",
+      "description": "Oldest MarkText Plus this plugin works with."
+    },
+
+    "runtime": {
+      "enum": ["data", "lua", "js", "process"],
+      "default": "data",
+      "description": "How the plugin runs. 'lua' and 'js' run inside the editor and need no build; 'process' is a compiled executable per platform; 'data' has no code."
+    },
+    "entrypoint": {
+      "type": "string",
+      "minLength": 1,
+      "not": {"pattern": "(?i)\\.dart$"},
+      "description": "The script, for runtime 'lua' or 'js'. Dart source is rejected: compile it and use runtime 'process' instead."
+    },
+    "entrypoints": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^(windows|macos|linux)-(x64|arm64)$"},
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "not": {"pattern": "(?i)\\.dart$"}
+      },
+      "description": "Required for runtime 'process': one executable per platform built for, keyed os-arch. A platform absent here is reported to the reader rather than guessed at."
+    },
+
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "document.read",
+          "document.write",
+          "ui.contextMenu",
+          "ui.menuBar",
+          "ui.toolbar",
+          "ui.sidebar",
+          "ui.statusBar",
+          "ui.settings",
+          "ui.commandPalette",
+          "ui.notifications",
+          "ai.chat",
+          "storage.local",
+          "clipboard.read",
+          "clipboard.write",
+          "workspace.read",
+          "workspace.write",
+          "network.request"
+        ]
+      },
+      "description": "Shown to the reader and enforced by the editor. An action the plugin did not ask for is refused, not performed."
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "menus": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "location"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "location": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A slot the editor defines, such as 'editor.contextMenu'."
+          }
+        }
+      }
+    },
+    "toolbar": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "icon"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1},
+          "icon": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+
+    "settings": {
+      "type": "array",
+      "description": "Fields the editor draws on the plugin's own settings page. The plugin supplies data; it never supplies widgets.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "title"],
+        "properties": {
+          "key": {"type": "string", "minLength": 1},
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Shown as-is, or looked up in 'locales' when it is a translation key."
+          },
+          "type": {
+            "enum": ["text", "password", "number", "boolean"],
+            "default": "text"
+          },
+          "default": {"type": "string"}
+        }
+      }
+    },
+
+    "defaultLocale": {"type": "string", "default": "en"},
+    "locales": {
+      "type": "object",
+      "description": "The plugin's own strings, per language. Ship as many as you like; the editor resolves region, then language, then defaultLocale.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {"type": "string"}
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {"properties": {"runtime": {"const": "process"}}, "required": ["runtime"]},
+      "then": {"required": ["entrypoints"]}
+    },
+    {
+      "if": {"properties": {"runtime": {"enum": ["lua", "js"]}}, "required": ["runtime"]},
+      "then": {"required": ["entrypoint"]}
+    }
+  ]
 }
