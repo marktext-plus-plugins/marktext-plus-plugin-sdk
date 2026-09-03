@@ -86,6 +86,10 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   large plugin up — or shipping a library someone else wrote alongside it —
   costs no access to the rest of the disk.
 
+- `tool/run-js-plugin.mjs`: runs a JavaScript plugin the way the editor does,
+  without the editor. The editor's QuickJS only exists inside a built
+  application, so a JS plugin could not be tried at all until it was installed.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the

@@ -135,6 +135,30 @@ holding a `.lua`, a `.js` and an executable is three plugins wearing one
 manifest, and only whichever the manifest names would ever run. Take the
 example whose language you want and leave the others here.
 
+## Trying a plugin before you ship it
+
+A Lua or JavaScript plugin is interpreted by the editor, so the honest test is
+installing it — **Plugins → Install from ZIP**. Two things can be checked
+sooner:
+
+```
+node tool/run-js-plugin.mjs packages/js      # or your own plugin directory
+```
+
+runs a JavaScript plugin the way the editor does — the same injected globals,
+the same `require` reaching only inside the plugin directory, the same two
+entry points — and says which of your answers is not the shape the editor
+expects. The editor uses QuickJS, which only exists inside a built
+application; this stands in for it.
+
+```
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
+```
+
+is the whole check for a compiled plugin: it builds, and it declines to run
+when nothing gave it a launch token.
+
 ## Manifest
 
 `manifest.json` sits at the root of the plugin. The editor reads it without
