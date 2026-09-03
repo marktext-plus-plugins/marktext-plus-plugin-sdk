@@ -17,13 +17,26 @@ no Node, no Python. That single fact decides most of what follows.
 | `process` | one executable **per platform** | only the platforms you built for | you need a real toolchain, libraries, or long-running work |
 | `data` | no code at all | everywhere | themes, snippets, dictionaries |
 
-Start with `lua` or `js`. They need no build step, they cannot crash the
-editor, and one file works on Windows, macOS and Linux at once.
+Start with `lua` or `js`. Such a plugin is **one script file and a
+`manifest.json`, and nothing else** — no build step, no compiler, no second
+language, and the same two files work on Windows, macOS and Linux at once. A
+script cannot crash the editor either.
 
-**A plugin may not ship Dart source.** `entrypoint: "bin/plugin.dart"` is
-rejected at install time. Running it would need a Dart SDK the reader has no
-reason to have, and the editor cannot supply one. Dart compiles to a real
-executable — `dart compile exe` — and that is what a `process` plugin ships.
+Only reach for `process` when a script genuinely will not do.
+
+The AI translate plugin published alongside this SDK is the whole of what a
+Lua plugin looks like on disk:
+
+```
+manifest.json
+plugin.lua
+README.md
+CHANGELOG.md
+LICENSE
+```
+
+One script, one manifest, and three files that are documentation. No Dart
+anywhere.
 
 ## Manifest
 
@@ -269,6 +282,19 @@ The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The
 [`dart/`](dart) package in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
+
+### You may not ship source that needs a toolchain to run
+
+This is about compiled plugins only, and about Dart in particular because the
+editor is written in it: `entrypoint: "bin/plugin.dart"` is rejected when the
+plugin is installed. Running it would need a Dart SDK on the reader's machine,
+which the editor does not install and cannot assume — and a release build has
+no interpreter to hand it to. Compile it (`dart compile exe`) and ship the
+executable.
+
+Nothing here applies to a Lua or JavaScript plugin. Those are interpreted by
+the editor itself, which is the whole point of them: no Dart, no toolchain, no
+build.
 
 **Why a process and not a library the editor loads.** Lua and JS plugins
 already run inside the editor, on its own thread — that is the normal case, and
