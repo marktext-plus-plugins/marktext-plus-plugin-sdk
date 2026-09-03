@@ -1,2 +1,4 @@
 # Dart build state, per machine and not part of the SDK.
 .dart_tool/
+# Resolved by `dart pub get`; an example is not an application to pin.
+pubspec.lock
