@@ -119,14 +119,18 @@ function on_command(ctx)
     return { notify = t("nothing.selected") }
   end
   if ctx.answer == nil then
-    return { ask = t("which.language"), default = storage.get("target") or "English" }
+    return {
+      ask = t("which.language"),
+      default = storage.get("target") or "English",
+      choices = { "English", "简体中文", "日本語" },
+    }
   end
   storage.set("target", ctx.answer)
   return { ai = "Translate into " .. ctx.answer .. ":\n\n" .. ctx.selection }
 end
 
 function on_result(ctx, result)
-  return { diff = { original = ctx.selection, result = result } }
+  return { show = result, title = ctx.answer }
 end
 ```
 
@@ -143,7 +147,7 @@ function on_command(ctx) {
 }
 
 function on_result(ctx, result) {
-  return { diff: { original: ctx.selection, result: result } };
+  return { show: result, title: ctx.answer };
 }
 ```
 
@@ -151,12 +155,19 @@ function on_result(ctx, result) {
 
 | Return | The editor does | Then |
 |---|---|---|
-| `{ ask = "…", default = "…" }` | asks the reader | calls `on_command` again with `ctx.answer` set |
+| `{ ask = "…", default = "…", choices = {…} }` | asks the reader; `choices` appear as chips to press, and anything typed instead is taken as it stands | calls `on_command` again with `ctx.answer` set |
 | `{ ai = "…" }` | sends your prompt to the model the reader configured | calls `on_result(ctx, reply)` |
+| `{ show = "…", title = "…" }` | shows one answer in a small window, with a copy button | stops; nothing is written |
+| `{ panel = "…", title = "…" }` | shows it in a panel beside the document | stops; nothing is written |
 | `{ notify = "…" }` | tells the reader | stops |
 | `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
 | anything else | nothing | stops |
+
+**`show` or `panel`.** A few lines are an answer: a small window is right, and
+a panel for them is more furniture than content. A document-sized result is
+something the reader compares against what is on screen, and a window over the
+screen is the one place it cannot go.
 
 A run is capped at 8 steps, so a script that keeps returning `ask` cannot trap
 the reader in a loop.
@@ -212,7 +223,7 @@ is one the reader should decline.
 ## Contribution points
 
 ```json
-"menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu"}],
+"menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
 "toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
@@ -221,6 +232,13 @@ is one the reader should decline.
 `title` may be a translation key. `location` is a slot the editor defines —
 a plugin places things in named slots, never at pixel coordinates, and never
 by handing the editor widgets of its own.
+
+`when` says when a menu entry is worth offering: `selection` only with
+something selected, `noSelection` only without, and absent means always.
+Without it every entry is offered at once — "translate the selection" with
+nothing selected, and "translate the document" while the reader is pointing at
+a paragraph. A value the editor does not know is refused when the plugin is
+installed rather than quietly treated as "always".
 
 ## Settings
 

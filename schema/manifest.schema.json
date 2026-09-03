@@ -246,6 +246,15 @@
             "type": "string",
             "minLength": 1,
             "description": "A slot the editor defines, such as 'editor.contextMenu'."
+          },
+          "when": {
+            "enum": [
+              "always",
+              "selection",
+              "noSelection"
+            ],
+            "default": "always",
+            "description": "When this entry is worth offering: only with a selection, only without one, or always. Absent means always."
           }
         }
       }
@@ -345,6 +354,10 @@
           "type": "string"
         }
       }
+    },
+    "repository": {
+      "type": "string",
+      "description": "Where the plugin came from. Shown on its detail page so an installed plugin can still be read about."
     }
   },
   "allOf": [

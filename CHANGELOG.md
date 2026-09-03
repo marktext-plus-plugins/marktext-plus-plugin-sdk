@@ -35,6 +35,18 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   outlives the editor because it ignored end of file — so neither is left to be
   remembered.
 
+- `when` on a menu entry: `selection`, `noSelection`, or absent for always.
+  Without it every entry a plugin declared was offered at once, including the
+  ones that made no sense for what the reader had in front of them.
+- `show` and `panel` actions. A few lines are an answer and belong in a small
+  window; a document-sized result belongs beside the document, because a window
+  over the screen is the one place the reader cannot compare it against
+  anything.
+- `choices` on `ask`, drawn as chips to press. The box stays, so an answer that
+  is not on the list costs nothing but typing it.
+- `repository` in the manifest, so an installed plugin's detail page can still
+  say where the plugin came from.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
