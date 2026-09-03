@@ -38,6 +38,25 @@ LICENSE
 One script, one manifest, and three files that are documentation. No Dart
 anywhere.
 
+## Examples
+
+Three complete plugins, one per runtime. [`examples/lua-plugin`](examples/lua-plugin)
+and [`examples/js-plugin`](examples/js-plugin) are the *same* plugin written
+twice — same manifest, same permissions, same behaviour — so the two files can
+be read side by side to see what changes and what does not.
+[`dart/example`](dart/example) is the compiled kind.
+
+```
+examples/lua-plugin/    manifest.json + plugin.lua     ← start here
+examples/js-plugin/     manifest.json + plugin.js      ← or here
+dart/example/           plugin.dart, compiled to an executable
+```
+
+**Ship one.** A plugin declares one `runtime` and one entrypoint; a directory
+holding a `.lua` and a `.js` and an executable is three plugins wearing one
+manifest, and only whichever the manifest names would ever run. Copy the one
+whose language you want and delete the rest.
+
 ## Manifest
 
 `manifest.json` sits at the root of the plugin. The editor reads it without

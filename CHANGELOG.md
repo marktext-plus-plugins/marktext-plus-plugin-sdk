@@ -47,6 +47,10 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
 - `repository` in the manifest, so an installed plugin's detail page can still
   say where the plugin came from.
 
+- `examples/lua-plugin` and `examples/js-plugin`: complete, runnable plugins,
+  the same one written in each language. The only example before was Dart —
+  the one runtime an author should reach for last.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
