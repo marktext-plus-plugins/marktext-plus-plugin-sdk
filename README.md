@@ -8,7 +8,9 @@ How to write a plugin for MarkText Plus, and what the editor will and will not
 let one do.
 
 **Pre-release.** This SDK stays at 0.x while the plugin system settles, and the
-manifest and protocol described here can still change between versions.
+manifest and protocol described here can still change between versions. What
+that means in practice, and what it will mean later, is in
+[Compatibility](#compatibility) below.
 
 ## Pick a runtime first
 
@@ -528,6 +530,36 @@ subcommand that produces a C-callable `.so` or `.dll`.)
 - Keep stdout for protocol responses; write diagnostics to stderr.
 - Requests are bounded by a timeout, and a timeout kills only your process.
 - Treat everything the host sends as untrusted and validate it.
+
+## Compatibility
+
+A plugin is a file on someone else's machine that this editor reads. Breaking
+it is not a build failure anybody here sees — it is a plugin that stops working
+for its readers. So:
+
+**`minAppVersion` is enforced.** Say the oldest editor your plugin works with
+and the editor holds to it: an editor older than that refuses to install the
+plugin, and refuses to run one already installed, saying which version is
+wanted and which is present. It used to be read and ignored, which was worse
+than not having the field.
+
+**What the editor will not take away without notice.** Every permission name,
+every `runtime` value, every action a script can return, every field in `ctx`,
+and `storage` and `t` and `require` are pinned by a test in the editor's own
+source. Adding to any of those lists is free; removing or renaming one fails
+that test, so it cannot happen by accident.
+
+**While this is 0.x**, a deliberate breaking change is still possible, and it
+will be in the changelog with what to do about it. When the manifest and the
+protocol have been left alone for long enough to be worth trusting, this
+becomes 1.0 and that stops: after it, anything a plugin can write today keeps
+working, and things go away only after being deprecated in a release that still
+supports them.
+
+**Where a plugin is on its own.** The editor cannot promise the behaviour of
+your prompt, the model a reader configured, or a `process` plugin's own child
+processes. Nor can it stop a reader from running your executable by hand — see
+the launch token above for what it does instead.
 
 ## Safety rules
 

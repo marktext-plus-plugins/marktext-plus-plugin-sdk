@@ -98,6 +98,15 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   repository. The Dart library was reading as a requirement when it is one
   implementation of four rules.
 
+- `minAppVersion` is enforced. The editor refuses to install a plugin that
+  needs a newer one, and refuses to run one already installed, naming both
+  versions. It was read and ignored before, which is worse than not having the
+  field.
+- A Compatibility section saying what the editor will not take away without
+  notice, and what happens at 1.0. Every permission name, runtime value, action
+  and capability is pinned by a test in the editor's own source: adding to
+  those lists is free, removing or renaming one fails.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
