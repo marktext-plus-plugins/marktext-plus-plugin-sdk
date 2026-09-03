@@ -61,6 +61,13 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   wanting to run a plugin as though the editor had; this one cannot, and it is
   not in argv where `ps` would show it. `serve()` exits 1 without it.
 
+- `packages/lua` and `packages/js`: type definitions, so an author writing a
+  script gets completion for `storage`, `t` and the context, and hears about a
+  misspelling from their editor rather than from a reader clicking a menu
+  entry. Nothing in them runs and neither is shipped with a plugin. The
+  editor's own test suite checks them against what the runtimes actually
+  inject, in both directions.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
