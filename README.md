@@ -35,7 +35,7 @@ running anything. See [`schema/manifest.schema.json`](schema/manifest.schema.jso
   "id": "com.example.my-plugin",
   "name": "My Plugin",
   "version": "1.0.0",
-  "minAppVersion": "1.7.0",
+  "minAppVersion": "1.6.1",
   "runtime": "lua",
   "entrypoint": "plugin.lua",
 
