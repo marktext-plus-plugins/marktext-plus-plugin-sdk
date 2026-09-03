@@ -90,6 +90,12 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   without the editor. The editor's QuickJS only exists inside a built
   application, so a JS plugin could not be tried at all until it was installed.
 
+- The README now says outright that a `process` plugin can be written in
+  anything that compiles to an executable — Go, Rust, C++, C#, Python — and
+  shows the whole protocol as twenty lines of Python that use nothing from this
+  repository. The Dart library was reading as a requirement when it is one
+  implementation of four rules.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the

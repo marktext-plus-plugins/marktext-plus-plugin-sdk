@@ -58,7 +58,7 @@ packages/js/        ← or here
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -69,7 +69,50 @@ schema/manifest.schema.json
 
 Named after the **language**, because that is what you choose. `runtime` in the
 manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
-`process` plugin: Dart is simply the language its example is written in.
+`process` plugin: Dart is simply the language its example happens to be written
+in.
+
+**A `process` plugin can be written in anything that compiles to an
+executable.** The editor starts a program and talks JSON-RPC to it over
+stdin and stdout; it never learns what produced that program. Go, Rust, C++,
+C#, a statically linked Python — all of them work, and none of them needs
+anything from this repository beyond the protocol:
+
+- one JSON object per line, on stdin and stdout;
+- responses echo the numeric request `id`;
+- exit when stdin reaches end of file;
+- exit when `MARKTEXT_PLUS_PLUGIN_TOKEN` is not in the environment, so a
+  double-clicked executable says what it is instead of waiting.
+
+That is the whole contract. Here it is in Python, with nothing from this
+repository — it answers the editor, and refuses to run when nobody started it:
+
+```python
+#!/usr/bin/env python3
+import json, os, sys
+
+if not os.environ.get("MARKTEXT_PLUS_PLUGIN_TOKEN"):
+    print("This is a MarkText Plus plugin.", file=sys.stderr)
+    sys.exit(1)
+
+for line in sys.stdin:                       # ends at EOF: the editor went away
+    line = line.strip()
+    if not line:
+        continue
+    request = json.loads(line)
+    if request.get("method") == "shutdown":
+        break
+    result = {"echoed": request.get("params", {}).get("text", "")}
+    print(json.dumps({"jsonrpc": "2.0", "id": request["id"], "result": result}),
+          flush=True)
+```
+
+[`packages/dart/lib`](packages/dart/lib) is the same four rules with the edges
+handled — malformed input, an unknown method, an error inside one handler not
+ending the plugin. Dart is here because the editor is written in it, so
+`dart compile exe` was the shortest way to have a working example. It is not a
+requirement and not a recommendation: writing those rules again in the language
+you already know is usually easier than adding a Dart toolchain to your build.
 
 All three entrypoints do the same thing: load the API and call it.
 
