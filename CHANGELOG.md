@@ -112,6 +112,20 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   document that changes weekly drift by losing a section, not by rewording one,
   and headings are translated so their text cannot be compared.
 
+- `pane`: fill one of the panes around the document. The editor lays the
+  document and up to three panes out as a two by two grid — the split it
+  already had between source and preview, offered out. `as` draws it the way
+  the reader is reading, and `ctx.view` says which that is.
+- `append` and a following `ai` on a pane, so a plugin can work through a
+  document a block at a time and show each block as it arrives instead of
+  sending the whole thing at once and waiting.
+- `panels`: contribute a panel to the right-hand side bar. Needs `ui.sidebar`,
+  which until now was a permission with nothing behind it. With nothing
+  contributed there is no bar at all.
+- A section on what this Lua does not do. Four gaps found by one plugin
+  splitting a document into paragraphs — `#` on a string, `%s`/`%S`, and two
+  forms of `gmatch` — every one of which fails silently.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the

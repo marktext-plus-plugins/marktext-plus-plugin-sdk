@@ -358,6 +358,34 @@
     "repository": {
       "type": "string",
       "description": "Where the plugin came from. Shown on its detail page so an installed plugin can still be read about."
+    },
+    "panels": {
+      "type": "array",
+      "description": "Panels in the right-hand side bar. Needs the ui.sidebar permission. Opening one runs the plugin's command of the same id.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "icon"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The bar is a rail of icons, so a panel must have one."
+          }
+        }
+      }
     }
   },
   "allOf": [

@@ -55,6 +55,31 @@ module.exports = {
     return { panel: text, title: title };
   },
 
+  /**
+   * Fill one of the panes around the document. The editor lays the document
+   * and up to three panes out as a two by two grid.
+   *
+   * `as` draws it: 'text' as it stands, 'source' as Markdown source,
+   * 'preview' rendered — pass `ctx.view` to answer the way the reader is
+   * reading. `append` adds to the pane instead of replacing it, and `ai` asks
+   * the model one more thing once this has been shown; together they are how a
+   * plugin works through a document a block at a time.
+   * @param {string} text
+   * @param {{ title?: string, slot?: 'right'|'bottom'|'corner',
+   *           as?: 'text'|'source'|'preview', append?: boolean, ai?: string }} [options]
+   */
+  pane: function (text, options) {
+    options = options || {};
+    return {
+      pane: text,
+      title: options.title,
+      slot: options.slot,
+      as: options.as,
+      append: options.append,
+      ai: options.ai,
+    };
+  },
+
   /** Say one line to the reader and stop. Needs `ui.notifications`.
    * @param {string} message */
   notify: function (message) {

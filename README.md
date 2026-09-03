@@ -346,10 +346,19 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | sends your prompt to the model the reader configured | calls `on_result(ctx, reply)` |
 | `{ show = "…", title = "…" }` | shows one answer in a small window, with a copy button | stops; nothing is written |
 | `{ panel = "…", title = "…" }` | shows it in a panel beside the document | stops; nothing is written |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | fills one of the panes around the document | stops; nothing is written |
 | `{ notify = "…" }` | tells the reader | stops |
 | `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
 | anything else | nothing | stops |
+
+**Panes.** The editor already splits a tab between source and preview; `pane`
+is that split offered to you. The document keeps the first cell of a two by two
+grid and you may fill the other three — `right` beside it, `bottom` under it,
+`corner` under the right-hand one. A slot nobody asked for is not drawn, so
+filling only `corner` does not leave two empty strips. A slot name the editor
+does not know is refused rather than guessed at: a pane appearing somewhere you
+did not ask for, with no way to find out why, is worse than being told.
 
 **`show` or `panel`.** A few lines are an answer: a small window is right, and
 a panel for them is more furniture than content. A document-sized result is
@@ -377,6 +386,25 @@ stranger's repository, so it gets what it declared and nothing else.
 | `ctx.selection` | the selected text, `""` when nothing is selected |
 | `ctx.document` | the whole document |
 | `ctx.answer` | what the reader typed last time you asked, otherwise nil/undefined |
+
+### What this Lua does not do
+
+The interpreter is a pure-Dart Lua, which is why a script plugin needs nothing
+installed — and it is not complete. These four all fail **silently**, which is
+the part that costs time: a pattern that matches nothing looks exactly like a
+document with nothing in it.
+
+| Instead of | Use | Because |
+|---|---|---|
+| `#someString` | `string.len(s)` | raises `length error`. `#` on a *table* works, so the two cannot be told apart by feel |
+| `s:match("%S")`, `%s` | compare characters: `s:sub(i, i) == " "` | the classes match nothing, so every line looks blank |
+| `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` and `s:sub` | returns nothing at all |
+| `s:gmatch("[^\n]*")` | the same | never advances past an empty match |
+
+The editor's own test suite pins these, so if the interpreter is replaced this
+table is corrected rather than left to mislead.
+
+The JavaScript runtime is QuickJS and has no equivalent gaps worth listing.
 
 ## Permissions
 
@@ -413,12 +441,24 @@ is one the reader should decline.
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
 "toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
+"panels":   [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
 
 `title` may be a translation key. `location` is a slot the editor defines —
 a plugin places things in named slots, never at pixel coordinates, and never
 by handing the editor widgets of its own.
+
+`panels` puts an icon in the right-hand side bar; pressing it opens a drawer
+filled by running your command of the same `id`. It needs `ui.sidebar`, and it
+needs an `icon`, because the bar is a rail of icons and one with nothing to
+draw would be a gap that opens something. With no plugin contributing a panel
+there is no rail at all — a strip of icons with no icons in it is width taken
+from the document for nothing.
+
+A panel is opened and answers: a command that returns `ask` or `ai` is reported
+as text there rather than stopping to ask, because a drawer is not a
+conversation.
 
 `when` says when a menu entry is worth offering: `selection` only with
 something selected, `noSelection` only without, and absent means always.
