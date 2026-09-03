@@ -48,17 +48,17 @@ anywhere.
 One directory per language, each a complete plugin you can copy:
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -68,7 +68,7 @@ schema/manifest.schema.json
 ```
 
 Named after the **language**, because that is what you choose. `runtime` in the
-manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
+manifest names how it runs — `lua`, `js`, `process` — and `examples/dart` is a
 `process` plugin: Dart is simply the language its example happens to be written
 in.
 
@@ -107,7 +107,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](packages/dart/lib) is the same four rules with the edges
+[`examples/dart/lib`](examples/dart/lib) is the same four rules with the edges
 handled — malformed input, an unknown method, an error inside one handler not
 ending the plugin. Dart is here because the editor is written in it, so
 `dart compile exe` was the shortest way to have a working example. It is not a
@@ -134,6 +134,14 @@ manifest, same permissions, same behaviour — so the two can be read against
 each other. **Copy one.** A plugin declares one `runtime` and one entrypoint;
 a directory holding all three is three plugins wearing one manifest.
 
+### Why the API module lives inside an example
+
+Because it ships with your plugin. `lib/marktext-plus.lua` is not a dependency
+you point at — it is a file you copy along with the rest, and then own. Copying
+`examples/lua` wholesale gives you a working plugin including the API; there is
+no separate place to fetch it from, and nothing to keep in step with a version
+number.
+
 ### What the API module is
 
 For a script, it is ordinary Lua or JavaScript that **ships with your plugin**.
@@ -143,7 +151,7 @@ action, so a plugin reads as `sdk.show(text, title)` rather than as a table
 literal whose spelling nothing checks. You can edit it, or not use it at all —
 returning the plain table works exactly as well.
 
-For `packages/dart` it is a real library, compiled into your executable, and it
+For `examples/dart` it is a real library, compiled into your executable, and it
 carries something a script does not need: the JSON-RPC loop, the launch check
 and the shutdown. A process plugin is on the other side of a pipe.
 
@@ -185,7 +193,7 @@ installing it — **Plugins → Install from ZIP**. Two things can be checked
 sooner:
 
 ```
-node tool/run-js-plugin.mjs packages/js      # or your own plugin directory
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
 ```
 
 runs a JavaScript plugin the way the editor does — the same injected globals,
@@ -195,7 +203,7 @@ expects. The editor uses QuickJS, which only exists inside a built
 application; this stands in for it.
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -444,7 +452,7 @@ the editor's.
 
 The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The
-[`packages/dart`](packages/dart) library in this repository implements that protocol for plugins
+[`examples/dart`](examples/dart) library in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
 
 ### You may not ship source that needs a toolchain to run

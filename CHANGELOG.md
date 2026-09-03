@@ -53,8 +53,10 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   plugin per runtime, named after the `runtime` value each one declares. The
   only example before was Dart — the runtime an author should reach for last —
   and it sat at the repository root rather than with the others.
-- One directory per language under `packages/`, each a complete plugin:
-  `packages/lua`, `packages/js`, `packages/dart`. Named after the language
+- One directory per language under `examples/`, each a complete plugin you copy
+  wholesale — including its API module, which ships with your plugin rather
+  than being fetched from anywhere:
+  `examples/lua`, `examples/js`, `examples/dart`. Named after the language
   because that is what an author chooses; `runtime` in the manifest still names
   how a plugin runs, and the Dart one is a `process` plugin. Before this
   the Dart library sat at the repository root holding a library and an example

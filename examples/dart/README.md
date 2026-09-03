@@ -5,6 +5,14 @@ executable. **Reach for this last**: it needs a toolchain, it has to be built
 once per platform you support, and it runs as a separate process. A script does
 not.
 
+**Dart is not required.** The editor starts a program and speaks JSON-RPC to it
+over stdin and stdout; it never learns what produced the program. Go, Rust,
+C++, C#, a statically linked Python — anything that compiles to an executable
+works, and the whole contract is four rules, written out in the main
+[README](../../README.md#what-is-in-this-repository). This example is in Dart
+because the editor is, so `dart compile exe` was the shortest way to have a
+working one.
+
 ## Build
 
 ```
@@ -26,6 +34,15 @@ Repeat on each platform you want to support, into the paths the manifest names:
 | Windows arm64 | `bin\windows-arm64\plugin.exe` |
 
 A platform with no build there is named to the reader rather than guessed at.
+
+## Check it before you ship it
+
+```
+echo | ./bin/linux/plugin
+```
+
+should print what it is and exit 1: nothing gave it a launch token, so the
+editor did not start it.
 
 ## Note on `manifest.json`
 

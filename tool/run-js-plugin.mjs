@@ -1,11 +1,11 @@
 // Runs a JavaScript plugin the way the editor does, without the editor.
 //
-//     node tool/run-js-plugin.mjs packages/js
+//     node tool/run-js-plugin.mjs examples/js
 //
 // The editor interprets a JS plugin with QuickJS, which only exists inside a
 // built application — so this stands in: the same injected globals, the same
 // require that reaches only inside the plugin directory, and the same two
-// entry points. It is how the example in packages/js is checked, and it works
+// entry points. It is how the example in examples/js is checked, and it works
 // on any plugin of your own.
 import { readFileSync } from 'node:fs';
 import { join, sep } from 'node:path';

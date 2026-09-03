@@ -41,7 +41,7 @@ LICENSE
 examples/lua/       manifest.json + plugin.lua      ← 从这里开始
 examples/js/        manifest.json + plugin.js       ← 或者这里
 examples/process/   manifest.json + plugin.dart     ← 只有脚本不够用时
-packages/dart/      Dart 辅助库，给编译型插件用
+examples/dart/      Dart 辅助库，给编译型插件用
 schema/             manifest.schema.json
 ```
 
@@ -225,7 +225,7 @@ end
 
 ## 编译型插件（`runtime: "process"`）
 
-可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`packages/dart`](../../packages/dart) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
+可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`examples/dart`](../../examples/dart) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
 
 **为什么是进程，而不是编辑器加载的库。** Lua 和 JS 插件本来就在编辑器进程里、同一个线程上跑——那是常规情况，之所以安全是因为它们是被解释执行的：脚本出错抛出的是编辑器能接住的异常。原生代码没有这道边界。线程共享地址空间，所以一个 `.so` 里任何位置的段错误、栈溢出或 `abort()`，都会带走编辑器和用户未保存的文档，而且无从上报；死循环会冻结窗口且无法打断；卸载也不可靠，"禁用插件"其实并没有真的停掉它。独立进程把这三样都拿回来了——它可以崩、可以超时被杀，编辑器活着并且说得清是哪个插件干的。
 
