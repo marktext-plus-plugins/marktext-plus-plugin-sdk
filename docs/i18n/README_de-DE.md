@@ -265,10 +265,13 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | schickt Ihren Prompt an das Modell, das die Lesenden eingerichtet haben | ruft `on_result(ctx, reply)` auf |
 | `{ show = "…", title = "…" }` | zeigt eine Antwort in einem kleinen Fenster, mit Kopierschaltfläche | endet; nichts wird geschrieben |
 | `{ panel = "…", title = "…" }` | zeigt sie in einem Bereich neben dem Dokument | endet; nichts wird geschrieben |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | füllt einen der Bereiche um das Dokument | endet; nichts wird geschrieben |
 | `{ notify = "…" }` | sagt den Lesenden eine Zeile | endet |
 | `{ diff = { original = "…", result = "…" } }` | zeigt beide Texte nebeneinander | endet; nichts wird geschrieben |
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
 | irgendetwas anderes | nichts | endet |
+
+**Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist das nach außen gegeben. Das Dokument behält die erste Zelle eines Zwei-mal-zwei-Rasters, die anderen drei dürfen Sie füllen — `right` daneben, `bottom` darunter, `corner` rechts unten. **Eine Zelle, um die niemand gebeten hat, wird nicht gezeichnet**, nur `corner` zu füllen hinterlässt also keine zwei leeren Streifen. Ein Platzname, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der irgendwo auftaucht, worum Sie nicht gebeten haben, und für den es keine Erklärung gibt, ist schlechter, als es gesagt zu bekommen.
 
 **`show` oder `panel`.** Ein paar Zeilen sind eine Antwort: ein kleines Fenster ist richtig, ein Bereich dafür ist mehr Möbel als Inhalt. Ein dokumentgroßes Ergebnis ist etwas, das die Lesenden gegen das halten, was auf dem Bildschirm steht, und ein Fenster über dem Bildschirm ist der eine Ort, an den es nicht kann.
 
@@ -289,6 +292,21 @@ Nur dies. Kein `os`, kein `package`, kein `dofile`, kein `loadfile`, kein Dateis
 | `ctx.selection` | der markierte Text, `""` wenn nichts markiert ist |
 | `ctx.document` | das ganze Dokument |
 | `ctx.answer` | was die Lesenden beim letzten Fragen eingegeben haben, sonst nil/undefined |
+
+### Was dieses Lua nicht kann
+
+Der Interpreter ist ein Lua in reinem Dart — genau deshalb braucht ein Skript-Plug-in nichts Installiertes — und er ist nicht vollständig. Diese vier scheitern alle **stillschweigend**, und das ist der teure Teil: ein Muster, das nichts findet, sieht genauso aus wie ein Dokument, in dem nichts steht.
+
+| Statt | Nehmen Sie | Weil |
+|---|---|---|
+| `#someString` | `string.len(s)` | wirft `length error`. `#` auf einer *Tabelle* funktioniert, die beiden lassen sich also nicht am Gefühl unterscheiden |
+| `s:match("%S")`, `%s` | Zeichen vergleichen: `s:sub(i, i) == " "` | die Klassen finden nichts, also sieht jede Zeile leer aus |
+| `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` und `s:sub` | gibt überhaupt nichts zurück |
+| `s:gmatch("[^\n]*")` | dasselbe | kommt über eine leere Fundstelle nie hinaus |
+
+Die Testsuite des Editors hält diese vier fest, wird der Interpreter also ersetzt, wird diese Tabelle korrigiert statt weiter in die Irre zu führen.
+
+Die JavaScript-Laufzeit ist QuickJS und hat keine vergleichbaren Lücken, die aufzuzählen wären.
 
 ## Berechtigungen
 
