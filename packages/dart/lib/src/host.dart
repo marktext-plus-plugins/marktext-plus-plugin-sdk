@@ -4,8 +4,17 @@ import 'dart:io';
 
 import 'protocol.dart';
 
-/// The argument MarkText Plus passes to every compiled plugin it starts.
-const hostHandshake = '--marktext-plus-plugin-host';
+/// The environment variable MarkText Plus hands a plugin its launch token in.
+///
+/// The token is generated for one launch of one plugin, so it cannot be typed
+/// by anyone who was not given it — unlike the fixed argument this replaced,
+/// which anybody could pass. It travels in the environment rather than in
+/// argv because argv is readable by anything that can run `ps`.
+///
+/// **This does not stop the executable from being run.** No program can stop a
+/// file on the reader's own disk from being executed. What it makes
+/// unforgeable is the answer to "did the editor start me".
+const launchTokenVariable = 'MARKTEXT_PLUS_PLUGIN_TOKEN';
 
 /// What a plugin does with one request.
 ///
@@ -36,14 +45,17 @@ Future<int> serve(
   IOSink? output,
   IOSink? diagnostics,
   String? name,
+  Map<String, String>? environment,
 }) async {
   final out = output ?? stdout;
   final err = diagnostics ?? stderr;
 
-  if (!arguments.contains(hostHandshake)) {
+  final token = (environment ?? Platform.environment)[launchTokenVariable];
+  if (token == null || token.isEmpty) {
     err.writeln(
-      '${name ?? 'This program'} is a MarkText Plus plugin. Install it in the '
-      'editor and use it from there; it does nothing on its own.',
+      '${name ?? 'This program'} is a MarkText Plus plugin. It is started by '
+      'the editor and does nothing on its own — install it and use it from '
+      'there.',
     );
     return 1;
   }

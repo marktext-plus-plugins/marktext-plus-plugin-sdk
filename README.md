@@ -353,11 +353,23 @@ subcommand that produces a C-callable `.so` or `.dll`.)
   dart compile exe plugin.dart -o bin/linux/plugin
   ```
 
-- **Say what you are when someone runs you directly.** Your executable sits in
-  a folder the reader can open, so sooner or later one gets double-clicked, and
-  a plugin that just waits on stdin looks like a program that has hung. The
-  editor passes `--marktext-plus-plugin-host` to everything it starts; without
-  it, `serve()` prints a line saying what this is and exits 1.
+- **Refuse to run unless the editor started you.** The editor generates a
+  token for each launch and hands it over in the `MARKTEXT_PLUS_PLUGIN_TOKEN`
+  environment variable; without it, `serve()` prints a line saying what this is
+  and exits 1. A token made for one launch cannot be typed by someone who was
+  not given it, and it travels in the environment rather than in argv, which
+  anything that can run `ps` may read.
+
+  **What this does and does not do.** No program can stop a file on the
+  reader's own disk from being executed — double-clicking your executable will
+  always start a process. What the token makes unforgeable is your answer to
+  "did the editor start me", so the process starts, says what it is, and ends,
+  instead of sitting on stdin looking like a program that has hung. A plugin
+  that skips the check is a plugin nobody protected; the check is the SDK's,
+  which is why it is in `serve()` rather than in this paragraph.
+
+  Script plugins get this for nothing: a `.lua` or `.js` file is interpreted by
+  the editor, so double-clicking it opens a text editor at worst.
 
 - **Exit when stdin reaches end of file.** That is how you are told to shut
   down, and it is what happens on its own if the editor dies — `serve()`

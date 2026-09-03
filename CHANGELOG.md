@@ -56,6 +56,11 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
 - The Dart helper library moved to `packages/dart`. It was `dart/`, which held
   a library and an example at once and read as though Dart were the default.
 
+- A per-launch token in `MARKTEXT_PLUS_PLUGIN_TOKEN`, replacing the fixed
+  `--marktext-plus-plugin-host` argument. The old one could be typed by anyone
+  wanting to run a plugin as though the editor had; this one cannot, and it is
+  not in argv where `ps` would show it. `serve()` exits 1 without it.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
