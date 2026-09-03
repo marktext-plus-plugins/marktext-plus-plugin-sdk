@@ -28,6 +28,13 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   reader; an unknown system or architecture is refused at install time rather
   than silently skipped.
 
+- `serve()`: the request loop, the handshake and the shutdown, so a plugin is
+  its handlers and nothing else. Both of the things an author previously had to
+  remember produce a program that looks hung rather than one that reports an
+  error — a double-clicked executable waiting on stdin, and a plugin that
+  outlives the editor because it ignored end of file — so neither is left to be
+  remembered.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the

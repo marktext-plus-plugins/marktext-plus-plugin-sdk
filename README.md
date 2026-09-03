@@ -252,8 +252,48 @@ object per line, on stdin/stdout. Responses echo the numeric request `id`. The
 [`dart/`](dart) package in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
 
+**Why a process and not a library the editor loads.** Lua and JS plugins
+already run inside the editor, on its own thread — that is the normal case, and
+it is safe because both are interpreted: a bad script raises an error the
+editor catches. Native code has no such boundary. A thread shares the address
+space, so a segfault, a stack overflow or an `abort()` anywhere in a loaded
+`.so` takes the editor down with the reader's unsaved document and no way to
+report what happened; a loop with no exit freezes the window with no way to
+interrupt it; and unloading is unreliable, so disabling a plugin would not
+actually stop it. A separate process gives all three back — it can crash, hang
+or be killed on a timeout, and the editor survives and says which plugin did
+it. (For Dart specifically there is also no choice to make: `dart compile` has
+`exe`, `aot-snapshot`, `js`, `wasm` and the snapshot formats. There is no
+subcommand that produces a C-callable `.so` or `.dll`.)
+
+- **Use `serve()` and both of the next two points are already handled.** The
+  whole of a compiled plugin:
+
+  ```dart
+  import 'dart:io';
+  import 'package:marktext_plus_plugin_sdk/marktext_plus_plugin_sdk.dart';
+
+  Future<void> main(List<String> args) async {
+    exit(await serve(args, {
+      'shout': (request) =>
+          (request.params['text'] as String? ?? '').toUpperCase(),
+    }, name: 'plugin'));
+  }
+  ```
+
+  ```
+  dart compile exe example/plugin.dart -o bin/linux-x64/plugin
+  ```
+
+- **Say what you are when someone runs you directly.** Your executable sits in
+  a folder the reader can open, so sooner or later one gets double-clicked, and
+  a plugin that just waits on stdin looks like a program that has hung. The
+  editor passes `--marktext-plus-plugin-host` to everything it starts; without
+  it, `serve()` prints a line saying what this is and exits 1.
+
 - **Exit when stdin reaches end of file.** That is how you are told to shut
-  down, and it is what happens on its own if the editor dies. The editor also
+  down, and it is what happens on its own if the editor dies — `serve()`
+  returns when that happens. The editor also
   writes down the processes it started and kills any it finds still running the
   next time it starts — but only ones it started. Processes *you* spawn are
   yours to clean up.

@@ -1,0 +1,14 @@
+{
+  "roots": [
+    "marktext_plus_plugin_sdk"
+  ],
+  "packages": [
+    {
+      "name": "marktext_plus_plugin_sdk",
+      "version": "0.1.0",
+      "dependencies": [],
+      "devDependencies": []
+    }
+  ],
+  "configVersion": 1
+}
