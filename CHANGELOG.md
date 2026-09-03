@@ -20,8 +20,13 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   settings page.
 - `locales` and `defaultLocale`: a plugin ships translations for whichever
   languages its author wants.
-- `entrypoints`: one executable per platform for `runtime: "process"`, keyed
-  `os-arch`. A platform with no build is named to the reader.
+- `entrypoints`: a compiled plugin's executables for `runtime: "process"`, by
+  operating system and then, only where it matters, by architecture. A single
+  path covers every architecture of a system — a macOS universal binary is one
+  file holding both — and a system may pair a shared `default` with a build
+  specialised for one architecture. A platform with no build is named to the
+  reader; an unknown system or architecture is refused at install time rather
+  than silently skipped.
 
 ### Changed
 

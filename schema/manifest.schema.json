@@ -3,43 +3,172 @@
   "title": "MarkText Plus plugin manifest",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "name", "version"],
+  "required": [
+    "id",
+    "name",
+    "version"
+  ],
   "properties": {
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$",
       "description": "Reverse-domain id. Also the name of the plugin's own directory."
     },
-    "name": {"type": "string", "minLength": 1},
-    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "minAppVersion": {
       "type": "string",
       "description": "Oldest MarkText Plus this plugin works with."
     },
-
     "runtime": {
-      "enum": ["data", "lua", "js", "process"],
+      "enum": [
+        "data",
+        "lua",
+        "js",
+        "process"
+      ],
       "default": "data",
       "description": "How the plugin runs. 'lua' and 'js' run inside the editor and need no build; 'process' is a compiled executable per platform; 'data' has no code."
     },
     "entrypoint": {
       "type": "string",
       "minLength": 1,
-      "not": {"pattern": "(?i)\\.dart$"},
+      "not": {
+        "pattern": "(?i)\\.dart$"
+      },
       "description": "The script, for runtime 'lua' or 'js'. Dart source is rejected: compile it and use runtime 'process' instead."
     },
     "entrypoints": {
       "type": "object",
       "minProperties": 1,
-      "propertyNames": {"pattern": "^(windows|macos|linux)-(x64|arm64)$"},
-      "additionalProperties": {
-        "type": "string",
-        "minLength": 1,
-        "not": {"pattern": "(?i)\\.dart$"}
-      },
-      "description": "Required for runtime 'process': one executable per platform built for, keyed os-arch. A platform absent here is reported to the reader rather than guessed at."
+      "additionalProperties": false,
+      "description": "Required for runtime 'process'. Keyed by operating system. A value is either one path used on every architecture — a macOS universal binary, say — or a table of architectures with an optional shared 'default'. A platform with no executable is reported to the reader rather than guessed at.",
+      "properties": {
+        "windows": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "pattern": "(?i)\\.dart$"
+              }
+            },
+            {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": false,
+              "properties": {
+                "default": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "x64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "arm64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "macos": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "pattern": "(?i)\\.dart$"
+              }
+            },
+            {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": false,
+              "properties": {
+                "default": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "x64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "arm64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "linux": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "pattern": "(?i)\\.dart$"
+              }
+            },
+            {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": false,
+              "properties": {
+                "default": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "x64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                },
+                "arm64": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": {
+                    "pattern": "(?i)\\.dart$"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
     },
-
     "permissions": {
       "type": "array",
       "uniqueItems": true,
@@ -69,18 +198,28 @@
     "capabilities": {
       "type": "array",
       "uniqueItems": true,
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
     },
-
     "commands": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title"],
+        "required": [
+          "id",
+          "title"
+        ],
         "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1}
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -89,10 +228,20 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "location"],
+        "required": [
+          "id",
+          "title",
+          "location"
+        ],
         "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1},
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
           "location": {
             "type": "string",
             "minLength": 1,
@@ -106,11 +255,24 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "icon"],
+        "required": [
+          "id",
+          "title",
+          "icon"
+        ],
         "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1},
-          "icon": {"type": "string", "minLength": 1}
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "icon": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -119,56 +281,109 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title"],
+        "required": [
+          "id",
+          "title"
+        ],
         "properties": {
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1}
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
-
     "settings": {
       "type": "array",
       "description": "Fields the editor draws on the plugin's own settings page. The plugin supplies data; it never supplies widgets.",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["key", "title"],
+        "required": [
+          "key",
+          "title"
+        ],
         "properties": {
-          "key": {"type": "string", "minLength": 1},
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
           "title": {
             "type": "string",
             "minLength": 1,
             "description": "Shown as-is, or looked up in 'locales' when it is a translation key."
           },
           "type": {
-            "enum": ["text", "password", "number", "boolean"],
+            "enum": [
+              "text",
+              "password",
+              "number",
+              "boolean"
+            ],
             "default": "text"
           },
-          "default": {"type": "string"}
+          "default": {
+            "type": "string"
+          }
         }
       }
     },
-
-    "defaultLocale": {"type": "string", "default": "en"},
+    "defaultLocale": {
+      "type": "string",
+      "default": "en"
+    },
     "locales": {
       "type": "object",
       "description": "The plugin's own strings, per language. Ship as many as you like; the editor resolves region, then language, then defaultLocale.",
       "additionalProperties": {
         "type": "object",
-        "additionalProperties": {"type": "string"}
+        "additionalProperties": {
+          "type": "string"
+        }
       }
     }
   },
-
   "allOf": [
     {
-      "if": {"properties": {"runtime": {"const": "process"}}, "required": ["runtime"]},
-      "then": {"required": ["entrypoints"]}
+      "if": {
+        "properties": {
+          "runtime": {
+            "const": "process"
+          }
+        },
+        "required": [
+          "runtime"
+        ]
+      },
+      "then": {
+        "required": [
+          "entrypoints"
+        ]
+      }
     },
     {
-      "if": {"properties": {"runtime": {"enum": ["lua", "js"]}}, "required": ["runtime"]},
-      "then": {"required": ["entrypoint"]}
+      "if": {
+        "properties": {
+          "runtime": {
+            "enum": [
+              "lua",
+              "js"
+            ]
+          }
+        },
+        "required": [
+          "runtime"
+        ]
+      },
+      "then": {
+        "required": [
+          "entrypoint"
+        ]
+      }
     }
   ]
 }

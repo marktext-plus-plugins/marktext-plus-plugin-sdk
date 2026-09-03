@@ -59,25 +59,49 @@ running anything. See [`schema/manifest.schema.json`](schema/manifest.schema.jso
 
 ### Per-platform executables
 
-A `process` plugin does not use `entrypoint`. It names one executable for each
-platform it was built for, keyed `os-arch`:
+A `process` plugin does not use `entrypoint`. It names its executables by
+operating system, and by architecture underneath where that matters:
 
 ```json
 {
   "runtime": "process",
   "entrypoints": {
-    "linux-x64":   "bin/linux-x64/plugin",
-    "linux-arm64": "bin/linux-arm64/plugin",
-    "windows-x64": "bin\\windows-x64\\plugin.exe",
-    "macos-arm64": "bin/macos-arm64/plugin"
+    "macos": "bin/macos/plugin",
+    "windows": {
+      "x64":   "bin\\windows-x64\\plugin.exe",
+      "arm64": "bin\\windows-arm64\\plugin.exe"
+    },
+    "linux": {
+      "default": "bin/linux/plugin",
+      "arm64":   "bin/linux-arm64/plugin"
+    }
   }
 }
 ```
 
-The `os` is `windows`, `macos` or `linux`; the `arch` is `x64` or `arm64`. A
-platform you did not build for is named to the reader — "no build for
-`linux-arm64`; it ships `windows-x64`, `macos-arm64`" — rather than guessed at.
-Declaring `runtime: "process"` with no `entrypoints` is rejected.
+The system is the part you always have to answer — a Windows build is a
+different file from a Linux one. The architecture often is not, so it is
+optional:
+
+- **One path for the whole system.** `macos` above is a universal binary: one
+  file holding both architectures, which is how macOS builds normally ship.
+  Writing the same path under `x64` and `arm64` to say so would be worse.
+- **A table of architectures.** `windows` above ships a separate build for each
+  and supports nothing else.
+- **A shared `default` plus a specialisation.** `linux` above runs
+  `bin/linux/plugin` everywhere except arm64, which gets its own. The
+  specialised build wins.
+
+Systems are `windows`, `macos` and `linux`; architectures are `x64` and
+`arm64`. Anything else is refused when the plugin is installed rather than
+skipped — a misspelt `windwos` would otherwise turn into "this plugin does not
+support your platform" at the moment the reader clicks, with nothing to explain
+it.
+
+A platform you did not build for is named to the reader — "no build for
+`linux-arm64`; it ships `macos-x64`, `macos-arm64`, `windows-x64`" — rather
+than guessed at. Declaring `runtime: "process"` with no `entrypoints`, or
+naming a system with nothing under it, is rejected.
 
 ## How a script plugin is called
 
@@ -102,7 +126,7 @@ function on_command(ctx)
 end
 
 function on_result(ctx, result)
-  return { diff = true, original = ctx.selection, result = result }
+  return { diff = { original = ctx.selection, result = result } }
 end
 ```
 
@@ -119,7 +143,7 @@ function on_command(ctx) {
 }
 
 function on_result(ctx, result) {
-  return { diff: true, original: ctx.selection, result: result };
+  return { diff: { original: ctx.selection, result: result } };
 }
 ```
 
@@ -130,7 +154,7 @@ function on_result(ctx, result) {
 | `{ ask = "…", default = "…" }` | asks the reader | calls `on_command` again with `ctx.answer` set |
 | `{ ai = "…" }` | sends your prompt to the model the reader configured | calls `on_result(ctx, reply)` |
 | `{ notify = "…" }` | tells the reader | stops |
-| `{ diff = true, original = "…", result = "…" }` | shows both side by side | stops; nothing is written |
+| `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
 | anything else | nothing | stops |
 
