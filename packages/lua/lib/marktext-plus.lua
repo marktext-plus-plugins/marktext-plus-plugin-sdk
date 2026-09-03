@@ -1,71 +1,68 @@
----@meta
---- Type definitions for a MarkText Plus Lua plugin.
+--- The MarkText Plus API, as a module you require.
 ---
---- **Not shipped with your plugin, and not required by it.** The editor
---- injects `storage`, `t`, `require` and the context; this file is here so
---- your editor completes those names and tells you when you have misspelled
---- one. Nothing in it runs.
+--- The editor injects `storage`, `t` and `require` as globals before your
+--- plugin is read. This wraps them in one named thing, and adds a constructor
+--- for each action the editor understands, so a plugin reads as calls rather
+--- than as table literals whose spelling nothing checks.
 ---
---- The sandbox leaves out `os`, `io`, `package`, `dofile` and `loadfile`: a
---- plugin gets what it declared in its manifest and nothing else.
----
---- With the Lua Language Server, keep it anywhere in the workspace, or add it
---- explicitly:
----
----     ---@module 'marktext-plus'
----
---- It is a definitions file: nothing in it runs.
+--- Ships with your plugin: it is ordinary Lua and `require` loads it from your
+--- own directory.
 
----@class PluginContext
----@field command string   The `id` of the menu entry or command that fired.
----@field selection string The selected text; empty when nothing is selected.
----@field document string  The whole document.
----@field answer string|nil What the reader typed last time you asked.
-
---- An action is a plain table. Return exactly one shape:
----
----   { ask = "...", default = "...", choices = { "..." } }  ask the reader
----   { ai = "..." }                                          call the model
----   { show = "...", title = "..." }                         a small window
----   { panel = "...", title = "..." }                        a panel beside the text
----   { notify = "..." }                                      one line to the reader
----   { diff = { original = "...", result = "..." } }         side by side
----   { replace = "..." }                                     replace the selection
----
----@alias PluginAction table
+local M = {}
 
 --- Your own settings, in your own directory. Strings only.
 --- Needs the `storage.local` permission.
----@class Storage
----@field get fun(key: string): string|nil
----@field set fun(key: string, value: string|nil)
-storage = {}
+M.storage = storage
 
 --- Your own string in the reader's language, from `locales` in the manifest.
 --- An unknown key comes back as itself.
 ---@param key string
 ---@return string
-function t(key) end
+function M.t(key) return t(key) end
 
---- One of your own files, by module name.
----
---- `require("lib.text")` loads `lib/text.lua` from your plugin's directory,
---- and loading it twice returns the same value. A module returns its table.
----
---- A name, not a path: it resolves inside your plugin's directory and nowhere
---- else, so a plugin is free to be several files without being able to read
---- the rest of the disk.
----@param name string
----@return any
-function require(name) end
+--- Ask the reader something. The command runs again with `ctx.answer` set.
+---@param label string
+---@param options table|nil  { default = string, choices = { string } }
+function M.ask(label, options)
+  options = options or {}
+  return {
+    ask = label,
+    default = options.default,
+    choices = options.choices,
+  }
+end
 
---- Called when one of your menu entries or commands fires.
----@param ctx PluginContext
----@return PluginAction
-function on_command(ctx) end
+--- Send a prompt to the model the reader configured. Needs `ai.chat`.
+--- The reply arrives in `on_result`. Your API key never reaches this script.
+---@param prompt string
+function M.ai(prompt) return { ai = prompt } end
 
---- Called with the model's reply, after you returned an `ai` action.
----@param ctx PluginContext
+--- One answer, in a small window with a copy button.
+---@param text string
+---@param title string|nil
+function M.show(text, title) return { show = text, title = title } end
+
+--- One answer, in a panel beside the document. For document-sized results.
+---@param text string
+---@param title string|nil
+function M.panel(text, title) return { panel = text, title = title } end
+
+--- Say one line to the reader and stop. Needs `ui.notifications`.
+---@param message string
+function M.notify(message) return { notify = message } end
+
+--- Show two texts side by side. Nothing is written to the document.
+---@param original string
 ---@param result string
----@return PluginAction
-function on_result(ctx, result) end
+function M.diff(original, result)
+  return { diff = { original = original, result = result } }
+end
+
+--- Replace the selection. Needs `document.write`.
+---@param text string
+function M.replace(text) return { replace = text } end
+
+--- Do nothing.
+function M.nothing() return {} end
+
+return M

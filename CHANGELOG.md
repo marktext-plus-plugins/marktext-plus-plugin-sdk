@@ -60,21 +60,26 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   the Dart library sat at the repository root holding a library and an example
   at once, while the scripts were `examples/*-plugin` — three runtimes, three
   namings, and the one to reach for last in the most prominent place.
-- Each entrypoint references its type definitions and uses every capability the
-  editor offers once, so the example is the documentation. Definitions sit in
-  `lib/` beside the plugin's own modules and are not shipped with a plugin.
+- All three entrypoints now load their API and call it — `require` for the
+  scripts, `import` for the compiled one — and use every capability the editor
+  offers once, so the example is the documentation. The scripts previously had
+  an editor directive in a comment where the compiled one had a real import,
+  which read as three different things rather than one.
 
 - A per-launch token in `MARKTEXT_PLUS_PLUGIN_TOKEN`, replacing the fixed
   `--marktext-plus-plugin-host` argument. The old one could be typed by anyone
   wanting to run a plugin as though the editor had; this one cannot, and it is
   not in argv where `ps` would show it. `serve()` exits 1 without it.
 
-- `packages/lua` and `packages/js`: type definitions, so an author writing a
-  script gets completion for `storage`, `t` and the context, and hears about a
-  misspelling from their editor rather than from a reader clicking a menu
-  entry. Nothing in them runs and neither is shipped with a plugin. The
-  editor's own test suite checks them against what the runtimes actually
-  inject, in both directions.
+- An API module for each script runtime, `lib/marktext-plus.lua` and
+  `lib/marktext-plus.js`, loaded with `require` and shipped with the plugin. It
+  wraps the injected `storage` and `t` under one name and adds a constructor
+  per action, so a plugin reads as `sdk.show(text, title)` rather than as a
+  table literal whose spelling nothing checks. Using it is optional: returning
+  the plain table works exactly as well.
+- The editor's own test suite checks both modules against what the runtimes
+  read, and against each other — an author choosing a language must not be
+  choosing what the editor will let them say.
 
 - `require`, in both script runtimes: a plugin may be several files. It
   resolves inside the plugin's own directory and nowhere else, so splitting a

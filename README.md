@@ -51,15 +51,12 @@ One directory per language, each a complete plugin you can copy:
 packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
-  lib/prompt.lua          a second file, loaded with require("lib.prompt")
-  lib/marktext-plus.lua   type definitions, for your editor
+  lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
 packages/js/        ← or here
   manifest.json
   plugin.js
-  lib/prompt.js           loaded with require("lib/prompt")
-  lib/marktext-plus.d.ts  type definitions, for your editor
-  jsconfig.json           points your editor at them
+  lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
 packages/dart/      ← only if a script will not do
   manifest.json
@@ -74,38 +71,49 @@ Named after the **language**, because that is what you choose. `runtime` in the
 manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
 `process` plugin: Dart is simply the language its example is written in.
 
+All three entrypoints do the same thing: load the API and call it.
+
+```lua
+local sdk = require("lib.marktext-plus")
+return sdk.ask(sdk.t("ask.language"), { default = ..., choices = ... })
+```
+```js
+const sdk = require("lib/marktext-plus");
+return sdk.ask(sdk.t("ask.language"), { default: ..., choices: [...] });
+```
+```dart
+import 'package:marktext_plus_plugin_sdk/marktext_plus_plugin_sdk.dart';
+exit(await serve(args, { 'summarise': (request) => ... }));
+```
+
 `lua` and `js` are deliberately the *same* plugin written twice — same
 manifest, same permissions, same behaviour — so the two can be read against
 each other. **Copy one.** A plugin declares one `runtime` and one entrypoint;
 a directory holding all three is three plugins wearing one manifest.
 
-### What is in `lib/`, and what ships
+### What the API module is
 
-Two kinds of file, and the difference matters:
+For a script, it is ordinary Lua or JavaScript that **ships with your plugin**.
+The editor injects `storage`, `t` and `require` as globals before your file is
+read; the module wraps them under one name and adds a constructor for each
+action, so a plugin reads as `sdk.show(text, title)` rather than as a table
+literal whose spelling nothing checks. You can edit it, or not use it at all —
+returning the plain table works exactly as well.
 
-| | What it is | Ships with your plugin? |
-|---|---|---|
-| `lib/prompt.lua`, `lib/prompt.js` | **Your plugin's own code**, loaded with `require` | Yes. It is your plugin |
-| `lib/marktext-plus.lua`, `lib/marktext-plus.d.ts` | **Type definitions only.** Nothing in them runs. They are what makes your editor complete `storage.get` and tell you when you have typed `sotrage` | **No.** They describe the editor, not your plugin |
-| `packages/dart/lib/` | **A real library** your plugin imports: the JSON-RPC loop, the launch check, the shutdown | Compiled into your executable |
-
-A script plugin has nothing to import *from the SDK* at runtime: the editor
-injects `storage`, `t`, `require` and the context as globals before your file
-is read, so there is no transport to wrap. That is why the reference at the top
-of `plugin.lua` and `plugin.js` is an editor directive (`---@module`,
-`/// <reference>`) rather than a runtime import, while `plugin.dart` has a real
-`import` — a process plugin is on the other side of a pipe, and that pipe is
-what `packages/dart/lib` implements.
+For `packages/dart` it is a real library, compiled into your executable, and it
+carries something a script does not need: the JSON-RPC loop, the launch check
+and the shutdown. A process plugin is on the other side of a pipe.
 
 ## A plugin can be several files
 
-`require` loads one of **your own** files:
+`require` loads one of **your own** files — the API module above is loaded
+exactly this way, and anything else you put beside it works the same:
 
 ```lua
-local prompt = require("lib.prompt")   -- lib/prompt.lua, returns its table
+local helpers = require("lib.helpers")   -- lib/helpers.lua, returns its table
 ```
 ```js
-const prompt = require("lib/prompt");  // lib/prompt.js, sets module.exports
+const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 ```
 
 Loaded once however often it is required. The name is a name, not a path: it

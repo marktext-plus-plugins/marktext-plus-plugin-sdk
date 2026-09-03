@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "checkJs": true,
-    "noEmit": true,
-    "target": "ES2020"
-  },
-  "include": ["plugin.js", "lib/marktext-plus.d.ts"]
-}
