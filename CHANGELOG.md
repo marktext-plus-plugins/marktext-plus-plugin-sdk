@@ -107,6 +107,11 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   and capability is pinned by a test in the editor's own source: adding to
   those lists is free, removing or renaming one fails.
 
+- `tool/check-translations.mjs`: the translated READMEs are checked against the
+  English one for shape — same outline, same code blocks. Eleven copies of a
+  document that changes weekly drift by losing a section, not by rewording one,
+  and headings are translated so their text cannot be compared.
+
 ### Changed
 
 - The manifest schema now validates runtimes, per-platform entrypoints, the
