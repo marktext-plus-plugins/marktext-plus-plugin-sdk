@@ -1,0 +1,2 @@
+# Dart build state, per machine and not part of the SDK.
+.dart_tool/
