@@ -1,0 +1,63 @@
+{
+  "id": "com.example.summarise-process",
+  "name": "Summarise (compiled)",
+  "version": "0.1.0",
+  "minAppVersion": "1.6.1",
+  "repository": "https://github.com/marktext-plus-plugins/marktext-plus-plugin-sdk",
+  "runtime": "process",
+  "entrypoints": {
+    "linux": "bin/linux/plugin",
+    "macos": "bin/macos/plugin",
+    "windows": {
+      "x64": "bin\\windows-x64\\plugin.exe",
+      "arm64": "bin\\windows-arm64\\plugin.exe"
+    }
+  },
+  "permissions": [
+    "document.read",
+    "ai.chat",
+    "storage.local",
+    "ui.contextMenu",
+    "ui.settings",
+    "ui.notifications"
+  ],
+  "defaultLocale": "en",
+  "locales": {
+    "en": {
+      "menu.selection": "Summarise selection",
+      "menu.document": "Summarise document",
+      "ask.language": "Summarise in which language?",
+      "error.empty": "Select some text first",
+      "settings.language": "Default language"
+    },
+    "zh": {
+      "menu.selection": "总结选中内容",
+      "menu.document": "总结全文",
+      "ask.language": "用哪种语言总结？",
+      "error.empty": "请先选中一些文本",
+      "settings.language": "默认语言"
+    }
+  },
+  "settings": [
+    {
+      "key": "language",
+      "title": "settings.language",
+      "type": "text",
+      "default": "English"
+    }
+  ],
+  "menus": [
+    {
+      "id": "summarise.selection",
+      "title": "menu.selection",
+      "location": "editor.contextMenu",
+      "when": "selection"
+    },
+    {
+      "id": "summarise.document",
+      "title": "menu.document",
+      "location": "editor.contextMenu",
+      "when": "noSelection"
+    }
+  ]
+}

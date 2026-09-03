@@ -53,8 +53,13 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   plugin per runtime, named after the `runtime` value each one declares. The
   only example before was Dart — the runtime an author should reach for last —
   and it sat at the repository root rather than with the others.
-- The Dart helper library moved to `packages/dart`. It was `dart/`, which held
-  a library and an example at once and read as though Dart were the default.
+- One directory per runtime under `packages/`, each a complete plugin with its
+  own `sdk/`: `packages/lua`, `packages/js`, `packages/process`. Before this
+  the Dart library sat at the repository root holding a library and an example
+  at once, while the scripts were `examples/*-plugin` — three runtimes, three
+  namings, and the one to reach for last in the most prominent place.
+- Each entrypoint now references its `sdk/` and uses every capability the
+  editor offers once, so the example is the documentation.
 
 - A per-launch token in `MARKTEXT_PLUS_PLUGIN_TOKEN`, replacing the fixed
   `--marktext-plus-plugin-host` argument. The old one could be typed by anyone
@@ -67,6 +72,11 @@ JSON-RPC. That is now one of four, and no longer the one to reach for.
   entry. Nothing in them runs and neither is shipped with a plugin. The
   editor's own test suite checks them against what the runtimes actually
   inject, in both directions.
+
+- `require`, in both script runtimes: a plugin may be several files. It
+  resolves inside the plugin's own directory and nowhere else, so splitting a
+  large plugin up — or shipping a library someone else wrote alongside it —
+  costs no access to the rest of the disk.
 
 ### Changed
 

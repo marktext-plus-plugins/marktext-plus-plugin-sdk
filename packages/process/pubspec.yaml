@@ -1,4 +1,4 @@
-name: shout_process_plugin
+name: summarise_process_plugin
 description: A compiled MarkText Plus plugin, built with dart compile exe.
 version: 0.1.0
 publish_to: none
@@ -8,4 +8,4 @@ environment:
 
 dependencies:
   marktext_plus_plugin_sdk:
-    path: ../../packages/dart
+    path: ./sdk

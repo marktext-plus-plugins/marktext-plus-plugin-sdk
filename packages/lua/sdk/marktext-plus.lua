@@ -2,10 +2,12 @@
 --- Type definitions for a MarkText Plus Lua plugin.
 ---
 --- **Not shipped with your plugin, and not required by it.** The editor
---- injects `storage`, `t` and the context; there is nothing to `require` at
---- runtime — and a Lua plugin could not require it anyway, since the sandbox
---- has no `require`. This file exists so your editor can complete those names
---- and tell you when you have misspelled one.
+--- injects `storage`, `t`, `require` and the context; this file is here so
+--- your editor completes those names and tells you when you have misspelled
+--- one. Nothing in it runs.
+---
+--- The sandbox leaves out `os`, `io`, `package`, `dofile` and `loadfile`: a
+--- plugin gets what it declared in its manifest and nothing else.
 ---
 --- With the Lua Language Server, keep it anywhere in the workspace, or add it
 --- explicitly:
@@ -44,6 +46,18 @@ storage = {}
 ---@param key string
 ---@return string
 function t(key) end
+
+--- One of your own files, by module name.
+---
+--- `require("lib.text")` loads `lib/text.lua` from your plugin's directory,
+--- and loading it twice returns the same value. A module returns its table.
+---
+--- A name, not a path: it resolves inside your plugin's directory and nowhere
+--- else, so a plugin is free to be several files without being able to read
+--- the rest of the disk.
+---@param name string
+---@return any
+function require(name) end
 
 --- Called when one of your menu entries or commands fires.
 ---@param ctx PluginContext

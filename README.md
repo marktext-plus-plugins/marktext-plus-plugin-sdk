@@ -45,29 +45,70 @@ anywhere.
 
 ## What is in this repository
 
+One directory per runtime, each a complete plugin you can copy:
+
 ```
-examples/lua/       manifest.json + plugin.lua      ← start here
-examples/js/        manifest.json + plugin.js       ← or here
-examples/process/   manifest.json + plugin.dart     ← only if a script will not do
-packages/lua/       type definitions, for your editor
-packages/js/        type definitions, for your editor
-packages/dart/      a real library, needed to build a process plugin
-schema/             manifest.schema.json
+packages/lua/       ← start here
+  manifest.json
+  plugin.lua          the entrypoint
+  lib/prompt.lua      a second file, loaded with require("lib.prompt")
+  sdk/                type definitions, for your editor
+
+packages/js/        ← or here
+  manifest.json
+  plugin.js
+  lib/prompt.js       loaded with require("lib/prompt")
+  jsconfig.json       points your editor at sdk/
+  sdk/
+
+packages/process/   ← only if a script will not do
+  manifest.json
+  plugin.dart
+  pubspec.yaml
+  sdk/                a real library, imported and compiled in
+
+schema/manifest.schema.json
 ```
 
-`examples/` holds plugins you copy. `packages/` holds what a plugin uses — and
-the three are not the same kind of thing, which is worth saying plainly:
+`lua` and `js` are deliberately the *same* plugin written twice — same
+manifest, same permissions, same behaviour — so the two can be read against
+each other. **Copy one.** A plugin declares one `runtime` and one entrypoint;
+a directory holding all three is three plugins wearing one manifest.
 
-| | What it is | Do you ship it? |
+### What `sdk/` is, and whether you ship it
+
+| | What it is | Ships with your plugin? |
 |---|---|---|
-| `packages/lua`, `packages/js` | **Type definitions only.** Nothing in them runs. They exist so your editor completes `storage.get` and tells you when you have typed `sotrage` | **No.** Keep them beside your plugin while you write it |
-| `packages/dart` | **A real library** your plugin imports: the JSON-RPC loop, the launch check, the shutdown | Compiled into your executable |
+| `lua/sdk`, `js/sdk` | **Type definitions only.** Nothing in them runs. They are what makes your editor complete `storage.get` and tell you when you have typed `sotrage` | **No.** Keep them beside you while you write |
+| `process/sdk` | **A real library** your plugin imports: the JSON-RPC loop, the launch check, the shutdown | Compiled into your executable |
 
-A script plugin has nothing to import at runtime. The editor injects `storage`,
-`t` and the context as globals before your file is read, so there is no
-transport to wrap and no library to load — and a Lua plugin could not load one
-anyway, since the sandbox has no `require`. A process plugin is on the other
-side of a pipe, and that pipe is what `packages/dart` implements.
+A script plugin has nothing to import *from the SDK* at runtime: the editor
+injects `storage`, `t`, `require` and the context as globals before your file
+is read, so there is no transport to wrap. A process plugin is on the other
+side of a pipe, and that pipe is what `process/sdk` implements.
+
+That is why the reference at the top of `plugin.lua` and `plugin.js` is an
+editor directive (`---@module`, `/// <reference>`) rather than a runtime
+import, while `plugin.dart` has a real `import`.
+
+## A plugin can be several files
+
+`require` loads one of **your own** files:
+
+```lua
+local prompt = require("lib.prompt")   -- lib/prompt.lua, returns its table
+```
+```js
+const prompt = require("lib/prompt");  // lib/prompt.js, sets module.exports
+```
+
+Loaded once however often it is required. The name is a name, not a path: it
+resolves inside your plugin's directory and nowhere else, so splitting a large
+plugin up — or using a library someone else wrote and you shipped alongside —
+costs you no access to the rest of the disk. A name with a separator in it, a
+`..`, or a leading dot is refused before anything is read, and the resolved
+file is checked to be inside your directory afterwards as well, which is what
+catches a symbolic link pointing out.
 
 Each example directory is named after the `runtime` it declares, and each is a
 complete plugin: a manifest and the code, nothing else needed. `lua` and `js`

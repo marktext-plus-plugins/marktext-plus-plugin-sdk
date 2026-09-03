@@ -90,6 +90,18 @@ declare const storage: {
  */
 declare function t(key: string): string;
 
+/**
+ * One of your own files, by module name.
+ *
+ * `require("lib/text")` loads `lib/text.js` from your plugin's directory, and
+ * loading it twice returns the same exports. A module sets `module.exports`.
+ *
+ * A name, not a path: it resolves inside your plugin's directory and nowhere
+ * else, so a plugin is free to be several files without being able to read the
+ * rest of the disk.
+ */
+declare function require(name: string): any;
+
 /** Called when one of your menu entries or commands fires. */
 declare function on_command(ctx: PluginContext): PluginAction;
 
