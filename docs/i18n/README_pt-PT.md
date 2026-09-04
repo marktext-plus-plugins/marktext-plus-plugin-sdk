@@ -40,17 +40,17 @@ Um script, um manifesto e três ficheiros de documentação. **Nem sinal de Dart
 Um directório por linguagem, cada um uma extensão completa para copiar:
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ packages/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Têm o nome da **linguagem**, porque é isso que escolhe. O `runtime` no manifesto diz como corre — `lua`, `js`, `process` — e `packages/dart` é uma extensão `process`: Dart é apenas a linguagem em que o exemplo está escrito.
+Têm o nome da **linguagem**, porque é isso que escolhe. O `runtime` no manifesto diz como corre — `lua`, `js`, `process` — e `examples/dart` é uma extensão `process`: Dart é apenas a linguagem em que o exemplo está escrito.
 
 **Uma extensão `process` pode ser escrita em qualquer coisa que compile para um executável.** O editor arranca um programa e fala com ele em JSON-RPC por stdin e stdout; nunca fica a saber o que produziu esse programa. Go, Rust, C++, C#, um Python ligado estaticamente — servem todos, e nenhum precisa deste repositório para além do protocolo:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](../../packages/dart/lib) são as mesmas quatro regras com as arestas tratadas: entrada malformada, um método desconhecido, um erro dentro de um manipulador que não termina a extensão inteira. Dart está aqui porque o editor é escrito em Dart e `dart compile exe` era o caminho mais curto para um exemplo a funcionar. Não é um requisito nem uma recomendação: reescrever quatro regras na linguagem que já conhece é normalmente mais fácil do que juntar uma cadeia de ferramentas do Dart à sua compilação.
+[`examples/dart/lib`](../../examples/dart/lib) são as mesmas quatro regras com as arestas tratadas: entrada malformada, um método desconhecido, um erro dentro de um manipulador que não termina a extensão inteira. Dart está aqui porque o editor é escrito em Dart e `dart compile exe` era o caminho mais curto para um exemplo a funcionar. Não é um requisito nem uma recomendação: reescrever quatro regras na linguagem que já conhece é normalmente mais fácil do que juntar uma cadeia de ferramentas do Dart à sua compilação.
 
 Os três pontos de entrada fazem a mesma coisa: carregam a API e chamam-na.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Porque é que o módulo de API vive dentro de um exemplo
 
-Porque é distribuído com a sua extensão. `lib/marktext-plus.lua` não é uma dependência para a qual se aponta — é um ficheiro que copia com o resto e que a partir daí é seu. Copiar `packages/lua` por inteiro dá-lhe uma extensão a funcionar, API incluída; não há outro sítio de onde a ir buscar, nem número de versão a acompanhar.
+Porque é distribuído com a sua extensão. `lib/marktext-plus.lua` não é uma dependência para a qual se aponta — é um ficheiro que copia com o resto e que a partir daí é seu. Copiar `examples/lua` por inteiro dá-lhe uma extensão a funcionar, API incluída; não há outro sítio de onde a ir buscar, nem número de versão a acompanhar.
 
 ### O que é o módulo de API
 
 Para um script é Lua ou JavaScript vulgar, **distribuído com a sua extensão**. O editor injecta `storage`, `t` e `require` como variáveis globais antes de o seu ficheiro ser lido; o módulo junta-as sob um só nome e acrescenta um construtor por acção, de modo que uma extensão se lê como `sdk.show(text, title)` e não como uma tabela cuja ortografia ninguém verifica. Pode alterá-lo, ou não o usar de todo — devolver a tabela nua funciona exactamente da mesma maneira.
 
-Para `packages/dart` é uma biblioteca a sério, compilada para dentro do seu executável, e traz o que um script não precisa: o ciclo JSON-RPC, a verificação de arranque e o encerramento. Uma extensão em processo está do outro lado de um tubo.
+Para `examples/dart` é uma biblioteca a sério, compilada para dentro do seu executável, e traz o que um script não precisa: o ciclo JSON-RPC, a verificação de arranque e o encerramento. Uma extensão em processo está do outro lado de um tubo.
 
 ## Uma extensão pode ter vários ficheiros
 
@@ -137,10 +137,16 @@ Carregado uma só vez, por mais vezes que seja pedido. O nome é um nome, não u
 
 ## Experimentar uma extensão antes de a distribuir
 
-Uma extensão em Lua ou JavaScript é interpretada pelo editor, por isso a prova honesta é instalá-la — **Extensões → Instalar a partir de ZIP**. Uma compilada pode ser verificada mais cedo:
+Uma extensão em Lua ou JavaScript é interpretada pelo editor, por isso a prova honesta é instalá-la — **Extensões → Instalar a partir de ZIP**. Duas coisas podem ser verificadas mais cedo:
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+corre uma extensão de JavaScript como o editor a corre — as mesmas variáveis globais injectadas, o mesmo `require` que só alcança o directório da extensão, os mesmos dois pontos de entrada — e diz-lhe qual das suas respostas não tem a forma que o editor espera. O editor usa QuickJS, que só existe dentro de uma aplicação compilada; isto faz as vezes dele.
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -154,6 +160,7 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -259,13 +266,36 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | envia a sua instrução ao modelo que quem lê configurou | chama `on_result(ctx, reply)` |
 | `{ show = "…", title = "…" }` | mostra uma resposta numa janela pequena, com um botão para copiar | termina; nada é escrito |
 | `{ panel = "…", title = "…" }` | mostra-a num painel ao lado do documento | termina; nada é escrito |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | preenche um dos quadros à volta do documento | termina; nada é escrito |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | preenche um dos quadros à volta do documento | termina; nada é escrito |
 | `{ notify = "…" }` | diz uma linha a quem lê | termina |
 | `{ diff = { original = "…", result = "…" } }` | mostra os dois textos lado a lado | termina; nada é escrito |
 | `{ replace = "…" }` | substitui a selecção | termina |
 | qualquer outra coisa | nada | termina |
 
-**Os quadros.** O editor já divide um separador entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. O documento fica com a primeira célula de uma grelha dois por dois e você pode preencher as outras três — `right` ao lado, `bottom` por baixo, `corner` em baixo à direita. **Uma célula que ninguém pediu não é desenhada**, por isso preencher apenas `corner` não deixa duas faixas vazias. Um nome de lugar que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
+**Os quadros.** O editor já divide um separador entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. No máximo quatro células, e **as duas metades da vista dividida são duas delas** — foi daí que isto nasceu, por isso um documento em vista dividida já são duas células antes de você preencher o que quer que seja.
+
+A forma segue quantas células há, e é simétrica em cada passo:
+
+| Células | Disposição |
+|---|---|
+| uma | o documento tem o separador inteiro |
+| duas | lado a lado, metade cada |
+| três | uma metade dividida, a outra inteira |
+| quatro | em cima à esquerda, em cima à direita, em baixo à esquerda, em baixo à direita |
+
+Com três células e um documento que não está dividido, **você escolhe qual metade é dividida**: preencher `right` põe um quadro ao lado do documento, por isso a metade de cima divide-se e o outro quadro fica com a linha de baixo inteira; preencher apenas `bottom` e `corner` deixa ao documento a linha de cima inteira e divide a de baixo entre os dois. Quem lê pode depois mudá-lo a partir da barra de título do quadro — que metade está dividida é uma vista dos mesmos quadros, não uma decisão que você continua a tomar.
+
+Os separadores arrastam-se, como o que há entre código-fonte e pré-visualização.
+
+Os nomes `right`, `bottom`, `corner` são também a morada por onde você volta a um quadro mais tarde, para lhe acrescentar ou substituir o que ele tem. Um quadro é um quadro, seja qual for o nome que usou: preencher apenas `corner` dá-lhe um quadro ao lado do documento, e não um canto com duas células vazias à frente. Um nome que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
+
+**Um quadro pertence ao separador em que foi aberto.** Mudar de separador tira-o do ecrã, fechar o separador fecha-o com ela, e voltar traz-o de novo.
+
+**Oferecer-se para o escrever de volta.** O `apply` põe no quadro um botão Aplicar, que escreve o que ele tem no documento; o `replaces` diz o que isso substitui — vazio significando o documento inteiro. O que um modelo devolve merece ser lido antes de aterrar naquilo que quem lê estava a escrever: por isso uma reescrita é mostrada primeiro e escrita quando essa pessoa o disser, passando pelo histórico do editor, de modo que um desfazer a traz de volta. O que é substituído fica fixado quando o seu comando correu, e não quando o botão é premido: uma seleção que se moveu entretanto não manda o texto para um sítio qualquer. Precisa de `document.write`, que o editor verifica no botão e não por palavra sua.
+
+**Diga que está a trabalhar antes de começar.** Uma acção de quadro é lida antes de uma `ai`, por isso devolver ambas quer dizer «põe isto e depois vai perguntar» — e um quadro de texto vazio com um pedido por trás é precisamente o que o editor desenha como «a trabalhar». Até chegar o primeiro bloco di-lo onde o texto irá ficar; depois passa para a barra do título, para que o andamento nunca fique por cima do que chegou. Devolver só o `ai` deixa o ecrã na mesma durante os segundos que o modelo leva, e lê-se como uma entrada de menu que não fez nada.
+
+Fechar um quadro é como quem lê o pára. Acrescentar a um que fechou é recusado, em vez de o trazer de volta um bloco de cada vez.
 
 **`show` ou `panel`.** Umas quantas linhas são uma resposta: uma janela pequena serve, e um painel para isso é mais mobília do que conteúdo. Um resultado do tamanho de um documento é o que quem lê põe ao lado do que tem no ecrã, e uma janela por cima do ecrã é o único sítio onde não pode estar.
 
@@ -364,7 +394,7 @@ Os valores estão em `settings.json`, no directório da própria extensão, por 
 
 ## Extensões compiladas (`runtime: "process"`)
 
-O executável é arrancado como processo filho e fala JSON-RPC 2.0, um objecto JSON por linha, em stdin/stdout. As respostas devolvem o `id` numérico. [`packages/dart/lib`](../../packages/dart/lib), neste repositório, implementa isso para extensões escritas em Dart e compiladas com `dart compile exe`.
+O executável é arrancado como processo filho e fala JSON-RPC 2.0, um objecto JSON por linha, em stdin/stdout. As respostas devolvem o `id` numérico. [`examples/dart/lib`](../../examples/dart/lib), neste repositório, implementa isso para extensões escritas em Dart e compiladas com `dart compile exe`.
 
 ### Não pode distribuir código-fonte que precise de uma cadeia de ferramentas para correr
 

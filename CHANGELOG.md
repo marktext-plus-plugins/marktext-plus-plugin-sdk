@@ -1,9 +1,23 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.2] - 2026-09-05
 
-Pre-release, like everything before it. The SDK stays at 0.x while the plugin
-system is still settling.
+The first release rather than a pre-release. Still 0.x: the manifest and the
+protocol are settling but not settled, and a deliberate breaking change
+remains possible while that is true — it will be in this file with what to do
+about it.
+
+### Added
+
+- `apply` on a pane action puts an Apply button on it, which writes what the
+  pane holds into the document; `replaces` says what that replaces, and an
+  empty one means the whole document. What a model returns is worth reading
+  before it lands in what the reader was writing, so a rewrite is shown first
+  and written when they say so. Needs `document.write`, which the editor
+  checks when the button is pressed rather than trusting the flag.
+- `description` in the manifest: one line saying what the plugin does, for the
+  plugin list. Like every other string a plugin shows, it may be a key into
+  its own `locales`.
 
 ### Changed
 

@@ -40,17 +40,17 @@ Ein Skript, ein Manifest und drei Dateien Dokumentation. **Nirgends Dart.**
 Ein Verzeichnis je Sprache, jedes ein vollständiges Plug-in zum Kopieren:
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ packages/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Benannt nach der **Sprache**, denn die wählen Sie. `runtime` im Manifest benennt, wie es läuft — `lua`, `js`, `process` — und `packages/dart` ist ein `process`-Plug-in: Dart ist bloß die Sprache, in der sein Beispiel geschrieben ist.
+Benannt nach der **Sprache**, denn die wählen Sie. `runtime` im Manifest benennt, wie es läuft — `lua`, `js`, `process` — und `examples/dart` ist ein `process`-Plug-in: Dart ist bloß die Sprache, in der sein Beispiel geschrieben ist.
 
 **Ein `process`-Plug-in darf in allem geschrieben sein, was sich zu einer ausführbaren Datei kompilieren lässt.** Der Editor startet ein Programm und spricht JSON-RPC mit ihm über stdin und stdout; er erfährt nie, was dieses Programm hervorgebracht hat. Go, Rust, C++, C#, ein statisch gelinktes Python — alle funktionieren, und keines braucht aus diesem Repository mehr als das Protokoll:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](../../packages/dart/lib) sind dieselben vier Regeln mit den Rändern versorgt: fehlerhafte Eingaben, eine unbekannte Methode, ein Fehler in einem Handler, der nicht das ganze Plug-in beendet. Dart steht hier, weil der Editor darin geschrieben ist und `dart compile exe` der kürzeste Weg zu einem lauffähigen Beispiel war. Es ist weder Bedingung noch Empfehlung: vier Regeln in der Sprache neu zu schreiben, die Sie ohnehin können, ist meist leichter, als Ihrem Build eine Dart-Toolchain hinzuzufügen.
+[`examples/dart/lib`](../../examples/dart/lib) sind dieselben vier Regeln mit den Rändern versorgt: fehlerhafte Eingaben, eine unbekannte Methode, ein Fehler in einem Handler, der nicht das ganze Plug-in beendet. Dart steht hier, weil der Editor darin geschrieben ist und `dart compile exe` der kürzeste Weg zu einem lauffähigen Beispiel war. Es ist weder Bedingung noch Empfehlung: vier Regeln in der Sprache neu zu schreiben, die Sie ohnehin können, ist meist leichter, als Ihrem Build eine Dart-Toolchain hinzuzufügen.
 
 Alle drei Einstiegspunkte tun dasselbe: die API laden und sie aufrufen.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Warum das API-Modul in einem Beispiel liegt
 
-Weil es mit Ihrem Plug-in ausgeliefert wird. `lib/marktext-plus.lua` ist keine Abhängigkeit, auf die Sie zeigen — es ist eine Datei, die Sie mitkopieren und dann besitzen. `packages/lua` im Ganzen zu kopieren gibt Ihnen ein lauffähiges Plug-in samt API; es gibt keinen zweiten Ort, von dem man es holt, und keine Versionsnummer, mit der man Schritt halten muss.
+Weil es mit Ihrem Plug-in ausgeliefert wird. `lib/marktext-plus.lua` ist keine Abhängigkeit, auf die Sie zeigen — es ist eine Datei, die Sie mitkopieren und dann besitzen. `examples/lua` im Ganzen zu kopieren gibt Ihnen ein lauffähiges Plug-in samt API; es gibt keinen zweiten Ort, von dem man es holt, und keine Versionsnummer, mit der man Schritt halten muss.
 
 ### Was das API-Modul ist
 
 Für ein Skript ist es gewöhnliches Lua oder JavaScript, das **mit Ihrem Plug-in ausgeliefert wird**. Der Editor spritzt `storage`, `t` und `require` als Globals ein, bevor Ihre Datei gelesen wird; das Modul fasst sie unter einem Namen zusammen und fügt je Aktion einen Konstruktor hinzu, sodass ein Plug-in sich als `sdk.show(text, title)` liest statt als Tabellenliteral, dessen Schreibweise niemand prüft. Sie dürfen es ändern oder gar nicht benutzen — die schlichte Tabelle zurückzugeben funktioniert genauso.
 
-Für `packages/dart` ist es eine echte Bibliothek, in Ihre ausführbare Datei kompiliert, und sie trägt etwas, das ein Skript nicht braucht: die JSON-RPC-Schleife, die Startprüfung und das Herunterfahren. Ein Prozess-Plug-in sitzt auf der anderen Seite einer Pipe.
+Für `examples/dart` ist es eine echte Bibliothek, in Ihre ausführbare Datei kompiliert, und sie trägt etwas, das ein Skript nicht braucht: die JSON-RPC-Schleife, die Startprüfung und das Herunterfahren. Ein Prozess-Plug-in sitzt auf der anderen Seite einer Pipe.
 
 ## Ein Plug-in darf aus mehreren Dateien bestehen
 
@@ -137,10 +137,16 @@ Einmal geladen, so oft es auch verlangt wird. Der Name ist ein Name, kein Pfad: 
 
 ## Ein Plug-in ausprobieren, bevor Sie es ausliefern
 
-Ein Lua- oder JavaScript-Plug-in wird vom Editor interpretiert, die ehrliche Probe ist also, es zu installieren — **Plug-ins → Aus ZIP installieren**. Ein kompiliertes lässt sich früher prüfen:
+Ein Lua- oder JavaScript-Plug-in wird vom Editor interpretiert, die ehrliche Probe ist also, es zu installieren — **Plug-ins → Aus ZIP installieren**. Zweierlei lässt sich früher prüfen:
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+führt ein JavaScript-Plug-in so aus, wie der Editor es tut — dieselben eingespritzten Globals, dasselbe `require`, das nur ins Plug-in-Verzeichnis reicht, dieselben zwei Einstiegspunkte — und sagt Ihnen, welche Ihrer Antworten nicht die Form hat, die der Editor erwartet. Der Editor verwendet QuickJS, das es nur in einer gebauten Anwendung gibt; dies steht dafür ein.
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -154,6 +160,7 @@ ist die ganze Prüfung für ein kompiliertes Plug-in: es baut, und es weigert si
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -259,13 +266,36 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | schickt Ihren Prompt an das Modell, das die Lesenden eingerichtet haben | ruft `on_result(ctx, reply)` auf |
 | `{ show = "…", title = "…" }` | zeigt eine Antwort in einem kleinen Fenster, mit Kopierschaltfläche | endet; nichts wird geschrieben |
 | `{ panel = "…", title = "…" }` | zeigt sie in einem Bereich neben dem Dokument | endet; nichts wird geschrieben |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | füllt einen der Bereiche um das Dokument | endet; nichts wird geschrieben |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | füllt einen der Bereiche um das Dokument | endet; nichts wird geschrieben |
 | `{ notify = "…" }` | sagt den Lesenden eine Zeile | endet |
 | `{ diff = { original = "…", result = "…" } }` | zeigt beide Texte nebeneinander | endet; nichts wird geschrieben |
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
 | irgendetwas anderes | nichts | endet |
 
-**Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist das nach außen gegeben. Das Dokument behält die erste Zelle eines Zwei-mal-zwei-Rasters, die anderen drei dürfen Sie füllen — `right` daneben, `bottom` darunter, `corner` rechts unten. **Eine Zelle, um die niemand gebeten hat, wird nicht gezeichnet**, nur `corner` zu füllen hinterlässt also keine zwei leeren Streifen. Ein Platzname, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der irgendwo auftaucht, worum Sie nicht gebeten haben, und für den es keine Erklärung gibt, ist schlechter, als es gesagt zu bekommen.
+**Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist diese Teilung, Ihnen angeboten. Höchstens vier Zellen, und **die beiden Hälften der geteilten Ansicht sind zwei davon** — daraus ist das hier entstanden, ein geteiltes Dokument ist also zwei Zellen, bevor Sie etwas füllen.
+
+Die Form richtet sich danach, wie viele Zellen es gibt, und ist auf jeder Stufe symmetrisch:
+
+| Zellen | Aufteilung |
+|---|---|
+| eine | das Dokument hat den ganzen Tab |
+| zwei | nebeneinander, je zur Hälfte |
+| drei | eine Hälfte geteilt, die andere ganz |
+| vier | oben links, oben rechts, unten links, unten rechts |
+
+Bei drei Zellen und einem nicht geteilten Dokument **wählen Sie, welche Hälfte geteilt wird**: `right` setzt einen Bereich neben das Dokument, also teilt sich die obere und der andere Bereich nimmt die untere Zeile ganz; füllen Sie nur `bottom` und `corner`, behält das Dokument die obere Zeile ganz und die beiden teilen sich die untere. Die Lesenden können es danach in der Titelzeile umstellen — welche Hälfte geteilt ist, ist eine Ansicht derselben Bereiche und keine Entscheidung, die Sie immer wieder treffen.
+
+Die Trenner lassen sich ziehen, wie der zwischen Quelltext und Vorschau.
+
+Die Namen `right`, `bottom`, `corner` sind zugleich die Adresse, unter der Sie einen Bereich später wieder ansprechen — um anzuhängen oder seinen Inhalt zu ersetzen. Ein Bereich ist ein Bereich, wie immer er sich nennt: nur `corner` zu füllen gibt Ihnen einen Bereich neben dem Dokument, keine Ecke mit zwei leeren Zellen davor. Ein Name, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der dort auftaucht, wo Sie ihn nicht wollten, ohne dass Sie erfahren könnten warum, ist schlimmer als eine Absage.
+
+**Ein Bereich gehört dem Tab, in dem er geöffnet wurde.** Ein Tabwechsel nimmt ihn vom Bildschirm, das Schließen des Tabs schließt ihn mit, und beim Zurückwechseln ist er wieder da.
+
+**Anbieten, es zurückzuschreiben.** `apply` setzt eine Übernehmen-Schaltfläche auf den Bereich, die seinen Inhalt ins Dokument schreibt; `replaces` sagt, was das ersetzt — leer heißt das ganze Dokument. Was ein Modell zurückgibt, ist es wert, gelesen zu werden, bevor es in dem landet, was die Lesenden geschrieben haben: eine Umschreibung wird also erst gezeigt und geschrieben, wenn sie es sagen, über die Editorhistorie, sodass ein Rückgängig sie zurückholt. Was ersetzt wird, steht fest, wenn Ihr Befehl lief, nicht wenn die Schaltfläche gedrückt wird: eine Auswahl, die sich dazwischen verschoben hat, schickt den Text nicht irgendwohin. Braucht `document.write`, das der Editor an der Schaltfläche prüft und nicht auf Ihr Wort hin.
+
+**Sagen Sie, dass Sie arbeiten, bevor Sie anfangen.** Eine Bereichsaktion wird vor einer `ai` gelesen, beides zusammen heißt also „stell das hin, dann geh fragen" — und ein Bereich mit leerem Text und einer offenen Anfrage dahinter ist genau das, was der Editor als „arbeitet" zeichnet. Bis der erste Block ankommt, sagt er es dort, wo der Text hinkommt; danach wandert es in die Titelzeile, damit der Fortschritt nie über dem liegt, was schon da ist. Geben Sie nur das `ai` zurück, bleibt der Bildschirm für die Sekunden unverändert, die das Modell braucht — und liest sich als Menüeintrag, der nichts tat.
+
+Einen Bereich zu schließen ist die Art, wie die Lesenden Sie anhalten. An einen geschlossenen Bereich anzuhängen wird abgelehnt, statt ihn Block für Block zurückzuholen.
 
 **`show` oder `panel`.** Ein paar Zeilen sind eine Antwort: ein kleines Fenster ist richtig, ein Bereich dafür ist mehr Möbel als Inhalt. Ein dokumentgroßes Ergebnis ist etwas, das die Lesenden gegen das halten, was auf dem Bildschirm steht, und ein Fenster über dem Bildschirm ist der eine Ort, an den es nicht kann.
 
@@ -358,7 +388,7 @@ Die Werte liegen in `settings.json` im eigenen Verzeichnis des Plug-ins, kein Pl
 
 ## Kompilierte Plug-ins (`runtime: "process"`)
 
-Die ausführbare Datei wird als Kindprozess gestartet und spricht JSON-RPC 2.0, ein JSON-Objekt je Zeile, auf stdin/stdout. Antworten geben die numerische `id` zurück. [`packages/dart/lib`](../../packages/dart/lib) in diesem Repository setzt das für Plug-ins um, die in Dart geschrieben und mit `dart compile exe` kompiliert werden.
+Die ausführbare Datei wird als Kindprozess gestartet und spricht JSON-RPC 2.0, ein JSON-Objekt je Zeile, auf stdin/stdout. Antworten geben die numerische `id` zurück. [`examples/dart/lib`](../../examples/dart/lib) in diesem Repository setzt das für Plug-ins um, die in Dart geschrieben und mit `dart compile exe` kompiliert werden.
 
 ### Sie dürfen keinen Quelltext ausliefern, der eine Toolchain zum Laufen braucht
 

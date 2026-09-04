@@ -40,17 +40,17 @@ LICENSE
 按**语言**各一个目录，每个都是可以整份复制走的完整插件：
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ packages/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-按语言命名，因为那才是你要选的东西。manifest 里的 `runtime` 说的是"怎么跑"——`lua`、`js`、`process`——而 `packages/dart` 是个 `process` 插件，Dart 只是它示例用的语言。
+按语言命名，因为那才是你要选的东西。manifest 里的 `runtime` 说的是"怎么跑"——`lua`、`js`、`process`——而 `examples/dart` 是个 `process` 插件，Dart 只是它示例用的语言。
 
 **`process` 插件可以用任何能编译成可执行文件的语言写。** 编辑器只是启动一个程序、通过 stdin/stdout 跟它说 JSON-RPC，它**永远不知道那个程序是什么编出来的**。Go、Rust、C++、C#、静态链接的 Python 都行，而且除了协议本身，都不需要本仓库的任何东西：
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](../../packages/dart/lib) 是同样四条规则加上边界处理：畸形输入、未知方法、单个 handler 出错不会终结整个插件。Dart 出现在这里只是因为编辑器本身用它写的，`dart compile exe` 是最快拿出一个能跑的示例的办法。它**不是要求，也不是推荐**：用你已经会的语言把那四条规则再写一遍，通常比给你的构建加一套 Dart 工具链容易。
+[`examples/dart/lib`](../../examples/dart/lib) 是同样四条规则加上边界处理：畸形输入、未知方法、单个 handler 出错不会终结整个插件。Dart 出现在这里只是因为编辑器本身用它写的，`dart compile exe` 是最快拿出一个能跑的示例的办法。它**不是要求，也不是推荐**：用你已经会的语言把那四条规则再写一遍，通常比给你的构建加一套 Dart 工具链容易。
 
 三个入口做的是同一件事：加载 API，然后调用它。
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### 为什么 API 模块放在示例里面
 
-因为它**随你的插件一起分发**。`lib/marktext-plus.lua` 不是一个你去指向的依赖——它是你连同其余部分一起复制、然后归你所有的一个文件。把 `packages/lua` 整份复制走，你就得到一个能用的插件，API 也在里面；没有另一个地方需要去取它，也没有版本号需要跟着对。
+因为它**随你的插件一起分发**。`lib/marktext-plus.lua` 不是一个你去指向的依赖——它是你连同其余部分一起复制、然后归你所有的一个文件。把 `examples/lua` 整份复制走，你就得到一个能用的插件，API 也在里面；没有另一个地方需要去取它，也没有版本号需要跟着对。
 
 ### API 模块是什么
 
 对脚本来说，它就是普通的 Lua 或 JavaScript，**随你的插件分发**。编辑器在读你的文件之前就注入了 `storage`、`t` 和 `require`；这个模块把它们收在一个名字下面，并为每个动作提供构造函数，于是插件读起来是 `sdk.show(text, title)`，而不是拼写没人检查的字面量表。你可以改它，也可以完全不用——直接返回原始的表一样有效。
 
-对 `packages/dart` 来说它是真正的库，会被编译进你的可执行文件，而且带着脚本不需要的东西：JSON-RPC 循环、启动检查、关闭处理。进程插件在管道的另一端。
+对 `examples/dart` 来说它是真正的库，会被编译进你的可执行文件，而且带着脚本不需要的东西：JSON-RPC 循环、启动检查、关闭处理。进程插件在管道的另一端。
 
 ## 插件可以是多个文件
 
@@ -137,10 +137,16 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## 发布前怎么试
 
-Lua 或 JS 插件由编辑器解释执行，所以最实在的检验就是装上它——**插件 → 安装 ZIP**。编译型插件可以更早检查：
+Lua 或 JS 插件由编辑器解释执行，所以最实在的检验就是装上它——**插件 → 安装 ZIP**。有两件事可以更早做：
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+会像编辑器那样运行一个 JavaScript 插件——同样的注入全局、同样只能在插件目录内解析的 `require`、同样的两个入口——并告诉你哪一条回答不是编辑器期待的形状。编辑器用的是 QuickJS，它只存在于构建产物里；这个脚本替它站台。
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -154,6 +160,7 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -259,13 +266,36 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | 把你的提示词发给用户配置的模型 | 调用 `on_result(ctx, reply)` |
 | `{ show = "…", title = "…" }` | 用小窗口显示一条结果，带复制按钮 | 结束；不写入文档 |
 | `{ panel = "…", title = "…" }` | 在正文旁边的面板里显示 | 结束；不写入文档 |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | 填进文档周围的某一格 | 结束；不写入文档 |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | 填进文档周围的某一格 | 结束；不写入文档 |
 | `{ notify = "…" }` | 告诉用户一句话 | 结束 |
 | `{ diff = { original = "…", result = "…" } }` | 左右对照显示两段文本 | 结束；不写入文档 |
 | `{ replace = "…" }` | 替换当前选区 | 结束 |
 | 其它任何东西 | 什么都不做 | 结束 |
 
-**分栏。** 编辑器本来就把一个标签页分成源码和预览；`pane` 就是把这件事开放出来。文档占二乘二网格的第一格，你可以填另外三格——`right` 在旁边、`bottom` 在下面、`corner` 在右下。**没人要的格子不画**，所以只填 `corner` 不会留下两条空白。槽位名编辑器不认识时**报错而不是猜**：面板出现在你没要求的位置、而你无从得知原因，比直接被告知更糟。
+**分栏。** 编辑器本来就把一个标签页分成源码和预览；`pane` 就是把这件事开放出来。最多四格，而且**分屏视图自己的两半就是其中两格**——这个能力本来就是从它来的，所以处于分屏的文档在你填任何东西之前就已经是两格。
+
+形状由一共有几格决定，每一步都对称：
+
+| 格数 | 布局 |
+|---|---|
+| 一 | 文档占满整个标签页 |
+| 二 | 左右各半 |
+| 三 | 一半左右分开，另一半整行 |
+| 四 | 左上、右上、左下、右下 |
+
+三格且文档没有分屏时，**由你选哪一半被分开**：填 `right` 会把一个分栏放在文档旁边，于是上半分开、另一个分栏占满下半整行；只填 `bottom` 和 `corner`，文档就独占上半整行，两个分栏平分下半。读者之后还能从分栏标题栏把它换过去——哪一半被分开是同一批分栏的一种看法，不是你可以一直替他做的决定。
+
+分隔条可以拖动，和源码与预览之间那根一样。
+
+槽位名 `right`、`bottom`、`corner` 也是你之后再找到某个分栏的地址，用来追加或替换它的内容。一个分栏就是一个分栏，不管它自称什么：只填 `corner` 得到的是文档旁边的一个分栏，不是角落里的一格加两格空白。编辑器不认识的槽位名会被拒绝而不是猜一个：一个出现在你没要的位置、又无从得知为什么的分栏，比一句拒绝更糟。
+
+**分栏属于它被打开的那个标签页。** 切走它就不在屏幕上，关掉那个标签页它也跟着关，切回来它还在。
+
+**可以提出写回文档。** `apply` 会给分栏加一个「采用」按钮，把它装着的内容写进文档；`replaces` 说明这会替换什么，空字符串表示整篇。模型返回的东西值得在落进读者正在写的文字之前先读一遍，所以改写先展示、读者说采用才写入，并且走编辑器的历史栈，撤销一下就回来。要替换什么在你的命令运行时就定死了，不是按按钮时才看：中途变动的选区不会让文本被写到别处。这需要 `document.write`，而编辑器是在按钮处检查它，不是听你在标志位里怎么说。
+
+**先说自己在做，再开始做。** 分栏动作会在 `ai` 之前被读到，所以两者同时返回的意思是「先把这个放上去，再去问」——而一个正文为空、后面跟着请求的分栏，正是编辑器画成「进行中」的样子。第一段到达之前，它在正文的位置这么说；到达之后，提示移到标题栏，于是进度永远不会压在已经到手的内容上。只返回 `ai`，屏幕在模型花掉的那几秒里毫无变化，读起来就是一个什么也没做的菜单项。
+
+关掉分栏是读者叫停你的方式。往一个已被关掉的分栏追加内容会被拒绝，而不是让它一段一段地又回来。
 
 **`show` 还是 `panel`。** 几行文字是一个答案：小窗口才对，给它开一整栏是家具多过内容。整篇文档大小的结果，是用户要拿来跟屏幕上的东西对照的，而盖住屏幕的窗口恰恰是它唯一不能待的地方。
 
@@ -358,7 +388,7 @@ JavaScript 那边是 QuickJS，没有值得单列的同类缺口。
 
 ## 编译型插件（`runtime: "process"`）
 
-可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`packages/dart/lib`](../../packages/dart/lib) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
+可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`examples/dart/lib`](../../examples/dart/lib) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
 
 ### 不许分发需要工具链才能运行的源码
 

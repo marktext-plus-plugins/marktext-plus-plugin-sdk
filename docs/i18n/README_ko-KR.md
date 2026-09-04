@@ -40,17 +40,17 @@ LICENSE
 **언어**마다 디렉터리 하나, 각각 통째로 복사할 수 있는 완전한 플러그인입니다:
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ packages/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-**언어**를 따서 이름 붙였습니다. 고르는 것이 그것이기 때문입니다. 매니페스트의 `runtime`은 "어떻게 도는지"를 말하며 — `lua`, `js`, `process` — `packages/dart`는 `process` 플러그인입니다. Dart는 그 예제가 마침 쓰인 언어일 뿐입니다.
+**언어**를 따서 이름 붙였습니다. 고르는 것이 그것이기 때문입니다. 매니페스트의 `runtime`은 "어떻게 도는지"를 말하며 — `lua`, `js`, `process` — `examples/dart`는 `process` 플러그인입니다. Dart는 그 예제가 마침 쓰인 언어일 뿐입니다.
 
 **`process` 플러그인은 실행 파일로 컴파일되는 어떤 언어로도 쓸 수 있습니다.** 에디터는 프로그램을 시작하고 stdin/stdout으로 JSON-RPC를 말할 뿐, **그 프로그램이 무엇으로 만들어졌는지 결코 알지 못합니다**. Go, Rust, C++, C#, 정적 링크한 Python — 모두 됩니다. 프로토콜 말고는 이 저장소에서 필요한 것이 없습니다:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](../../packages/dart/lib)는 같은 네 규칙에 가장자리 처리를 더한 것입니다: 잘못된 입력, 모르는 메서드, 핸들러 하나의 오류가 플러그인을 끝내지 않는 것. Dart가 여기 있는 것은 에디터가 그것으로 쓰였기 때문이고, `dart compile exe`가 도는 예제를 갖는 가장 짧은 길이었기 때문입니다. **요구 사항도 권장도 아닙니다**: 이미 아는 언어로 네 규칙을 다시 쓰는 편이, 빌드에 Dart 툴체인을 더하는 것보다 보통 쉽습니다.
+[`examples/dart/lib`](../../examples/dart/lib)는 같은 네 규칙에 가장자리 처리를 더한 것입니다: 잘못된 입력, 모르는 메서드, 핸들러 하나의 오류가 플러그인을 끝내지 않는 것. Dart가 여기 있는 것은 에디터가 그것으로 쓰였기 때문이고, `dart compile exe`가 도는 예제를 갖는 가장 짧은 길이었기 때문입니다. **요구 사항도 권장도 아닙니다**: 이미 아는 언어로 네 규칙을 다시 쓰는 편이, 빌드에 Dart 툴체인을 더하는 것보다 보통 쉽습니다.
 
 세 진입점은 모두 같은 일을 합니다. API를 불러와 호출합니다.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### 왜 API 모듈이 예제 안에 있나
 
-**플러그인과 함께 배포되기 때문입니다.** `lib/marktext-plus.lua`는 가리키는 의존이 아닙니다 — 나머지와 함께 복사해서 당신 것이 되는 파일입니다. `packages/lua`를 통째로 복사하면 API까지 들어 있는 도는 플러그인을 얻습니다. 따로 받아올 곳도, 맞춰야 할 버전 번호도 없습니다.
+**플러그인과 함께 배포되기 때문입니다.** `lib/marktext-plus.lua`는 가리키는 의존이 아닙니다 — 나머지와 함께 복사해서 당신 것이 되는 파일입니다. `examples/lua`를 통째로 복사하면 API까지 들어 있는 도는 플러그인을 얻습니다. 따로 받아올 곳도, 맞춰야 할 버전 번호도 없습니다.
 
 ### API 모듈이란
 
 스크립트에게 그것은 **플러그인과 함께 배포되는** 평범한 Lua나 JavaScript입니다. 에디터는 당신의 파일을 읽기 전에 `storage`, `t`, `require`를 전역으로 주입합니다. 이 모듈은 그것들을 한 이름 아래 묶고 액션마다 생성자를 더합니다. 덕분에 플러그인은 철자를 아무도 검사하지 않는 테이블 리터럴이 아니라 `sdk.show(text, title)`로 읽힙니다. 고쳐도 되고, 아예 쓰지 않아도 됩니다 — 맨 테이블을 돌려줘도 똑같이 동작합니다.
 
-`packages/dart`에게 그것은 실행 파일에 컴파일되어 들어가는 진짜 라이브러리이고, 스크립트에는 필요 없는 것을 지고 있습니다: JSON-RPC 루프, 시작 확인, 종료 처리. 프로세스 플러그인은 파이프 반대편에 있습니다.
+`examples/dart`에게 그것은 실행 파일에 컴파일되어 들어가는 진짜 라이브러리이고, 스크립트에는 필요 없는 것을 지고 있습니다: JSON-RPC 루프, 시작 확인, 종료 처리. 프로세스 플러그인은 파이프 반대편에 있습니다.
 
 ## 플러그인은 여러 파일이어도 됩니다
 
@@ -137,10 +137,16 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## 배포하기 전에 해보기
 
-Lua나 JS 플러그인은 에디터가 해석하므로 정직한 시험은 설치해 보는 것입니다 — **플러그인 → ZIP에서 설치**. 컴파일된 것은 더 일찍 확인할 수 있습니다:
+Lua나 JS 플러그인은 에디터가 해석하므로 정직한 시험은 설치해 보는 것입니다 — **플러그인 → ZIP에서 설치**. 두 가지는 더 일찍 확인할 수 있습니다:
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+는 JavaScript 플러그인을 에디터와 같은 방식으로 돌립니다 — 같은 주입 전역, 플러그인 디렉터리 안에만 닿는 같은 `require`, 같은 두 진입점 — 그리고 어느 답이 에디터가 기대하는 모양이 아닌지 말해 줍니다. 에디터는 QuickJS를 쓰는데 그것은 빌드된 애플리케이션 안에만 있으므로, 이것이 대신 섭니다.
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -154,6 +160,7 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -259,13 +266,36 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | 당신의 프롬프트를 읽는 사람이 설정한 모델로 보냅니다 | `on_result(ctx, reply)`를 부릅니다 |
 | `{ show = "…", title = "…" }` | 작은 창에 답 하나를, 복사 버튼과 함께 | 끝. 문서에는 아무것도 쓰지 않습니다 |
 | `{ panel = "…", title = "…" }` | 본문 옆 패널에 보여 줍니다 | 끝. 문서에는 아무것도 쓰지 않습니다 |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | 문서 둘레의 창 하나를 채웁니다 | 끝. 문서에는 아무것도 쓰지 않습니다 |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | 문서 둘레의 창 하나를 채웁니다 | 끝. 문서에는 아무것도 쓰지 않습니다 |
 | `{ notify = "…" }` | 읽는 사람에게 한 줄 전합니다 | 끝 |
 | `{ diff = { original = "…", result = "…" } }` | 두 텍스트를 나란히 보여 줍니다 | 끝. 문서에는 아무것도 쓰지 않습니다 |
 | `{ replace = "…" }` | 선택 영역을 바꿉니다 | 끝 |
 | 그 밖의 것 | 아무것도 하지 않습니다 | 끝 |
 
-**창.** 에디터는 원래 탭을 소스와 미리보기로 나눕니다. `pane`은 그것을 열어 준 것입니다. 문서가 2×2 격자의 첫 칸을 차지하고 나머지 셋을 채울 수 있습니다 — `right`는 옆, `bottom`은 아래, `corner`는 오른쪽 아래. **아무도 청하지 않은 칸은 그리지 않으므로** `corner`만 채워도 빈 띠 둘이 남지 않습니다. 에디터가 모르는 슬롯 이름은 **짐작되지 않고 거부됩니다**: 청하지도 않은 자리에 창이 나타나고 그 이유를 알 길이 없는 편이 듣는 것보다 나쁩니다.
+**창.** 에디터는 원래 탭을 소스와 미리보기로 나눕니다. `pane`은 그것을 열어 준 것입니다. 칸은 최대 넷이고, **분할 보기의 두 절반이 그중 둘입니다** — 이 구조가 거기서 나왔으므로, 분할 보기 중인 문서는 당신이 무엇을 채우기 전에 이미 두 칸입니다.
+
+모양은 칸이 몇인지가 정하며, 어느 단계에서나 좌우 대칭입니다:
+
+| 칸 | 배치 |
+|---|---|
+| 하나 | 문서가 탭 전체를 차지 |
+| 둘 | 나란히, 절반씩 |
+| 셋 | 한쪽 절반이 나뉘고, 다른 쪽은 통째로 |
+| 넷 | 왼쪽 위, 오른쪽 위, 왼쪽 아래, 오른쪽 아래 |
+
+칸이 셋이고 문서가 분할 보기가 아닐 때, **어느 절반을 나눌지는 당신이 고릅니다**: `right`를 채우면 문서 옆에 창이 오므로 위가 나뉘고, 다른 창이 아래 줄을 통째로 가집니다. `bottom`과 `corner`만 채우면 문서가 위 줄을 통째로 갖고 두 창이 아래를 나눕니다. 읽는 사람은 나중에 창 제목줄에서 바꿀 수 있습니다 — 어느 절반이 나뉘는가는 같은 창들의 한 가지 모습이지, 당신이 계속 정할 일이 아닙니다.
+
+구분선은 끌 수 있습니다. 소스와 미리보기 사이의 그것과 같습니다.
+
+슬롯 이름 `right`, `bottom`, `corner`는 나중에 그 창을 다시 가리키는 주소이기도 합니다 — 덧붙이거나 내용을 바꾸기 위한. 창 하나는 창 하나이며, 무엇을 자칭하든 같습니다: `corner`만 채우면 문서 옆의 창 하나를 얻지, 구석의 한 칸과 빈 두 칸이 아닙니다. 에디터가 모르는 슬롯 이름은 짐작되지 않고 거절됩니다: 요청하지 않은 곳에 나타나고 그 이유를 알 길도 없는 창은 거절보다 나쁩니다.
+
+**창은 그것이 열린 탭의 것입니다.** 탭을 바꾸면 화면에서 사라지고, 탭을 닫으면 함께 닫히며, 돌아오면 다시 있습니다.
+
+**문서에 쓰겠다고 제안할 수 있습니다.** `apply`는 창에 「적용」 단추를 붙여 창이 담은 것을 문서에 씁니다. `replaces`는 그것이 무엇을 대신하는지 말하고, 비어 있으면 문서 전체입니다. 모델이 돌려준 것은 읽는 사람이 쓰던 글에 들어가기 전에 읽어 볼 값어치가 있으므로, 고쳐 쓴 것은 먼저 보이고 그가 말할 때 쓰입니다. 에디터의 기록을 거치므로 되돌리기 한 번이면 돌아옵니다. 무엇을 대신할지는 당신의 명령이 돌던 때에 정해지지, 단추를 누른 때가 아닙니다: 그 사이에 옮겨 간 선택 때문에 글이 엉뚱한 곳에 들어가지 않습니다. `document.write`가 필요하고, 에디터는 그것을 단추에서 확인합니다. 당신의 표시를 믿어서가 아닙니다.
+
+**시작하기 전에, 하고 있다고 말할 것.** 창 동작은 `ai`보다 먼저 읽히므로, 둘을 함께 돌려주는 것은 "이것을 띄운 다음 물어보라"는 뜻입니다. 그리고 본문이 비어 있고 뒤에 요청이 있는 창이야말로 에디터가 "작업 중"으로 그리는 모습입니다. 첫 덩어리가 닿기 전에는 본문 자리에서 그렇게 말하고, 닿은 뒤에는 제목 줄로 옮겨가므로 진행 표시가 도착한 내용을 덮는 일이 없습니다. `ai`만 돌려주면 모델이 쓰는 몇 초 동안 화면은 그대로여서, 아무것도 하지 않는 메뉴 항목처럼 읽힙니다.
+
+창을 닫는 것이 읽는 사람이 여러분을 멈추는 방법입니다. 닫힌 창에 덧붙이는 일은 한 덩어리씩 되돌려 놓는 대신 거절됩니다.
 
 **`show`인가 `panel`인가.** 몇 줄은 답 하나입니다. 작은 창이 맞고, 그것을 위해 패널을 여는 것은 내용보다 가구가 많은 일입니다. 문서 크기의 결과는 읽는 사람이 화면 위의 것과 맞대어 보려는 것이고, 화면을 덮는 창은 그것이 놓일 수 없는 유일한 곳입니다.
 
@@ -358,7 +388,7 @@ JavaScript 쪽은 QuickJS이고, 따로 적을 만한 빈틈은 없습니다.
 
 ## 컴파일된 플러그인(`runtime: "process"`)
 
-실행 파일은 자식 프로세스로 시작되고, stdin/stdout에서 JSON-RPC 2.0을 한 줄에 JSON 객체 하나로 말합니다. 응답은 숫자 `id`를 그대로 돌려줍니다. 이 저장소의 [`packages/dart/lib`](../../packages/dart/lib)가 Dart로 쓰고 `dart compile exe`로 컴파일하는 플러그인을 위해 그것을 구현합니다.
+실행 파일은 자식 프로세스로 시작되고, stdin/stdout에서 JSON-RPC 2.0을 한 줄에 JSON 객체 하나로 말합니다. 응답은 숫자 `id`를 그대로 돌려줍니다. 이 저장소의 [`examples/dart/lib`](../../examples/dart/lib)가 Dart로 쓰고 `dart compile exe`로 컴파일하는 플러그인을 위해 그것을 구현합니다.
 
 ### 툴체인이 있어야 도는 소스는 배포할 수 없습니다
 

@@ -50,17 +50,17 @@ anywhere.
 One directory per language, each a complete plugin you can copy:
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -70,7 +70,7 @@ schema/manifest.schema.json
 ```
 
 Named after the **language**, because that is what you choose. `runtime` in the
-manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
+manifest names how it runs — `lua`, `js`, `process` — and `examples/dart` is a
 `process` plugin: Dart is simply the language its example happens to be written
 in.
 
@@ -109,7 +109,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](packages/dart/lib) is the same four rules with the edges
+[`examples/dart/lib`](examples/dart/lib) is the same four rules with the edges
 handled — malformed input, an unknown method, an error inside one handler not
 ending the plugin. Dart is here because the editor is written in it, so
 `dart compile exe` was the shortest way to have a working example. It is not a
@@ -140,7 +140,7 @@ a directory holding all three is three plugins wearing one manifest.
 
 Because it ships with your plugin. `lib/marktext-plus.lua` is not a dependency
 you point at — it is a file you copy along with the rest, and then own. Copying
-`packages/lua` wholesale gives you a working plugin including the API; there is
+`examples/lua` wholesale gives you a working plugin including the API; there is
 no separate place to fetch it from, and nothing to keep in step with a version
 number.
 
@@ -153,7 +153,7 @@ action, so a plugin reads as `sdk.show(text, title)` rather than as a table
 literal whose spelling nothing checks. You can edit it, or not use it at all —
 returning the plain table works exactly as well.
 
-For `packages/dart` it is a real library, compiled into your executable, and it
+For `examples/dart` it is a real library, compiled into your executable, and it
 carries something a script does not need: the JSON-RPC loop, the launch check
 and the shutdown. A process plugin is on the other side of a pipe.
 
@@ -191,11 +191,21 @@ example whose language you want and leave the others here.
 ## Trying a plugin before you ship it
 
 A Lua or JavaScript plugin is interpreted by the editor, so the honest test is
-installing it — **Plugins → Install from ZIP**. A compiled plugin can be
-checked sooner:
+installing it — **Plugins → Install from ZIP**. Two things can be checked
+sooner:
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+runs a JavaScript plugin the way the editor does — the same injected globals,
+the same `require` reaching only inside the plugin directory, the same two
+entry points — and says which of your answers is not the shape the editor
+expects. The editor uses QuickJS, which only exists inside a built
+application; this stands in for it.
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -211,6 +221,7 @@ running anything. See [`schema/manifest.schema.json`](schema/manifest.schema.jso
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -336,19 +347,66 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | sends your prompt to the model the reader configured | calls `on_result(ctx, reply)` |
 | `{ show = "…", title = "…" }` | shows one answer in a small window, with a copy button | stops; nothing is written |
 | `{ panel = "…", title = "…" }` | shows it in a panel beside the document | stops; nothing is written |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | fills one of the panes around the document | stops; nothing is written |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | fills one of the panes around the document; `apply` offers to write it back | stops; nothing is written until the reader accepts |
 | `{ notify = "…" }` | tells the reader | stops |
 | `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
 | anything else | nothing | stops |
 
 **Panes.** The editor already splits a tab between source and preview; `pane`
-is that split offered to you. The document keeps the first cell of a two by two
-grid and you may fill the other three — `right` beside it, `bottom` under it,
-`corner` under the right-hand one. A slot nobody asked for is not drawn, so
-filling only `corner` does not leave two empty strips. A slot name the editor
-does not know is refused rather than guessed at: a pane appearing somewhere you
-did not ask for, with no way to find out why, is worse than being told.
+is that split offered to you. Four cells at most, and **the split view's own
+two halves are two of them** — that is what this was made from, so a document
+in split view is two cells before you fill anything.
+
+The shape follows how many cells there are, and is even at every step:
+
+| Cells | Layout |
+|---|---|
+| one | the document has the whole tab |
+| two | side by side, half each |
+| three | one half divided, the other whole |
+| four | top left, top right, bottom left, bottom right |
+
+With three cells and a document that is not split, **you choose which half is
+divided**: filling `right` puts a pane beside the document, so the top splits
+and the other pane takes the bottom row whole; filling only `bottom` and
+`corner` leaves the document the top row whole and divides the bottom between
+them. The reader can move it afterwards from the pane's title bar — which half
+is divided is a view of the same panes, not a decision you keep making.
+
+The dividers drag, like the one between source and preview.
+
+The slot names — `right`, `bottom`, `corner` — are also how you address a pane
+again later, to append to it or to replace what it holds. One pane is one pane
+whichever slot it claimed: filling only `corner` gives you a pane beside the
+document, not a cell in a corner with two empty ones to reach it. A slot name
+the editor does not know is refused rather than guessed at: a pane appearing
+somewhere you did not ask for, with no way to find out why, is worse than being
+told.
+
+**A pane belongs to the tab it was opened in.** Switching tabs takes it off
+screen, closing the tab closes it, and switching back brings it up again.
+
+**Offer to write it back.** `apply` puts an Apply button on the pane, which
+writes what it holds into the document, and `replaces` says what that replaces
+— an empty one meaning the whole document. What a model returns is worth
+reading before it lands in what the reader was writing, so a rewrite is shown
+first and written when they say so, through the editor's history, so one press
+of undo takes it back. What is replaced is fixed when your command ran, not
+when the button is pressed: a selection that moved in between does not send
+the text somewhere arbitrary. Needs `document.write`, which the editor checks
+at the button rather than trusting the flag.
+
+**Say you are working before you start.** A pane action is read before an `ai`
+one, so returning both means "put this up, then go and ask" — and a pane whose
+text is empty with a request behind it is what the editor draws as working. It
+says so where the text will be until the first block lands, and in the title
+bar after that, so the progress is never on top of what arrived. Returning the
+`ai` alone leaves the screen unchanged for however long the model takes, which
+reads as a menu item that did nothing.
+
+Closing a pane is how the reader stops you. Appending to one they closed is
+refused rather than putting it back a block at a time.
 
 **`show` or `panel`.** A few lines are an answer: a small window is right, and
 a panel for them is more furniture than content. A document-sized result is
@@ -484,7 +542,7 @@ the editor's.
 
 The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The
-[`packages/dart`](packages/dart) library in this repository implements that protocol for plugins
+[`examples/dart`](examples/dart) library in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
 
 ### You may not ship source that needs a toolchain to run

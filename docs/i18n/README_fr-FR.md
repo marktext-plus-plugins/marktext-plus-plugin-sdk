@@ -40,17 +40,17 @@ Un script, un manifeste, et trois fichiers de documentation. **Pas la moindre tr
 Un répertoire par langage, chacun une extension complète à copier :
 
 ```
-packages/lua/       ← start here
+examples/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-packages/js/        ← or here
+examples/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-packages/dart/      ← only if a script will not do; any compiled language works
+examples/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ packages/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Nommés d'après le **langage**, puisque c'est ce que vous choisissez. `runtime` dans le manifeste dit comment cela s'exécute — `lua`, `js`, `process` — et `packages/dart` est une extension `process` : Dart n'est que le langage dans lequel son exemple est écrit.
+Nommés d'après le **langage**, puisque c'est ce que vous choisissez. `runtime` dans le manifeste dit comment cela s'exécute — `lua`, `js`, `process` — et `examples/dart` est une extension `process` : Dart n'est que le langage dans lequel son exemple est écrit.
 
 **Une extension `process` peut être écrite dans tout ce qui se compile en exécutable.** L'éditeur lance un programme et lui parle en JSON-RPC sur stdin et stdout ; il n'apprend jamais ce qui a produit ce programme. Go, Rust, C++, C#, un Python lié statiquement — tous conviennent, et aucun n'a besoin de ce dépôt au-delà du protocole :
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`packages/dart/lib`](../../packages/dart/lib), ce sont les mêmes quatre règles avec les bords traités : entrée mal formée, méthode inconnue, erreur dans un gestionnaire qui ne met pas fin à l'extension entière. Dart est ici parce que l'éditeur est écrit en Dart, et que `dart compile exe` était le chemin le plus court vers un exemple qui marche. Ce n'est ni une exigence ni une recommandation : réécrire quatre règles dans le langage que vous connaissez déjà est en général plus simple que d'ajouter une chaîne d'outils Dart à votre build.
+[`examples/dart/lib`](../../examples/dart/lib), ce sont les mêmes quatre règles avec les bords traités : entrée mal formée, méthode inconnue, erreur dans un gestionnaire qui ne met pas fin à l'extension entière. Dart est ici parce que l'éditeur est écrit en Dart, et que `dart compile exe` était le chemin le plus court vers un exemple qui marche. Ce n'est ni une exigence ni une recommandation : réécrire quatre règles dans le langage que vous connaissez déjà est en général plus simple que d'ajouter une chaîne d'outils Dart à votre build.
 
 Les trois points d'entrée font la même chose : charger l'API et l'appeler.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Pourquoi le module d'API vit à l'intérieur d'un exemple
 
-Parce qu'il est livré avec votre extension. `lib/marktext-plus.lua` n'est pas une dépendance que l'on désigne — c'est un fichier que vous copiez avec le reste et qui devient le vôtre. Copier `packages/lua` en entier vous donne une extension qui marche, API comprise ; il n'y a pas d'autre endroit où aller la chercher, ni de numéro de version à suivre.
+Parce qu'il est livré avec votre extension. `lib/marktext-plus.lua` n'est pas une dépendance que l'on désigne — c'est un fichier que vous copiez avec le reste et qui devient le vôtre. Copier `examples/lua` en entier vous donne une extension qui marche, API comprise ; il n'y a pas d'autre endroit où aller la chercher, ni de numéro de version à suivre.
 
 ### Ce qu'est le module d'API
 
 Pour un script, c'est du Lua ou du JavaScript ordinaire, **livré avec votre extension**. L'éditeur injecte `storage`, `t` et `require` comme variables globales avant que votre fichier ne soit lu ; le module les rassemble sous un seul nom et ajoute un constructeur par action, si bien qu'une extension se lit `sdk.show(text, title)` plutôt que sous forme de table dont personne ne vérifie l'orthographe. Vous pouvez le modifier, ou ne pas l'utiliser du tout — renvoyer la table brute fonctionne exactement pareil.
 
-Pour `packages/dart`, c'est une vraie bibliothèque, compilée dans votre exécutable, et elle porte ce dont un script n'a pas besoin : la boucle JSON-RPC, la vérification du lancement, l'arrêt. Une extension processus se tient de l'autre côté d'un tube.
+Pour `examples/dart`, c'est une vraie bibliothèque, compilée dans votre exécutable, et elle porte ce dont un script n'a pas besoin : la boucle JSON-RPC, la vérification du lancement, l'arrêt. Une extension processus se tient de l'autre côté d'un tube.
 
 ## Une extension peut tenir en plusieurs fichiers
 
@@ -137,10 +137,16 @@ Chargé une seule fois, quel que soit le nombre d'appels. Le nom est un nom, pas
 
 ## Essayer une extension avant de la livrer
 
-Une extension Lua ou JavaScript est interprétée par l'éditeur ; l'épreuve honnête est donc de l'installer — **Extensions → Installer depuis un ZIP**. Une extension compilée se vérifie plus tôt :
+Une extension Lua ou JavaScript est interprétée par l'éditeur ; l'épreuve honnête est donc de l'installer — **Extensions → Installer depuis un ZIP**. Deux choses peuvent être vérifiées plus tôt :
 
 ```
-cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
+node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
+```
+
+exécute une extension JavaScript comme le fait l'éditeur — mêmes variables globales injectées, même `require` qui n'atteint que le répertoire de l'extension, mêmes deux points d'entrée — et vous dit laquelle de vos réponses n'a pas la forme attendue. L'éditeur utilise QuickJS, qui n'existe que dans une application compilée ; ceci en tient lieu.
+
+```
+cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -154,6 +160,7 @@ c'est toute la vérification d'une extension compilée : elle se compile, et ell
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -259,13 +266,36 @@ function on_result(ctx, result) {
 | `{ ai = "…" }` | envoie votre invite au modèle configuré par le lecteur | appelle `on_result(ctx, reply)` |
 | `{ show = "…", title = "…" }` | montre une réponse dans une petite fenêtre, avec un bouton de copie | s'arrête ; rien n'est écrit |
 | `{ panel = "…", title = "…" }` | la montre dans un panneau à côté du document | s'arrête ; rien n'est écrit |
-| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner" }` | remplit l'un des volets autour du document | s'arrête ; rien n'est écrit |
+| `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | remplit l'un des volets autour du document | s'arrête ; rien n'est écrit |
 | `{ notify = "…" }` | dit une ligne au lecteur | s'arrête |
 | `{ diff = { original = "…", result = "…" } }` | montre les deux textes côte à côte | s'arrête ; rien n'est écrit |
 | `{ replace = "…" }` | remplace la sélection | s'arrête |
 | n'importe quoi d'autre | rien | s'arrête |
 
-**Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane`, c'est ce partage mis à votre disposition. Le document garde la première case d'une grille deux par deux et vous pouvez remplir les trois autres — `right` à côté, `bottom` en dessous, `corner` en bas à droite. **Une case que personne n'a demandée n'est pas dessinée**, remplir seulement `corner` ne laisse donc pas deux bandes vides. Un nom de case que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui apparaît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
+**Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane` est ce partage, mis à votre disposition. Quatre cases au plus, et **les deux moitiés de la vue partagée en sont deux** — c'est de là que vient tout ceci, un document en vue partagée fait donc deux cases avant que vous ne remplissiez quoi que ce soit.
+
+La forme suit le nombre de cases, et reste symétrique à chaque étape :
+
+| Cases | Disposition |
+|---|---|
+| une | le document occupe tout l'onglet |
+| deux | côte à côte, moitié chacune |
+| trois | une moitié divisée, l'autre entière |
+| quatre | en haut à gauche, en haut à droite, en bas à gauche, en bas à droite |
+
+À trois cases, avec un document qui n'est pas partagé, **vous choisissez quelle moitié est divisée** : remplir `right` met un volet à côté du document, donc le haut se divise et l'autre volet prend toute la ligne du bas ; ne remplir que `bottom` et `corner` laisse au document toute la ligne du haut et partage le bas entre eux. La personne qui lit peut ensuite le déplacer depuis la barre de titre du volet — quelle moitié est divisée est une vue des mêmes volets, non une décision que vous reprenez sans cesse.
+
+Les séparateurs se déplacent, comme celui entre source et aperçu.
+
+Les noms `right`, `bottom`, `corner` sont aussi l'adresse par laquelle vous retrouverez un volet plus tard, pour y ajouter ou remplacer ce qu'il contient. Un volet est un volet, quel que soit son nom : ne remplir que `corner` vous donne un volet à côté du document, pas un coin précédé de deux cases vides. Un nom que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui paraît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
+
+**Un volet appartient à l'onglet où il a été ouvert.** Changer d'onglet le retire de l'écran, fermer l'onglet le ferme avec lui, et revenir le fait reparaître.
+
+**Proposer de le réécrire dans le document.** `apply` met un bouton Appliquer sur le volet, qui écrit son contenu dans le document ; `replaces` dit ce que cela remplace — vide signifiant le document entier. Ce qu'un modèle renvoie mérite d'être lu avant d'atterrir dans ce que la personne écrivait : une réécriture est donc montrée d'abord et écrite quand elle le dit, en passant par l'historique de l'éditeur, si bien qu'une annulation la reprend. Ce qui est remplacé est fixé au moment où votre commande s'est exécutée, non au moment du clic : une sélection qui a bougé entre-temps n'envoie pas le texte n'importe où. Nécessite `document.write`, que l'éditeur vérifie au bouton et non sur votre parole.
+
+**Dites que vous travaillez avant de commencer.** Une action de volet est lue avant une action `ai` : renvoyer les deux signifie « affiche ceci, puis va demander » — et un volet au texte vide avec une requête derrière lui est précisément ce que l'éditeur dessine comme « en cours ». Tant que le premier bloc n'est pas arrivé, il le dit là où le texte ira ; ensuite cela passe dans la barre de titre, pour que l'avancement ne recouvre jamais ce qui est arrivé. Ne renvoyer que le `ai` laisse l'écran inchangé pendant les secondes que prend le modèle, ce qui se lit comme une entrée de menu sans effet.
+
+Fermer un volet, c'est ainsi que la personne qui lit vous arrête. Ajouter à un volet qu'elle a fermé est refusé, plutôt que de le ramener un bloc à la fois.
 
 **`show` ou `panel`.** Quelques lignes sont une réponse : une petite fenêtre convient, et un panneau pour cela fait plus de meuble que de contenu. Un résultat de la taille d'un document est ce que le lecteur tient contre ce qui est à l'écran, et une fenêtre par-dessus l'écran est le seul endroit où il ne peut pas aller.
 
@@ -364,7 +394,7 @@ Les valeurs vivent dans `settings.json`, dans le répertoire propre de l'extensi
 
 ## Extensions compilées (`runtime: "process"`)
 
-L'exécutable est lancé comme processus enfant et parle JSON-RPC 2.0, un objet JSON par ligne, sur stdin/stdout. Les réponses renvoient l'`id` numérique. [`packages/dart/lib`](../../packages/dart/lib), dans ce dépôt, met cela en œuvre pour les extensions écrites en Dart et compilées avec `dart compile exe`.
+L'exécutable est lancé comme processus enfant et parle JSON-RPC 2.0, un objet JSON par ligne, sur stdin/stdout. Les réponses renvoient l'`id` numérique. [`examples/dart/lib`](../../examples/dart/lib), dans ce dépôt, met cela en œuvre pour les extensions écrites en Dart et compilées avec `dart compile exe`.
 
 ### Vous ne pouvez pas livrer un source qui exige une chaîne d'outils pour tourner
 
