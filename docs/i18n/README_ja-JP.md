@@ -40,17 +40,17 @@ LICENSE
 **言語**ごとに一つのディレクトリ。それぞれが丸ごとコピーできる完全なプラグインです：
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-言語で名付けてあります。選ぶのはそれだからです。マニフェストの `runtime` は「どう動くか」を言うもので——`lua`、`js`、`process`——`examples/dart` は `process` プラグインです。Dart はその例がたまたま書かれている言語にすぎません。
+言語で名付けてあります。選ぶのはそれだからです。マニフェストの `runtime` は「どう動くか」を言うもので——`lua`、`js`、`process`——`packages/dart` は `process` プラグインです。Dart はその例がたまたま書かれている言語にすぎません。
 
 **`process` プラグインは実行ファイルにコンパイルできる言語なら何で書いてもかまいません。** エディタはプログラムを起動して stdin/stdout で JSON-RPC を話すだけで、**そのプログラムが何から作られたかを知ることはありません**。Go、Rust、C++、C#、静的リンクした Python——どれでも動き、プロトコル以外にこのリポジトリから必要なものはありません：
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib) は同じ四つの規則に端の処理を足したものです：不正な入力、未知のメソッド、一つのハンドラの例外がプラグイン全体を終わらせないこと。Dart がここにあるのはエディタがそれで書かれているからで、`dart compile exe` が動く例を手にする最短路だったからにすぎません。**要件でも推奨でもありません**：すでに知っている言語で四つの規則を書き直すほうが、ビルドに Dart ツールチェーンを足すより普通は簡単です。
+[`packages/dart/lib`](../../packages/dart/lib) は同じ四つの規則に端の処理を足したものです：不正な入力、未知のメソッド、一つのハンドラの例外がプラグイン全体を終わらせないこと。Dart がここにあるのはエディタがそれで書かれているからで、`dart compile exe` が動く例を手にする最短路だったからにすぎません。**要件でも推奨でもありません**：すでに知っている言語で四つの規則を書き直すほうが、ビルドに Dart ツールチェーンを足すより普通は簡単です。
 
 三つのエントリポイントはどれも同じことをします。API を読み込んで呼ぶ。
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### なぜ API モジュールが例の中にあるのか
 
-**プラグインと一緒に配布されるからです。** `lib/marktext-plus.lua` は指し示す依存ではありません——残りと一緒にコピーして、あなたのものになるファイルです。`examples/lua` を丸ごとコピーすれば API ごと動くプラグインが手に入ります。別途取りに行く場所も、追随すべきバージョン番号もありません。
+**プラグインと一緒に配布されるからです。** `lib/marktext-plus.lua` は指し示す依存ではありません——残りと一緒にコピーして、あなたのものになるファイルです。`packages/lua` を丸ごとコピーすれば API ごと動くプラグインが手に入ります。別途取りに行く場所も、追随すべきバージョン番号もありません。
 
 ### API モジュールとは
 
 スクリプトにとっては、**プラグインと共に配布される**ただの Lua や JavaScript です。エディタはあなたのファイルを読む前に `storage`、`t`、`require` をグローバルとして注入します。このモジュールはそれらを一つの名前にまとめ、アクションごとのコンストラクタを足します。おかげでプラグインは、綴りを誰も検査しないテーブルリテラルではなく `sdk.show(text, title)` と読めます。書き換えても、まったく使わなくてもかまいません——素のテーブルを返しても同じように動きます。
 
-`examples/dart` にとっては実行ファイルに組み込まれる本物のライブラリで、スクリプトには要らないものを担っています：JSON-RPC のループ、起動チェック、終了処理。プロセスプラグインはパイプの向こう側にいます。
+`packages/dart` にとっては実行ファイルに組み込まれる本物のライブラリで、スクリプトには要らないものを担っています：JSON-RPC のループ、起動チェック、終了処理。プロセスプラグインはパイプの向こう側にいます。
 
 ## プラグインは複数ファイルでよい
 
@@ -137,16 +137,10 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## 配布する前に試す
 
-Lua や JS のプラグインはエディタが解釈するので、正直な検査はインストールすることです——**プラグイン → ZIP からインストール**。二つはもっと早く確かめられます：
+Lua や JS のプラグインはエディタが解釈するので、正直な検査はインストールすることです——**プラグイン → ZIP からインストール**。コンパイル済みのものはもっと早く確かめられます:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-は JavaScript プラグインをエディタと同じように動かします——同じ注入グローバル、プラグインディレクトリの中だけに届く同じ `require`、同じ二つのエントリポイント——そして、どの答えがエディタの期待する形でないかを告げます。エディタは QuickJS を使い、それはビルド済みアプリケーションの中にしか存在しないので、これが代役を務めます。
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -364,7 +358,7 @@ JavaScript 側は QuickJS で、並べて書くほどの欠落はありません
 
 ## コンパイル済みプラグイン（`runtime: "process"`）
 
-実行ファイルは子プロセスとして起動され、stdin/stdout 上で JSON-RPC 2.0 を、一行に一つの JSON オブジェクトで話します。レスポンスは数値の `id` をそのまま返します。このリポジトリの [`examples/dart/lib`](../../examples/dart/lib) が、Dart で書き `dart compile exe` でコンパイルするプラグインのためにそれを実装しています。
+実行ファイルは子プロセスとして起動され、stdin/stdout 上で JSON-RPC 2.0 を、一行に一つの JSON オブジェクトで話します。レスポンスは数値の `id` をそのまま返します。このリポジトリの [`packages/dart/lib`](../../packages/dart/lib) が、Dart で書き `dart compile exe` でコンパイルするプラグインのためにそれを実装しています。
 
 ### ツールチェーンがなければ動かないソースは配布できません
 

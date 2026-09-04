@@ -40,17 +40,17 @@ LICENSE
 مجلد لكل لغة، وكل مجلد إضافة كاملة تُنسخ كما هي:
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-سُمِّيت باسم **اللغة**، لأن ذلك هو ما تختاره. و`runtime` في البيان يقول كيف تعمل — `lua` أو `js` أو `process` — و`examples/dart` إضافة من نوع `process`: أما Dart فهي مجرد اللغة التي كُتب بها مثالها.
+سُمِّيت باسم **اللغة**، لأن ذلك هو ما تختاره. و`runtime` في البيان يقول كيف تعمل — `lua` أو `js` أو `process` — و`packages/dart` إضافة من نوع `process`: أما Dart فهي مجرد اللغة التي كُتب بها مثالها.
 
 **يمكن كتابة إضافة `process` بأي شيء يُترجَم إلى ملف تنفيذي.** يُشغِّل المحرِّر برنامجًا ويكلِّمه بـ JSON-RPC عبر stdin وstdout؛ ولا يعرف أبدًا ما الذي أنتج ذلك البرنامج. Go وRust وC++ وC# وPython مربوطة ربطًا ساكنًا — كلها تصلح، ولا يحتاج أيٌّ منها من هذا المستودع أكثر من البروتوكول:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-و[`examples/dart/lib`](../../examples/dart/lib) هي القواعد الأربع نفسها مع معالجة الحواف: مُدخَل مُشوَّه، أو دالة غير معروفة، أو خطأ داخل معالِج واحد لا يُنهي الإضافة كلها. ووجود Dart هنا سببه أن المحرِّر مكتوب بها، وأن `dart compile exe` كان أقصر طريق إلى مثال يعمل. وهي ليست شرطًا ولا توصية: إعادة كتابة أربع قواعد باللغة التي تعرفها أصلًا أسهل عادةً من إضافة سلسلة أدوات Dart إلى بنائك.
+و[`packages/dart/lib`](../../packages/dart/lib) هي القواعد الأربع نفسها مع معالجة الحواف: مُدخَل مُشوَّه، أو دالة غير معروفة، أو خطأ داخل معالِج واحد لا يُنهي الإضافة كلها. ووجود Dart هنا سببه أن المحرِّر مكتوب بها، وأن `dart compile exe` كان أقصر طريق إلى مثال يعمل. وهي ليست شرطًا ولا توصية: إعادة كتابة أربع قواعد باللغة التي تعرفها أصلًا أسهل عادةً من إضافة سلسلة أدوات Dart إلى بنائك.
 
 نقاط الدخول الثلاث تفعل الشيء نفسه: تُحمِّل الواجهة ثم تستدعيها.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### لماذا تسكن وحدة الواجهة داخل مثال
 
-لأنها تُوزَّع مع إضافتك. `lib/marktext-plus.lua` ليست اعتمادًا تشير إليه — بل ملف تنسخه مع البقية ثم يصير ملكك. ونسخ `examples/lua` كاملًا يعطيك إضافة تعمل، بواجهتها؛ فليس ثمة مكان آخر تجلبها منه، ولا رقم إصدار تلاحقه.
+لأنها تُوزَّع مع إضافتك. `lib/marktext-plus.lua` ليست اعتمادًا تشير إليه — بل ملف تنسخه مع البقية ثم يصير ملكك. ونسخ `packages/lua` كاملًا يعطيك إضافة تعمل، بواجهتها؛ فليس ثمة مكان آخر تجلبها منه، ولا رقم إصدار تلاحقه.
 
 ### ما هي وحدة الواجهة
 
 هي بالنسبة إلى السكربت لغة Lua أو JavaScript عادية، **تُوزَّع مع إضافتك**. يحقن المحرِّر `storage` و`t` و`require` كمتغيرات عامة قبل أن يُقرأ ملفك؛ وتجمعها هذه الوحدة تحت اسم واحد وتضيف بانيًا لكل فعل، فتُقرأ الإضافة `sdk.show(text, title)` لا كجدول لا يتحقق أحد من هجائه. ولك أن تعدِّلها، أو ألا تستعملها أصلًا — فإعادة الجدول عاريًا تعمل تمامًا كما تعمل هي.
 
-وهي بالنسبة إلى `examples/dart` مكتبة حقيقية، تُترجَم داخل ملفك التنفيذي، وتحمل ما لا يحتاجه السكربت: حلقة JSON-RPC، والتحقق من التشغيل، والإغلاق. فإضافة العملية تقف على الطرف الآخر من أنبوب.
+وهي بالنسبة إلى `packages/dart` مكتبة حقيقية، تُترجَم داخل ملفك التنفيذي، وتحمل ما لا يحتاجه السكربت: حلقة JSON-RPC، والتحقق من التشغيل، والإغلاق. فإضافة العملية تقف على الطرف الآخر من أنبوب.
 
 ## قد تتكوَّن الإضافة من عدة ملفات
 
@@ -137,16 +137,10 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## أن تجرِّب إضافة قبل أن تُوزِّعها
 
-يفسِّر المحرِّر إضافة Lua أو JavaScript، فالاختبار الصادق هو أن تُثبِّتها — **الإضافات ← التثبيت من ZIP**. وشيئان يمكن التحقق منهما قبل ذلك:
+يفسِّر المحرِّر إضافة Lua أو JavaScript، فالاختبار الصادق هو أن تُثبِّتها — **الإضافات ← التثبيت من ZIP**. أما الإضافة المُترجَمة فيمكن التحقق منها أبكر:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-يُشغِّل إضافة JavaScript كما يشغِّلها المحرِّر — المتغيرات العامة المحقونة نفسها، و`require` نفسه الذي لا يبلغ إلا مجلد الإضافة، ونقطتا الدخول نفساهما — ويقول لك أيّ إجاباتك ليست على الشكل الذي يتوقعه المحرِّر. فالمحرِّر يستعمل QuickJS، وهو لا يوجد إلا داخل تطبيق مبنيّ؛ وهذا يقوم مقامه.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -370,7 +364,7 @@ function on_result(ctx, result) {
 
 ## الإضافات المُترجَمة (`runtime: "process"`)
 
-يُشغَّل الملف التنفيذي عمليةً ابنة، ويتكلم JSON-RPC 2.0، كائن JSON واحد في كل سطر، عبر stdin/stdout. وتُعيد الردود المعرِّف الرقمي. و[`examples/dart/lib`](../../examples/dart/lib) في هذا المستودع ينفِّذ ذلك للإضافات المكتوبة بـ Dart والمُترجَمة بـ `dart compile exe`.
+يُشغَّل الملف التنفيذي عمليةً ابنة، ويتكلم JSON-RPC 2.0، كائن JSON واحد في كل سطر، عبر stdin/stdout. وتُعيد الردود المعرِّف الرقمي. و[`packages/dart/lib`](../../packages/dart/lib) في هذا المستودع ينفِّذ ذلك للإضافات المكتوبة بـ Dart والمُترجَمة بـ `dart compile exe`.
 
 ### لا يجوز أن تُوزِّع شيفرة مصدرية تحتاج إلى سلسلة أدوات لتعمل
 

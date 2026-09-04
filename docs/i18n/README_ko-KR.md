@@ -40,17 +40,17 @@ LICENSE
 **언어**마다 디렉터리 하나, 각각 통째로 복사할 수 있는 완전한 플러그인입니다:
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-**언어**를 따서 이름 붙였습니다. 고르는 것이 그것이기 때문입니다. 매니페스트의 `runtime`은 "어떻게 도는지"를 말하며 — `lua`, `js`, `process` — `examples/dart`는 `process` 플러그인입니다. Dart는 그 예제가 마침 쓰인 언어일 뿐입니다.
+**언어**를 따서 이름 붙였습니다. 고르는 것이 그것이기 때문입니다. 매니페스트의 `runtime`은 "어떻게 도는지"를 말하며 — `lua`, `js`, `process` — `packages/dart`는 `process` 플러그인입니다. Dart는 그 예제가 마침 쓰인 언어일 뿐입니다.
 
 **`process` 플러그인은 실행 파일로 컴파일되는 어떤 언어로도 쓸 수 있습니다.** 에디터는 프로그램을 시작하고 stdin/stdout으로 JSON-RPC를 말할 뿐, **그 프로그램이 무엇으로 만들어졌는지 결코 알지 못합니다**. Go, Rust, C++, C#, 정적 링크한 Python — 모두 됩니다. 프로토콜 말고는 이 저장소에서 필요한 것이 없습니다:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib)는 같은 네 규칙에 가장자리 처리를 더한 것입니다: 잘못된 입력, 모르는 메서드, 핸들러 하나의 오류가 플러그인을 끝내지 않는 것. Dart가 여기 있는 것은 에디터가 그것으로 쓰였기 때문이고, `dart compile exe`가 도는 예제를 갖는 가장 짧은 길이었기 때문입니다. **요구 사항도 권장도 아닙니다**: 이미 아는 언어로 네 규칙을 다시 쓰는 편이, 빌드에 Dart 툴체인을 더하는 것보다 보통 쉽습니다.
+[`packages/dart/lib`](../../packages/dart/lib)는 같은 네 규칙에 가장자리 처리를 더한 것입니다: 잘못된 입력, 모르는 메서드, 핸들러 하나의 오류가 플러그인을 끝내지 않는 것. Dart가 여기 있는 것은 에디터가 그것으로 쓰였기 때문이고, `dart compile exe`가 도는 예제를 갖는 가장 짧은 길이었기 때문입니다. **요구 사항도 권장도 아닙니다**: 이미 아는 언어로 네 규칙을 다시 쓰는 편이, 빌드에 Dart 툴체인을 더하는 것보다 보통 쉽습니다.
 
 세 진입점은 모두 같은 일을 합니다. API를 불러와 호출합니다.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### 왜 API 모듈이 예제 안에 있나
 
-**플러그인과 함께 배포되기 때문입니다.** `lib/marktext-plus.lua`는 가리키는 의존이 아닙니다 — 나머지와 함께 복사해서 당신 것이 되는 파일입니다. `examples/lua`를 통째로 복사하면 API까지 들어 있는 도는 플러그인을 얻습니다. 따로 받아올 곳도, 맞춰야 할 버전 번호도 없습니다.
+**플러그인과 함께 배포되기 때문입니다.** `lib/marktext-plus.lua`는 가리키는 의존이 아닙니다 — 나머지와 함께 복사해서 당신 것이 되는 파일입니다. `packages/lua`를 통째로 복사하면 API까지 들어 있는 도는 플러그인을 얻습니다. 따로 받아올 곳도, 맞춰야 할 버전 번호도 없습니다.
 
 ### API 모듈이란
 
 스크립트에게 그것은 **플러그인과 함께 배포되는** 평범한 Lua나 JavaScript입니다. 에디터는 당신의 파일을 읽기 전에 `storage`, `t`, `require`를 전역으로 주입합니다. 이 모듈은 그것들을 한 이름 아래 묶고 액션마다 생성자를 더합니다. 덕분에 플러그인은 철자를 아무도 검사하지 않는 테이블 리터럴이 아니라 `sdk.show(text, title)`로 읽힙니다. 고쳐도 되고, 아예 쓰지 않아도 됩니다 — 맨 테이블을 돌려줘도 똑같이 동작합니다.
 
-`examples/dart`에게 그것은 실행 파일에 컴파일되어 들어가는 진짜 라이브러리이고, 스크립트에는 필요 없는 것을 지고 있습니다: JSON-RPC 루프, 시작 확인, 종료 처리. 프로세스 플러그인은 파이프 반대편에 있습니다.
+`packages/dart`에게 그것은 실행 파일에 컴파일되어 들어가는 진짜 라이브러리이고, 스크립트에는 필요 없는 것을 지고 있습니다: JSON-RPC 루프, 시작 확인, 종료 처리. 프로세스 플러그인은 파이프 반대편에 있습니다.
 
 ## 플러그인은 여러 파일이어도 됩니다
 
@@ -137,16 +137,10 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## 배포하기 전에 해보기
 
-Lua나 JS 플러그인은 에디터가 해석하므로 정직한 시험은 설치해 보는 것입니다 — **플러그인 → ZIP에서 설치**. 두 가지는 더 일찍 확인할 수 있습니다:
+Lua나 JS 플러그인은 에디터가 해석하므로 정직한 시험은 설치해 보는 것입니다 — **플러그인 → ZIP에서 설치**. 컴파일된 것은 더 일찍 확인할 수 있습니다:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-는 JavaScript 플러그인을 에디터와 같은 방식으로 돌립니다 — 같은 주입 전역, 플러그인 디렉터리 안에만 닿는 같은 `require`, 같은 두 진입점 — 그리고 어느 답이 에디터가 기대하는 모양이 아닌지 말해 줍니다. 에디터는 QuickJS를 쓰는데 그것은 빌드된 애플리케이션 안에만 있으므로, 이것이 대신 섭니다.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -364,7 +358,7 @@ JavaScript 쪽은 QuickJS이고, 따로 적을 만한 빈틈은 없습니다.
 
 ## 컴파일된 플러그인(`runtime: "process"`)
 
-실행 파일은 자식 프로세스로 시작되고, stdin/stdout에서 JSON-RPC 2.0을 한 줄에 JSON 객체 하나로 말합니다. 응답은 숫자 `id`를 그대로 돌려줍니다. 이 저장소의 [`examples/dart/lib`](../../examples/dart/lib)가 Dart로 쓰고 `dart compile exe`로 컴파일하는 플러그인을 위해 그것을 구현합니다.
+실행 파일은 자식 프로세스로 시작되고, stdin/stdout에서 JSON-RPC 2.0을 한 줄에 JSON 객체 하나로 말합니다. 응답은 숫자 `id`를 그대로 돌려줍니다. 이 저장소의 [`packages/dart/lib`](../../packages/dart/lib)가 Dart로 쓰고 `dart compile exe`로 컴파일하는 플러그인을 위해 그것을 구현합니다.
 
 ### 툴체인이 있어야 도는 소스는 배포할 수 없습니다
 

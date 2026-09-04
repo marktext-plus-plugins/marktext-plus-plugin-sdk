@@ -40,17 +40,17 @@ LICENSE
 按**语言**各一个目录，每个都是可以整份复制走的完整插件：
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-按语言命名，因为那才是你要选的东西。manifest 里的 `runtime` 说的是"怎么跑"——`lua`、`js`、`process`——而 `examples/dart` 是个 `process` 插件，Dart 只是它示例用的语言。
+按语言命名，因为那才是你要选的东西。manifest 里的 `runtime` 说的是"怎么跑"——`lua`、`js`、`process`——而 `packages/dart` 是个 `process` 插件，Dart 只是它示例用的语言。
 
 **`process` 插件可以用任何能编译成可执行文件的语言写。** 编辑器只是启动一个程序、通过 stdin/stdout 跟它说 JSON-RPC，它**永远不知道那个程序是什么编出来的**。Go、Rust、C++、C#、静态链接的 Python 都行，而且除了协议本身，都不需要本仓库的任何东西：
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib) 是同样四条规则加上边界处理：畸形输入、未知方法、单个 handler 出错不会终结整个插件。Dart 出现在这里只是因为编辑器本身用它写的，`dart compile exe` 是最快拿出一个能跑的示例的办法。它**不是要求，也不是推荐**：用你已经会的语言把那四条规则再写一遍，通常比给你的构建加一套 Dart 工具链容易。
+[`packages/dart/lib`](../../packages/dart/lib) 是同样四条规则加上边界处理：畸形输入、未知方法、单个 handler 出错不会终结整个插件。Dart 出现在这里只是因为编辑器本身用它写的，`dart compile exe` 是最快拿出一个能跑的示例的办法。它**不是要求，也不是推荐**：用你已经会的语言把那四条规则再写一遍，通常比给你的构建加一套 Dart 工具链容易。
 
 三个入口做的是同一件事：加载 API，然后调用它。
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### 为什么 API 模块放在示例里面
 
-因为它**随你的插件一起分发**。`lib/marktext-plus.lua` 不是一个你去指向的依赖——它是你连同其余部分一起复制、然后归你所有的一个文件。把 `examples/lua` 整份复制走，你就得到一个能用的插件，API 也在里面；没有另一个地方需要去取它，也没有版本号需要跟着对。
+因为它**随你的插件一起分发**。`lib/marktext-plus.lua` 不是一个你去指向的依赖——它是你连同其余部分一起复制、然后归你所有的一个文件。把 `packages/lua` 整份复制走，你就得到一个能用的插件，API 也在里面；没有另一个地方需要去取它，也没有版本号需要跟着对。
 
 ### API 模块是什么
 
 对脚本来说，它就是普通的 Lua 或 JavaScript，**随你的插件分发**。编辑器在读你的文件之前就注入了 `storage`、`t` 和 `require`；这个模块把它们收在一个名字下面，并为每个动作提供构造函数，于是插件读起来是 `sdk.show(text, title)`，而不是拼写没人检查的字面量表。你可以改它，也可以完全不用——直接返回原始的表一样有效。
 
-对 `examples/dart` 来说它是真正的库，会被编译进你的可执行文件，而且带着脚本不需要的东西：JSON-RPC 循环、启动检查、关闭处理。进程插件在管道的另一端。
+对 `packages/dart` 来说它是真正的库，会被编译进你的可执行文件，而且带着脚本不需要的东西：JSON-RPC 循环、启动检查、关闭处理。进程插件在管道的另一端。
 
 ## 插件可以是多个文件
 
@@ -137,16 +137,10 @@ const helpers = require("lib/helpers");  // lib/helpers.js, sets module.exports
 
 ## 发布前怎么试
 
-Lua 或 JS 插件由编辑器解释执行，所以最实在的检验就是装上它——**插件 → 安装 ZIP**。有两件事可以更早做：
+Lua 或 JS 插件由编辑器解释执行，所以最实在的检验就是装上它——**插件 → 安装 ZIP**。编译型插件可以更早检查：
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-会像编辑器那样运行一个 JavaScript 插件——同样的注入全局、同样只能在插件目录内解析的 `require`、同样的两个入口——并告诉你哪一条回答不是编辑器期待的形状。编辑器用的是 QuickJS，它只存在于构建产物里；这个脚本替它站台。
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -364,7 +358,7 @@ JavaScript 那边是 QuickJS，没有值得单列的同类缺口。
 
 ## 编译型插件（`runtime: "process"`）
 
-可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`examples/dart/lib`](../../examples/dart/lib) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
+可执行文件作为子进程启动，通过 stdin/stdout 用 JSON-RPC 2.0 通信，每行一个 JSON 对象，响应回显数字 `id`。本仓库的 [`packages/dart/lib`](../../packages/dart/lib) 为用 Dart 编写、用 `dart compile exe` 编译的插件实现了这套协议。
 
 ### 不许分发需要工具链才能运行的源码
 

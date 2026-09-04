@@ -40,17 +40,17 @@ Un script, un manifeste, et trois fichiers de documentation. **Pas la moindre tr
 Un répertoire par langage, chacun une extension complète à copier :
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Nommés d'après le **langage**, puisque c'est ce que vous choisissez. `runtime` dans le manifeste dit comment cela s'exécute — `lua`, `js`, `process` — et `examples/dart` est une extension `process` : Dart n'est que le langage dans lequel son exemple est écrit.
+Nommés d'après le **langage**, puisque c'est ce que vous choisissez. `runtime` dans le manifeste dit comment cela s'exécute — `lua`, `js`, `process` — et `packages/dart` est une extension `process` : Dart n'est que le langage dans lequel son exemple est écrit.
 
 **Une extension `process` peut être écrite dans tout ce qui se compile en exécutable.** L'éditeur lance un programme et lui parle en JSON-RPC sur stdin et stdout ; il n'apprend jamais ce qui a produit ce programme. Go, Rust, C++, C#, un Python lié statiquement — tous conviennent, et aucun n'a besoin de ce dépôt au-delà du protocole :
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib), ce sont les mêmes quatre règles avec les bords traités : entrée mal formée, méthode inconnue, erreur dans un gestionnaire qui ne met pas fin à l'extension entière. Dart est ici parce que l'éditeur est écrit en Dart, et que `dart compile exe` était le chemin le plus court vers un exemple qui marche. Ce n'est ni une exigence ni une recommandation : réécrire quatre règles dans le langage que vous connaissez déjà est en général plus simple que d'ajouter une chaîne d'outils Dart à votre build.
+[`packages/dart/lib`](../../packages/dart/lib), ce sont les mêmes quatre règles avec les bords traités : entrée mal formée, méthode inconnue, erreur dans un gestionnaire qui ne met pas fin à l'extension entière. Dart est ici parce que l'éditeur est écrit en Dart, et que `dart compile exe` était le chemin le plus court vers un exemple qui marche. Ce n'est ni une exigence ni une recommandation : réécrire quatre règles dans le langage que vous connaissez déjà est en général plus simple que d'ajouter une chaîne d'outils Dart à votre build.
 
 Les trois points d'entrée font la même chose : charger l'API et l'appeler.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Pourquoi le module d'API vit à l'intérieur d'un exemple
 
-Parce qu'il est livré avec votre extension. `lib/marktext-plus.lua` n'est pas une dépendance que l'on désigne — c'est un fichier que vous copiez avec le reste et qui devient le vôtre. Copier `examples/lua` en entier vous donne une extension qui marche, API comprise ; il n'y a pas d'autre endroit où aller la chercher, ni de numéro de version à suivre.
+Parce qu'il est livré avec votre extension. `lib/marktext-plus.lua` n'est pas une dépendance que l'on désigne — c'est un fichier que vous copiez avec le reste et qui devient le vôtre. Copier `packages/lua` en entier vous donne une extension qui marche, API comprise ; il n'y a pas d'autre endroit où aller la chercher, ni de numéro de version à suivre.
 
 ### Ce qu'est le module d'API
 
 Pour un script, c'est du Lua ou du JavaScript ordinaire, **livré avec votre extension**. L'éditeur injecte `storage`, `t` et `require` comme variables globales avant que votre fichier ne soit lu ; le module les rassemble sous un seul nom et ajoute un constructeur par action, si bien qu'une extension se lit `sdk.show(text, title)` plutôt que sous forme de table dont personne ne vérifie l'orthographe. Vous pouvez le modifier, ou ne pas l'utiliser du tout — renvoyer la table brute fonctionne exactement pareil.
 
-Pour `examples/dart`, c'est une vraie bibliothèque, compilée dans votre exécutable, et elle porte ce dont un script n'a pas besoin : la boucle JSON-RPC, la vérification du lancement, l'arrêt. Une extension processus se tient de l'autre côté d'un tube.
+Pour `packages/dart`, c'est une vraie bibliothèque, compilée dans votre exécutable, et elle porte ce dont un script n'a pas besoin : la boucle JSON-RPC, la vérification du lancement, l'arrêt. Une extension processus se tient de l'autre côté d'un tube.
 
 ## Une extension peut tenir en plusieurs fichiers
 
@@ -137,16 +137,10 @@ Chargé une seule fois, quel que soit le nombre d'appels. Le nom est un nom, pas
 
 ## Essayer une extension avant de la livrer
 
-Une extension Lua ou JavaScript est interprétée par l'éditeur ; l'épreuve honnête est donc de l'installer — **Extensions → Installer depuis un ZIP**. Deux choses peuvent être vérifiées plus tôt :
+Une extension Lua ou JavaScript est interprétée par l'éditeur ; l'épreuve honnête est donc de l'installer — **Extensions → Installer depuis un ZIP**. Une extension compilée se vérifie plus tôt :
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-exécute une extension JavaScript comme le fait l'éditeur — mêmes variables globales injectées, même `require` qui n'atteint que le répertoire de l'extension, mêmes deux points d'entrée — et vous dit laquelle de vos réponses n'a pas la forme attendue. L'éditeur utilise QuickJS, qui n'existe que dans une application compilée ; ceci en tient lieu.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -370,7 +364,7 @@ Les valeurs vivent dans `settings.json`, dans le répertoire propre de l'extensi
 
 ## Extensions compilées (`runtime: "process"`)
 
-L'exécutable est lancé comme processus enfant et parle JSON-RPC 2.0, un objet JSON par ligne, sur stdin/stdout. Les réponses renvoient l'`id` numérique. [`examples/dart/lib`](../../examples/dart/lib), dans ce dépôt, met cela en œuvre pour les extensions écrites en Dart et compilées avec `dart compile exe`.
+L'exécutable est lancé comme processus enfant et parle JSON-RPC 2.0, un objet JSON par ligne, sur stdin/stdout. Les réponses renvoient l'`id` numérique. [`packages/dart/lib`](../../packages/dart/lib), dans ce dépôt, met cela en œuvre pour les extensions écrites en Dart et compilées avec `dart compile exe`.
 
 ### Vous ne pouvez pas livrer un source qui exige une chaîne d'outils pour tourner
 

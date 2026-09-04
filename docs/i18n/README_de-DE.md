@@ -40,17 +40,17 @@ Ein Skript, ein Manifest und drei Dateien Dokumentation. **Nirgends Dart.**
 Ein Verzeichnis je Sprache, jedes ein vollständiges Plug-in zum Kopieren:
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Benannt nach der **Sprache**, denn die wählen Sie. `runtime` im Manifest benennt, wie es läuft — `lua`, `js`, `process` — und `examples/dart` ist ein `process`-Plug-in: Dart ist bloß die Sprache, in der sein Beispiel geschrieben ist.
+Benannt nach der **Sprache**, denn die wählen Sie. `runtime` im Manifest benennt, wie es läuft — `lua`, `js`, `process` — und `packages/dart` ist ein `process`-Plug-in: Dart ist bloß die Sprache, in der sein Beispiel geschrieben ist.
 
 **Ein `process`-Plug-in darf in allem geschrieben sein, was sich zu einer ausführbaren Datei kompilieren lässt.** Der Editor startet ein Programm und spricht JSON-RPC mit ihm über stdin und stdout; er erfährt nie, was dieses Programm hervorgebracht hat. Go, Rust, C++, C#, ein statisch gelinktes Python — alle funktionieren, und keines braucht aus diesem Repository mehr als das Protokoll:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib) sind dieselben vier Regeln mit den Rändern versorgt: fehlerhafte Eingaben, eine unbekannte Methode, ein Fehler in einem Handler, der nicht das ganze Plug-in beendet. Dart steht hier, weil der Editor darin geschrieben ist und `dart compile exe` der kürzeste Weg zu einem lauffähigen Beispiel war. Es ist weder Bedingung noch Empfehlung: vier Regeln in der Sprache neu zu schreiben, die Sie ohnehin können, ist meist leichter, als Ihrem Build eine Dart-Toolchain hinzuzufügen.
+[`packages/dart/lib`](../../packages/dart/lib) sind dieselben vier Regeln mit den Rändern versorgt: fehlerhafte Eingaben, eine unbekannte Methode, ein Fehler in einem Handler, der nicht das ganze Plug-in beendet. Dart steht hier, weil der Editor darin geschrieben ist und `dart compile exe` der kürzeste Weg zu einem lauffähigen Beispiel war. Es ist weder Bedingung noch Empfehlung: vier Regeln in der Sprache neu zu schreiben, die Sie ohnehin können, ist meist leichter, als Ihrem Build eine Dart-Toolchain hinzuzufügen.
 
 Alle drei Einstiegspunkte tun dasselbe: die API laden und sie aufrufen.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Warum das API-Modul in einem Beispiel liegt
 
-Weil es mit Ihrem Plug-in ausgeliefert wird. `lib/marktext-plus.lua` ist keine Abhängigkeit, auf die Sie zeigen — es ist eine Datei, die Sie mitkopieren und dann besitzen. `examples/lua` im Ganzen zu kopieren gibt Ihnen ein lauffähiges Plug-in samt API; es gibt keinen zweiten Ort, von dem man es holt, und keine Versionsnummer, mit der man Schritt halten muss.
+Weil es mit Ihrem Plug-in ausgeliefert wird. `lib/marktext-plus.lua` ist keine Abhängigkeit, auf die Sie zeigen — es ist eine Datei, die Sie mitkopieren und dann besitzen. `packages/lua` im Ganzen zu kopieren gibt Ihnen ein lauffähiges Plug-in samt API; es gibt keinen zweiten Ort, von dem man es holt, und keine Versionsnummer, mit der man Schritt halten muss.
 
 ### Was das API-Modul ist
 
 Für ein Skript ist es gewöhnliches Lua oder JavaScript, das **mit Ihrem Plug-in ausgeliefert wird**. Der Editor spritzt `storage`, `t` und `require` als Globals ein, bevor Ihre Datei gelesen wird; das Modul fasst sie unter einem Namen zusammen und fügt je Aktion einen Konstruktor hinzu, sodass ein Plug-in sich als `sdk.show(text, title)` liest statt als Tabellenliteral, dessen Schreibweise niemand prüft. Sie dürfen es ändern oder gar nicht benutzen — die schlichte Tabelle zurückzugeben funktioniert genauso.
 
-Für `examples/dart` ist es eine echte Bibliothek, in Ihre ausführbare Datei kompiliert, und sie trägt etwas, das ein Skript nicht braucht: die JSON-RPC-Schleife, die Startprüfung und das Herunterfahren. Ein Prozess-Plug-in sitzt auf der anderen Seite einer Pipe.
+Für `packages/dart` ist es eine echte Bibliothek, in Ihre ausführbare Datei kompiliert, und sie trägt etwas, das ein Skript nicht braucht: die JSON-RPC-Schleife, die Startprüfung und das Herunterfahren. Ein Prozess-Plug-in sitzt auf der anderen Seite einer Pipe.
 
 ## Ein Plug-in darf aus mehreren Dateien bestehen
 
@@ -137,16 +137,10 @@ Einmal geladen, so oft es auch verlangt wird. Der Name ist ein Name, kein Pfad: 
 
 ## Ein Plug-in ausprobieren, bevor Sie es ausliefern
 
-Ein Lua- oder JavaScript-Plug-in wird vom Editor interpretiert, die ehrliche Probe ist also, es zu installieren — **Plug-ins → Aus ZIP installieren**. Zweierlei lässt sich früher prüfen:
+Ein Lua- oder JavaScript-Plug-in wird vom Editor interpretiert, die ehrliche Probe ist also, es zu installieren — **Plug-ins → Aus ZIP installieren**. Ein kompiliertes lässt sich früher prüfen:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-führt ein JavaScript-Plug-in so aus, wie der Editor es tut — dieselben eingespritzten Globals, dasselbe `require`, das nur ins Plug-in-Verzeichnis reicht, dieselben zwei Einstiegspunkte — und sagt Ihnen, welche Ihrer Antworten nicht die Form hat, die der Editor erwartet. Der Editor verwendet QuickJS, das es nur in einer gebauten Anwendung gibt; dies steht dafür ein.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -364,7 +358,7 @@ Die Werte liegen in `settings.json` im eigenen Verzeichnis des Plug-ins, kein Pl
 
 ## Kompilierte Plug-ins (`runtime: "process"`)
 
-Die ausführbare Datei wird als Kindprozess gestartet und spricht JSON-RPC 2.0, ein JSON-Objekt je Zeile, auf stdin/stdout. Antworten geben die numerische `id` zurück. [`examples/dart/lib`](../../examples/dart/lib) in diesem Repository setzt das für Plug-ins um, die in Dart geschrieben und mit `dart compile exe` kompiliert werden.
+Die ausführbare Datei wird als Kindprozess gestartet und spricht JSON-RPC 2.0, ein JSON-Objekt je Zeile, auf stdin/stdout. Antworten geben die numerische `id` zurück. [`packages/dart/lib`](../../packages/dart/lib) in diesem Repository setzt das für Plug-ins um, die in Dart geschrieben und mit `dart compile exe` kompiliert werden.
 
 ### Sie dürfen keinen Quelltext ausliefern, der eine Toolchain zum Laufen braucht
 

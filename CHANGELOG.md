@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased]
+
+Pre-release, like everything before it. The SDK stays at 0.x while the plugin
+system is still settling.
+
+### Changed
+
+- The three example plugins are back under `packages/`, where they were before
+  they were briefly `examples/`.
+
+### Removed
+
+- `tool/run-js-plugin.mjs`. It ran a JavaScript plugin under Node to stand in
+  for the editor, but the editor uses QuickJS and Node is V8 — so what it
+  proved was an approximation, and only for one of the three runtimes: Lua has
+  no equivalent, because `lua_dardo` likewise exists only inside a built
+  application. The honest test was always installing the plugin, which is what
+  the README said next to it.
+- `tool/check-translations.mjs`. It compared the translated READMEs against the
+  English one — a tool for maintaining this repository, of no use to anyone
+  writing a plugin, and it had no business shipping in an SDK.
+
 ## [0.1.1] - 2026-09-03
 
 Pre-release. The SDK stays at 0.x while the plugin system is still settling.

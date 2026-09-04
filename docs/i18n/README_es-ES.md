@@ -40,17 +40,17 @@ Un script, un manifiesto y tres archivos de documentación. **Ni rastro de Dart.
 Un directorio por lenguaje, cada uno un complemento completo para copiar:
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -59,7 +59,7 @@ examples/dart/      ← only if a script will not do; any compiled language work
 schema/manifest.schema.json
 ```
 
-Llevan el nombre del **lenguaje**, porque es lo que usted elige. `runtime` en el manifiesto dice cómo se ejecuta —`lua`, `js`, `process`— y `examples/dart` es un complemento `process`: Dart es simplemente el lenguaje en que está escrito su ejemplo.
+Llevan el nombre del **lenguaje**, porque es lo que usted elige. `runtime` en el manifiesto dice cómo se ejecuta —`lua`, `js`, `process`— y `packages/dart` es un complemento `process`: Dart es simplemente el lenguaje en que está escrito su ejemplo.
 
 **Un complemento `process` puede escribirse en cualquier cosa que compile a un ejecutable.** El editor arranca un programa y le habla en JSON-RPC por stdin y stdout; nunca llega a saber qué produjo ese programa. Go, Rust, C++, C#, un Python enlazado estáticamente: todos sirven, y ninguno necesita de este repositorio nada más que el protocolo:
 
@@ -90,7 +90,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](../../examples/dart/lib) son esas mismas cuatro reglas con los bordes atendidos: entrada mal formada, un método desconocido, un error dentro de un manejador que no termina el complemento entero. Dart está aquí porque el editor está escrito en Dart y `dart compile exe` era el camino más corto a un ejemplo que funcionara. No es un requisito ni una recomendación: reescribir cuatro reglas en el lenguaje que ya conoce suele ser más fácil que añadir una cadena de herramientas de Dart a su compilación.
+[`packages/dart/lib`](../../packages/dart/lib) son esas mismas cuatro reglas con los bordes atendidos: entrada mal formada, un método desconocido, un error dentro de un manejador que no termina el complemento entero. Dart está aquí porque el editor está escrito en Dart y `dart compile exe` era el camino más corto a un ejemplo que funcionara. No es un requisito ni una recomendación: reescribir cuatro reglas en el lenguaje que ya conoce suele ser más fácil que añadir una cadena de herramientas de Dart a su compilación.
 
 Los tres puntos de entrada hacen lo mismo: cargan la API y la llaman.
 
@@ -113,13 +113,13 @@ exit(await serve(args, { 'summarise': (request) => ... }));
 
 ### Por qué el módulo de API vive dentro de un ejemplo
 
-Porque se distribuye con su complemento. `lib/marktext-plus.lua` no es una dependencia a la que se apunta: es un archivo que copia junto con lo demás y que a partir de ahí es suyo. Copiar `examples/lua` entero le da un complemento que funciona, API incluida; no hay otro sitio del que traerla ni número de versión al que seguir el paso.
+Porque se distribuye con su complemento. `lib/marktext-plus.lua` no es una dependencia a la que se apunta: es un archivo que copia junto con lo demás y que a partir de ahí es suyo. Copiar `packages/lua` entero le da un complemento que funciona, API incluida; no hay otro sitio del que traerla ni número de versión al que seguir el paso.
 
 ### Qué es el módulo de API
 
 Para un script es Lua o JavaScript corriente, **distribuido con su complemento**. El editor inyecta `storage`, `t` y `require` como variables globales antes de que se lea su archivo; el módulo las reúne bajo un solo nombre y añade un constructor por acción, de modo que un complemento se lee como `sdk.show(text, title)` y no como una tabla cuya ortografía nadie comprueba. Puede modificarlo, o no usarlo en absoluto: devolver la tabla desnuda funciona exactamente igual.
 
-Para `examples/dart` es una biblioteca de verdad, compilada dentro de su ejecutable, y lleva lo que un script no necesita: el bucle JSON-RPC, la comprobación de arranque y el cierre. Un complemento de proceso está al otro lado de una tubería.
+Para `packages/dart` es una biblioteca de verdad, compilada dentro de su ejecutable, y lleva lo que un script no necesita: el bucle JSON-RPC, la comprobación de arranque y el cierre. Un complemento de proceso está al otro lado de una tubería.
 
 ## Un complemento puede tener varios archivos
 
@@ -137,16 +137,10 @@ Se carga una sola vez, por muchas veces que se pida. El nombre es un nombre, no 
 
 ## Probar un complemento antes de distribuirlo
 
-Un complemento en Lua o JavaScript lo interpreta el editor, así que la prueba honesta es instalarlo: **Complementos → Instalar desde ZIP**. Dos cosas pueden comprobarse antes:
+Un complemento en Lua o JavaScript lo interpreta el editor, así que la prueba honesta es instalarlo: **Complementos → Instalar desde ZIP**. Uno compilado puede comprobarse antes:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-ejecuta un complemento de JavaScript como lo hace el editor —las mismas variables globales inyectadas, el mismo `require` que solo alcanza el directorio del complemento, los mismos dos puntos de entrada— y le dice cuál de sus respuestas no tiene la forma que el editor espera. El editor usa QuickJS, que solo existe dentro de una aplicación compilada; esto hace sus veces.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -370,7 +364,7 @@ Los valores viven en `settings.json`, dentro del directorio propio del complemen
 
 ## Complementos compilados (`runtime: "process"`)
 
-El ejecutable se arranca como proceso hijo y habla JSON-RPC 2.0, un objeto JSON por línea, por stdin/stdout. Las respuestas devuelven el `id` numérico. [`examples/dart/lib`](../../examples/dart/lib), en este repositorio, lo implementa para complementos escritos en Dart y compilados con `dart compile exe`.
+El ejecutable se arranca como proceso hijo y habla JSON-RPC 2.0, un objeto JSON por línea, por stdin/stdout. Las respuestas devuelven el `id` numérico. [`packages/dart/lib`](../../packages/dart/lib), en este repositorio, lo implementa para complementos escritos en Dart y compilados con `dart compile exe`.
 
 ### No puede distribuir código fuente que necesite una cadena de herramientas para ejecutarse
 

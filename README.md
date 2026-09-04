@@ -50,17 +50,17 @@ anywhere.
 One directory per language, each a complete plugin you can copy:
 
 ```
-examples/lua/       ← start here
+packages/lua/       ← start here
   manifest.json
   plugin.lua              the entrypoint
   lib/marktext-plus.lua   the API, loaded with require("lib.marktext-plus")
 
-examples/js/        ← or here
+packages/js/        ← or here
   manifest.json
   plugin.js
   lib/marktext-plus.js    the API, loaded with require("lib/marktext-plus")
 
-examples/dart/      ← only if a script will not do; any compiled language works
+packages/dart/      ← only if a script will not do; any compiled language works
   manifest.json
   plugin.dart             the entrypoint, compiled to an executable
   lib/                    the library it imports
@@ -70,7 +70,7 @@ schema/manifest.schema.json
 ```
 
 Named after the **language**, because that is what you choose. `runtime` in the
-manifest names how it runs — `lua`, `js`, `process` — and `examples/dart` is a
+manifest names how it runs — `lua`, `js`, `process` — and `packages/dart` is a
 `process` plugin: Dart is simply the language its example happens to be written
 in.
 
@@ -109,7 +109,7 @@ for line in sys.stdin:                       # ends at EOF: the editor went away
           flush=True)
 ```
 
-[`examples/dart/lib`](examples/dart/lib) is the same four rules with the edges
+[`packages/dart/lib`](packages/dart/lib) is the same four rules with the edges
 handled — malformed input, an unknown method, an error inside one handler not
 ending the plugin. Dart is here because the editor is written in it, so
 `dart compile exe` was the shortest way to have a working example. It is not a
@@ -140,7 +140,7 @@ a directory holding all three is three plugins wearing one manifest.
 
 Because it ships with your plugin. `lib/marktext-plus.lua` is not a dependency
 you point at — it is a file you copy along with the rest, and then own. Copying
-`examples/lua` wholesale gives you a working plugin including the API; there is
+`packages/lua` wholesale gives you a working plugin including the API; there is
 no separate place to fetch it from, and nothing to keep in step with a version
 number.
 
@@ -153,7 +153,7 @@ action, so a plugin reads as `sdk.show(text, title)` rather than as a table
 literal whose spelling nothing checks. You can edit it, or not use it at all —
 returning the plain table works exactly as well.
 
-For `examples/dart` it is a real library, compiled into your executable, and it
+For `packages/dart` it is a real library, compiled into your executable, and it
 carries something a script does not need: the JSON-RPC loop, the launch check
 and the shutdown. A process plugin is on the other side of a pipe.
 
@@ -191,21 +191,11 @@ example whose language you want and leave the others here.
 ## Trying a plugin before you ship it
 
 A Lua or JavaScript plugin is interpreted by the editor, so the honest test is
-installing it — **Plugins → Install from ZIP**. Two things can be checked
-sooner:
+installing it — **Plugins → Install from ZIP**. A compiled plugin can be
+checked sooner:
 
 ```
-node tool/run-js-plugin.mjs examples/js      # or your own plugin directory
-```
-
-runs a JavaScript plugin the way the editor does — the same injected globals,
-the same `require` reaching only inside the plugin directory, the same two
-entry points — and says which of your answers is not the shape the editor
-expects. The editor uses QuickJS, which only exists inside a built
-application; this stands in for it.
-
-```
-cd examples/dart && dart compile exe plugin.dart -o bin/linux/plugin
+cd packages/dart && dart compile exe plugin.dart -o bin/linux/plugin
 echo | ./bin/linux/plugin       # should refuse: it was not started by the editor
 ```
 
@@ -494,7 +484,7 @@ the editor's.
 
 The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The
-[`examples/dart`](examples/dart) library in this repository implements that protocol for plugins
+[`packages/dart`](packages/dart) library in this repository implements that protocol for plugins
 written in Dart and compiled with `dart compile exe`.
 
 ### You may not ship source that needs a toolchain to run
