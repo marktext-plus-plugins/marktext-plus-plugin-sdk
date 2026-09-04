@@ -160,6 +160,7 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -271,7 +272,24 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | sostituisce la selezione | finisce |
 | qualunque altra cosa | niente | finisce |
 
-**I riquadri.** L'editor divide già una scheda fra sorgente e anteprima; `pane` è quella divisione messa a vostra disposizione. Il documento tiene la prima cella di una griglia due per due e voi potete riempire le altre tre — `right` accanto, `bottom` sotto, `corner` in basso a destra. **Una cella che nessuno ha chiesto non viene disegnata**, quindi riempire solo `corner` non lascia due strisce vuote. Un nome di posto che l'editor non conosce viene rifiutato anziché indovinato: un riquadro che compare dove non l'avete chiesto, senza modo di sapere perché, è peggio di un rifiuto.
+**I riquadri.** L'editor divide già una scheda fra sorgente e anteprima; `pane` è quella divisione, messa a tua disposizione. Il documento tiene la prima cella, e tu puoi riempirne fino ad altre tre.
+
+La forma segue quante ne sono riempite, ed è simmetrica a ogni passo:
+
+| Riempiti | Disposizione |
+|---|---|
+| nessuno | il documento ha l'intera scheda |
+| uno | il documento e il tuo riquadro affiancati, metà ciascuno |
+| due | la metà superiore divisa a metà, il secondo riquadro prende tutta la metà inferiore |
+| tre | entrambe le metà divise, quattro celle uguali |
+
+I divisori si trascinano, come quello fra sorgente e anteprima.
+
+I nomi `right`, `bottom`, `corner` dicono **quale riquadro**, non dove finisce: sono l'indirizzo con cui lo ritrovi più tardi — per aggiungervi qualcosa, o per sostituire ciò che contiene. Riempire solo `corner` ti dà un riquadro accanto al documento, non un angolo con due celle vuote davanti. Un nome che l'editor non conosce viene rifiutato anziché indovinato: un riquadro che compare dove non l'hai chiesto, senza modo di sapere perché, è peggio di un rifiuto.
+
+**Dì che stai lavorando prima di cominciare.** Un'azione di riquadro viene letta prima di una `ai`, quindi restituirle entrambe significa «metti su questo, poi vai a chiedere» — e un riquadro dal testo vuoto con una richiesta dietro è esattamente ciò che l'editor disegna come «in corso». Finché non arriva il primo blocco lo dice dove andrà il testo; dopo si sposta nella barra del titolo, così l'avanzamento non sta mai sopra ciò che è arrivato. Restituire il solo `ai` lascia lo schermo immutato per i secondi che il modello impiega, e si legge come una voce di menu che non ha fatto nulla.
+
+Chiudere un riquadro è il modo in cui chi legge ti ferma. Aggiungere a uno che ha chiuso viene rifiutato, anziché rimetterlo lì un blocco alla volta.
 
 **`show` o `panel`.** Poche righe sono una risposta: una finestrella va bene, e un pannello per quelle è più mobilio che contenuto. Un risultato grande quanto un documento è ciò che chi legge tiene accanto a quello che ha sullo schermo, e una finestra sopra lo schermo è l'unico posto dove non può stare.
 

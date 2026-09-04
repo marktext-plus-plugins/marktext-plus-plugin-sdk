@@ -160,6 +160,7 @@ c'est toute la vérification d'une extension compilée : elle se compile, et ell
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -271,7 +272,24 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | remplace la sélection | s'arrête |
 | n'importe quoi d'autre | rien | s'arrête |
 
-**Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane`, c'est ce partage mis à votre disposition. Le document garde la première case d'une grille deux par deux et vous pouvez remplir les trois autres — `right` à côté, `bottom` en dessous, `corner` en bas à droite. **Une case que personne n'a demandée n'est pas dessinée**, remplir seulement `corner` ne laisse donc pas deux bandes vides. Un nom de case que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui apparaît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
+**Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane` est ce partage, mis à votre disposition. Le document garde la première case, et vous pouvez en remplir jusqu'à trois autres.
+
+La forme suit le nombre de volets remplis, et reste symétrique à chaque étape :
+
+| Remplis | Disposition |
+|---|---|
+| aucun | le document occupe tout l'onglet |
+| un | le document et votre volet côte à côte, moitié chacun |
+| deux | la moitié haute partagée par le milieu, votre deuxième volet prenant toute la moitié basse |
+| trois | les deux moitiés partagées, quatre cases égales |
+
+Les séparateurs se déplacent, comme celui entre source et aperçu.
+
+Les noms `right`, `bottom`, `corner` disent **quel volet**, non où il se pose : ce sont les adresses par lesquelles vous le retrouverez plus tard — pour y ajouter, ou pour remplacer ce qu'il contient. Ne remplir que `corner` vous donne un volet à côté du document, pas un coin précédé de deux cases vides. Un nom que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui paraît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
+
+**Dites que vous travaillez avant de commencer.** Une action de volet est lue avant une action `ai` : renvoyer les deux signifie « affiche ceci, puis va demander » — et un volet au texte vide avec une requête derrière lui est précisément ce que l'éditeur dessine comme « en cours ». Tant que le premier bloc n'est pas arrivé, il le dit là où le texte ira ; ensuite cela passe dans la barre de titre, pour que l'avancement ne recouvre jamais ce qui est arrivé. Ne renvoyer que le `ai` laisse l'écran inchangé pendant les secondes que prend le modèle, ce qui se lit comme une entrée de menu sans effet.
+
+Fermer un volet, c'est ainsi que la personne qui lit vous arrête. Ajouter à un volet qu'elle a fermé est refusé, plutôt que de le ramener un bloc à la fois.
 
 **`show` ou `panel`.** Quelques lignes sont une réponse : une petite fenêtre convient, et un panneau pour cela fait plus de meuble que de contenu. Un résultat de la taille d'un document est ce que le lecteur tient contre ce qui est à l'écran, et une fenêtre par-dessus l'écran est le seul endroit où il ne peut pas aller.
 

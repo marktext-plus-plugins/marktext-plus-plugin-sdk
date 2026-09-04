@@ -160,6 +160,7 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -271,7 +272,24 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | substitui a selecção | termina |
 | qualquer outra coisa | nada | termina |
 
-**Os quadros.** O editor já divide um separador entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. O documento fica com a primeira célula de uma grelha dois por dois e você pode preencher as outras três — `right` ao lado, `bottom` por baixo, `corner` em baixo à direita. **Uma célula que ninguém pediu não é desenhada**, por isso preencher apenas `corner` não deixa duas faixas vazias. Um nome de lugar que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
+**Os quadros.** O editor já divide um separador entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. O documento fica com a primeira célula, e você pode preencher até mais três.
+
+A forma segue quantos estão preenchidos, e é simétrica em cada passo:
+
+| Preenchidos | Disposição |
+|---|---|
+| nenhum | o documento tem o separador inteiro |
+| um | o documento e o seu quadro lado a lado, metade cada |
+| dois | a metade de cima dividida ao meio, o seu segundo quadro a ficar com toda a de baixo |
+| três | ambas as metades divididas, quatro células iguais |
+
+Os separadores arrastam-se, como o que há entre código-fonte e pré-visualização.
+
+Os nomes `right`, `bottom`, `corner` dizem **qual quadro**, não onde ele cai: são a morada por onde lhe voltará a chegar mais tarde — para lhe acrescentar algo, ou para substituir o que ele tem. Preencher apenas `corner` dá-lhe um quadro ao lado do documento, e não um canto com duas células vazias à frente. Um nome que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
+
+**Diga que está a trabalhar antes de começar.** Uma acção de quadro é lida antes de uma `ai`, por isso devolver ambas quer dizer «põe isto e depois vai perguntar» — e um quadro de texto vazio com um pedido por trás é precisamente o que o editor desenha como «a trabalhar». Até chegar o primeiro bloco di-lo onde o texto irá ficar; depois passa para a barra do título, para que o andamento nunca fique por cima do que chegou. Devolver só o `ai` deixa o ecrã na mesma durante os segundos que o modelo leva, e lê-se como uma entrada de menu que não fez nada.
+
+Fechar um quadro é como quem lê o pára. Acrescentar a um que fechou é recusado, em vez de o trazer de volta um bloco de cada vez.
 
 **`show` ou `panel`.** Umas quantas linhas são uma resposta: uma janela pequena serve, e um painel para isso é mais mobília do que conteúdo. Um resultado do tamanho de um documento é o que quem lê põe ao lado do que tem no ecrã, e uma janela por cima do ecrã é o único sítio onde não pode estar.
 

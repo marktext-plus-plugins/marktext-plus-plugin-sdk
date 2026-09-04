@@ -160,6 +160,7 @@ ist die ganze Prüfung für ein kompiliertes Plug-in: es baut, und es weigert si
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
+  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -271,7 +272,24 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
 | irgendetwas anderes | nichts | endet |
 
-**Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist das nach außen gegeben. Das Dokument behält die erste Zelle eines Zwei-mal-zwei-Rasters, die anderen drei dürfen Sie füllen — `right` daneben, `bottom` darunter, `corner` rechts unten. **Eine Zelle, um die niemand gebeten hat, wird nicht gezeichnet**, nur `corner` zu füllen hinterlässt also keine zwei leeren Streifen. Ein Platzname, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der irgendwo auftaucht, worum Sie nicht gebeten haben, und für den es keine Erklärung gibt, ist schlechter, als es gesagt zu bekommen.
+**Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist diese Teilung, Ihnen angeboten. Das Dokument behält die erste Zelle, und Sie dürfen bis zu drei weitere füllen.
+
+Die Form richtet sich danach, wie viele gefüllt sind, und ist auf jeder Stufe symmetrisch:
+
+| Gefüllt | Aufteilung |
+|---|---|
+| keiner | das Dokument hat den ganzen Tab |
+| einer | Dokument und Ihr Bereich nebeneinander, je zur Hälfte |
+| zwei | die obere Hälfte mittig geteilt, Ihr zweiter Bereich nimmt die untere ganz |
+| drei | beide Hälften geteilt, vier gleich große Zellen |
+
+Die Trenner lassen sich ziehen, wie der zwischen Quelltext und Vorschau.
+
+Die Namen `right`, `bottom`, `corner` sagen, **welcher Bereich** gemeint ist, nicht wo er landet: sie sind die Adresse, unter der Sie einen Bereich später wieder ansprechen — um etwas anzuhängen oder seinen Inhalt zu ersetzen. Füllen Sie nur `corner`, bekommen Sie einen Bereich neben dem Dokument, keine Ecke mit zwei leeren Zellen davor. Ein Name, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der dort auftaucht, wo Sie ihn nicht wollten, ohne dass Sie erfahren könnten warum, ist schlimmer als eine Absage.
+
+**Sagen Sie, dass Sie arbeiten, bevor Sie anfangen.** Eine Bereichsaktion wird vor einer `ai` gelesen, beides zusammen heißt also „stell das hin, dann geh fragen" — und ein Bereich mit leerem Text und einer offenen Anfrage dahinter ist genau das, was der Editor als „arbeitet" zeichnet. Bis der erste Block ankommt, sagt er es dort, wo der Text hinkommt; danach wandert es in die Titelzeile, damit der Fortschritt nie über dem liegt, was schon da ist. Geben Sie nur das `ai` zurück, bleibt der Bildschirm für die Sekunden unverändert, die das Modell braucht — und liest sich als Menüeintrag, der nichts tat.
+
+Einen Bereich zu schließen ist die Art, wie die Lesenden Sie anhalten. An einen geschlossenen Bereich anzuhängen wird abgelehnt, statt ihn Block für Block zurückzuholen.
 
 **`show` oder `panel`.** Ein paar Zeilen sind eine Antwort: ein kleines Fenster ist richtig, ein Bereich dafür ist mehr Möbel als Inhalt. Ein dokumentgroßes Ergebnis ist etwas, das die Lesenden gegen das halten, was auf dem Bildschirm steht, und ein Fenster über dem Bildschirm ist der eine Ort, an den es nicht kann.
 

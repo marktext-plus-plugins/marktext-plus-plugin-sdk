@@ -18,6 +18,10 @@
       "type": "string",
       "minLength": 1
     },
+    "description": {
+      "type": "string",
+      "description": "One line saying what this plugin does, for the plugin list. May be a key into `locales`, like every other string you show."
+    },
     "version": {
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
