@@ -56,8 +56,15 @@ function M.panel(text, title) return { panel = text, title = title } end
 --- `append` adds to the pane instead of replacing it, and `ai` asks the model
 --- one more thing once this has been shown — together they are how a plugin
 --- works through a document a block at a time, showing each as it arrives.
+---
+--- `apply` puts an Apply button on the pane, which writes what it holds into
+--- the document; `replaces` says what that replaces, and an empty one means
+--- the whole document. What a model returns is worth reading before it lands
+--- in what the reader was writing, so it is shown first and written when they
+--- say so. Needs `document.write`, which the editor checks when the button is
+--- pressed rather than trusting the flag.
 ---@param text string
----@param options table|nil  { title, slot, as, append, ai }
+---@param options table|nil  { title, slot, as, append, ai, apply, replaces }
 function M.pane(text, options)
   options = options or {}
   return {
@@ -67,6 +74,8 @@ function M.pane(text, options)
     as = options.as,
     append = options.append,
     ai = options.ai,
+    apply = options.apply,
+    replaces = options.replaces,
   }
 end
 

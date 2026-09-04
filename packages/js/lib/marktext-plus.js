@@ -64,9 +64,17 @@ module.exports = {
    * reading. `append` adds to the pane instead of replacing it, and `ai` asks
    * the model one more thing once this has been shown; together they are how a
    * plugin works through a document a block at a time.
+   *
+   * `apply` puts an Apply button on the pane, which writes what it holds into
+   * the document; `replaces` says what that replaces, and an empty one means
+   * the whole document. What a model returns is worth reading before it lands
+   * in what the reader was writing, so it is shown first and written when they
+   * say so. Needs `document.write`, which the editor checks when the button is
+   * pressed rather than trusting the flag.
    * @param {string} text
    * @param {{ title?: string, slot?: 'right'|'bottom'|'corner',
-   *           as?: 'text'|'source'|'preview', append?: boolean, ai?: string }} [options]
+   *           as?: 'text'|'source'|'preview', append?: boolean, ai?: string,
+   *           apply?: boolean, replaces?: string }} [options]
    */
   pane: function (text, options) {
     options = options || {};
@@ -77,6 +85,8 @@ module.exports = {
       as: options.as,
       append: options.append,
       ai: options.ai,
+      apply: options.apply,
+      replaces: options.replaces,
     };
   },
 
