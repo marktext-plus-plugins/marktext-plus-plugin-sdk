@@ -160,7 +160,6 @@ es toda la comprobación de un complemento compilado: compila, y se niega a ejec
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
-  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -272,24 +271,7 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | sustituye la selección | termina |
 | cualquier otra cosa | nada | termina |
 
-**Los cuadros.** El editor ya divide una pestaña entre fuente y vista previa; `pane` es esa división puesta a tu disposición. El documento se queda con la primera celda, y tú puedes llenar hasta tres más.
-
-La forma la decide cuántos están llenos, y es simétrica en cada paso:
-
-| Llenos | Disposición |
-|---|---|
-| ninguno | el documento ocupa toda la pestaña |
-| uno | el documento y tu cuadro uno al lado del otro, mitad cada uno |
-| dos | la mitad superior partida por el medio, tu segundo cuadro tomando entera la inferior |
-| tres | ambas mitades partidas, cuatro celdas iguales |
-
-Los divisores se arrastran, como el que hay entre fuente y vista previa.
-
-Los nombres `right`, `bottom`, `corner` dicen **cuál cuadro**, no dónde cae: son la dirección con la que volverás a él más tarde — para añadirle algo, o para sustituir lo que contiene. Llenar solo `corner` te da un cuadro junto al documento, no una esquina con dos celdas vacías delante. Un nombre que el editor no conoce se rechaza en vez de adivinarse: un cuadro que aparece donde no lo pediste, sin manera de saber por qué, es peor que una negativa.
-
-**Di que estás trabajando antes de empezar.** Una acción de cuadro se lee antes que una `ai`, así que devolver ambas significa «pon esto y luego ve a preguntar» — y un cuadro con el texto vacío y una petición detrás es precisamente lo que el editor dibuja como «trabajando». Hasta que llega el primer bloque lo dice donde irá el texto; después pasa a la barra de título, para que el avance nunca quede encima de lo que ha llegado. Devolver solo el `ai` deja la pantalla igual durante los segundos que tarda el modelo, y se lee como una entrada de menú que no hizo nada.
-
-Cerrar un cuadro es como quien lee te detiene. Añadir a uno que ha cerrado se rechaza, en vez de devolverlo bloque a bloque.
+**Los cuadros.** El editor ya divide una pestaña entre fuente y vista previa; `pane` es esa división puesta a su disposición. El documento se queda con la primera celda de una cuadrícula de dos por dos y usted puede rellenar las otras tres: `right` al lado, `bottom` debajo, `corner` abajo a la derecha. **Una celda que nadie ha pedido no se dibuja**, así que rellenar solo `corner` no deja dos franjas vacías. Un nombre de hueco que el editor no conoce se rechaza en vez de adivinarse: un cuadro que aparece donde usted no lo pidió, sin manera de saber por qué, es peor que una negativa.
 
 **`show` o `panel`.** Unas pocas líneas son una respuesta: una ventana pequeña está bien, y un panel para eso es más mueble que contenido. Un resultado del tamaño de un documento es lo que quien lee sostiene contra lo que tiene en pantalla, y una ventana encima de la pantalla es el único sitio donde no puede estar.
 

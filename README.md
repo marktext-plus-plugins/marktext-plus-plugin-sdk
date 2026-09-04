@@ -221,7 +221,6 @@ running anything. See [`schema/manifest.schema.json`](schema/manifest.schema.jso
 {
   "id": "com.example.my-plugin",
   "name": "My Plugin",
-  "description": "plugin.description",
   "version": "1.0.0",
   "minAppVersion": "1.6.1",
   "runtime": "lua",
@@ -354,38 +353,12 @@ function on_result(ctx, result) {
 | anything else | nothing | stops |
 
 **Panes.** The editor already splits a tab between source and preview; `pane`
-is that split offered to you. The document keeps the first cell and you may
-fill up to three more.
-
-The shape follows how many are filled, and is even at every step:
-
-| Filled | Layout |
-|---|---|
-| none | the document has the whole tab |
-| one | the document and your pane, side by side, half each |
-| two | the top half split down the middle, your second pane taking the bottom half whole |
-| three | both halves split, four equal cells |
-
-The dividers drag, like the one between source and preview.
-
-The slot names — `right`, `bottom`, `corner` — say **which pane is which**, not
-where it lands: they are how you address a pane again later, to append to it or
-to replace what it holds. Filling only `corner` gives you one pane beside the
-document, not a cell in a corner with two empty ones to reach it. A slot name
-the editor does not know is refused rather than guessed at: a pane appearing
-somewhere you did not ask for, with no way to find out why, is worse than being
-told.
-
-**Say you are working before you start.** A pane action is read before an `ai`
-one, so returning both means "put this up, then go and ask" — and a pane whose
-text is empty with a request behind it is what the editor draws as working. It
-says so where the text will be until the first block lands, and in the title
-bar after that, so the progress is never on top of what arrived. Returning the
-`ai` alone leaves the screen unchanged for however long the model takes, which
-reads as a menu item that did nothing.
-
-Closing a pane is how the reader stops you. Appending to one they closed is
-refused rather than putting it back a block at a time.
+is that split offered to you. The document keeps the first cell of a two by two
+grid and you may fill the other three — `right` beside it, `bottom` under it,
+`corner` under the right-hand one. A slot nobody asked for is not drawn, so
+filling only `corner` does not leave two empty strips. A slot name the editor
+does not know is refused rather than guessed at: a pane appearing somewhere you
+did not ask for, with no way to find out why, is worse than being told.
 
 **`show` or `panel`.** A few lines are an answer: a small window is right, and
 a panel for them is more furniture than content. A document-sized result is
