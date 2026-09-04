@@ -18,6 +18,7 @@
     "ai.chat",
     "storage.local",
     "ui.contextMenu",
+    "ui.sidebar",
     "ui.settings",
     "ui.notifications"
   ],
