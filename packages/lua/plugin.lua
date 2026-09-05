@@ -42,7 +42,10 @@ function on_result(ctx, result)
   -- show for something small, panel for something document-sized: a whole
   -- document in a dialog covers the thing the reader wants to compare it to.
   if ctx.command == "summarise.document" then
-    return sdk.panel(result, ctx.answer)
+    return sdk.panel(result, ctx.answer)               -- needs ui.sidebar
   end
+  -- show and ask ask for nothing: answering the reader who ran the command is
+  -- what a plugin is for, so requiring a permission would mean every plugin
+  -- declares it.
   return sdk.show(result, ctx.answer)
 end

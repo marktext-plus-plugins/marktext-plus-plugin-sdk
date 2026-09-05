@@ -43,7 +43,10 @@ function on_command(ctx) {
 function on_result(ctx, result) {
   // show for something small, panel for something document-sized.
   if (ctx.command === "summarise.document") {
-    return sdk.panel(result, ctx.answer);
+    return sdk.panel(result, ctx.answer);            // needs ui.sidebar
   }
+  // show and ask ask for nothing: answering the reader who ran the command is
+  // what a plugin is for, so requiring a permission would mean every plugin
+  // declares it.
   return sdk.show(result, ctx.answer);
 }
