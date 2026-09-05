@@ -272,6 +272,21 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | remplace la sélection | s'arrête |
 | n'importe quoi d'autre | rien | s'arrête |
 
+**Ce qu'il faut demander.** Ces quatre-là sont refusés si le manifeste ne
+déclare pas le droit :
+
+| Retour | Demande |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` et `diff` ne demandent rien. Répondre au lecteur qui vient de lancer
+la commande est la raison d'être d'une extension ; exiger un droit pour cela
+reviendrait à ce que chaque extension le déclare — et un droit que tout le monde
+possède n'apprend rien au lecteur.
+
 **Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane` est ce partage, mis à votre disposition. Quatre cases au plus, et **les deux moitiés de la vue partagée en sont deux** — c'est de là que vient tout ceci, un document en vue partagée fait donc deux cases avant que vous ne remplissiez quoi que ce soit.
 
 La forme suit le nombre de cases, et reste symétrique à chaque étape :

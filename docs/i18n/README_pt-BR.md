@@ -272,6 +272,20 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | substitui a seleção | termina |
 | qualquer outra coisa | nada | termina |
 
+**O que precisa ser pedido.** Estes quatro são recusados se o manifesto não
+declarar a permissão:
+
+| Retorna | Precisa de |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` e `diff` não pedem nada. Responder a quem acabou de executar o
+comando é a razão de existir de uma extensão; exigir permissão para isso faria com
+que toda extensão a declarasse — e uma que todos têm não diz nada ao leitor.
+
 **Os quadros.** O editor já divide uma aba entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. No máximo quatro células, e **as duas metades da vista dividida são duas delas** — foi daí que isto nasceu, por isso um documento em vista dividida já são duas células antes de você preencher o que quer que seja.
 
 A forma segue quantas células há, e é simétrica em cada passo:

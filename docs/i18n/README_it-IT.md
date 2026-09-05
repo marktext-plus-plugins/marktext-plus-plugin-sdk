@@ -272,6 +272,20 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | sostituisce la selezione | finisce |
 | qualunque altra cosa | niente | finisce |
 
+**Cosa va chiesto.** Questi quattro vengono rifiutati se il manifesto non
+dichiara il permesso:
+
+| Restituisce | Richiede |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` e `diff` non chiedono nulla. Rispondere a chi ha appena lanciato il
+comando è ciò per cui esiste un'estensione; richiedere un permesso significherebbe
+che ogni estensione lo dichiara — e uno che hanno tutti non dice nulla al lettore.
+
 **I riquadri.** L'editor divide già una scheda fra sorgente e anteprima; `pane` è quella divisione, messa a tua disposizione. Al massimo quattro celle, e **le due metà della vista divisa sono due di esse** — è da lì che viene tutto questo, quindi un documento in vista divisa è già due celle prima che tu riempia qualcosa.
 
 La forma segue quante celle ci sono, ed è simmetrica a ogni passo:

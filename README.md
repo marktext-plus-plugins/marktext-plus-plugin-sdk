@@ -353,6 +353,20 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | replaces the selection | stops |
 | anything else | nothing | stops |
 
+**What needs asking for.** Four of these are refused unless the manifest
+declares the permission:
+
+| Return | Needs |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` and `diff` need nothing. Answering the reader who ran the
+command is what a plugin is for, so requiring a permission would mean every
+plugin declares it — and one everybody holds tells the reader nothing.
+
 **Panes.** The editor already splits a tab between source and preview; `pane`
 is that split offered to you. Four cells at most, and **the split view's own
 two halves are two of them** — that is what this was made from, so a document

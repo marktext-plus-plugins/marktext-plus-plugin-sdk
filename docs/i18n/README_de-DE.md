@@ -272,6 +272,20 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
 | irgendetwas anderes | nichts | endet |
 
+**Was angemeldet sein muss.** Diese vier werden abgelehnt, wenn das Manifest
+das Recht nicht anmeldet:
+
+| Rückgabe | Braucht |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` und `diff` brauchen nichts. Dem Leser zu antworten, der den Befehl
+aufgerufen hat, ist die Aufgabe eines Plug-ins; ein Recht dafür zu verlangen hieße,
+dass jedes Plug-in es anmeldet — und eines, das alle haben, sagt dem Leser nichts.
+
 **Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist diese Teilung, Ihnen angeboten. Höchstens vier Zellen, und **die beiden Hälften der geteilten Ansicht sind zwei davon** — daraus ist das hier entstanden, ein geteiltes Dokument ist also zwei Zellen, bevor Sie etwas füllen.
 
 Die Form richtet sich danach, wie viele Zellen es gibt, und ist auf jeder Stufe symmetrisch:

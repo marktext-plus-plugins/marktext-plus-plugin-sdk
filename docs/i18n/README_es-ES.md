@@ -272,6 +272,20 @@ function on_result(ctx, result) {
 | `{ replace = "…" }` | sustituye la selección | termina |
 | cualquier otra cosa | nada | termina |
 
+**Qué hay que pedir.** Estos cuatro se rechazan si el manifiesto no declara el
+permiso:
+
+| Devuelve | Necesita |
+|---|---|
+| `ai` | `ai.chat` |
+| `replace` | `document.write` |
+| `notify` | `ui.notifications` |
+| `pane`, `panel` | `ui.sidebar` |
+
+`ask`, `show` y `diff` no necesitan nada. Responder a quien acaba de ejecutar la
+orden es para lo que está un complemento; exigir un permiso para eso significaría
+que todos lo declaran — y uno que tiene todo el mundo no le dice nada al lector.
+
 **Los cuadros.** El editor ya divide una pestaña entre fuente y vista previa; `pane` es esa división puesta a tu disposición. Cuatro celdas como mucho, y **las dos mitades de la vista dividida son dos de ellas**: de ahí salió todo esto, así que un documento en vista dividida ya son dos celdas antes de que llenes nada.
 
 La forma la decide cuántas celdas hay, y es simétrica en cada paso:
