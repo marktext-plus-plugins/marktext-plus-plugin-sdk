@@ -91,9 +91,49 @@ def check_schema() -> None:
             fail(f"{manifest.relative_to(ROOT)} 不符合自家 schema：{where} — {error.message}")
 
 
+
+def check_documented_paths() -> None:
+    """Paths the READMEs point at have to be paths this repository has.
+
+    A release commit once rewrote the README and its eleven translations from
+    an older copy, putting back a directory name that had been changed and a
+    tool that had been deleted — and shipped that way, so the first thing a
+    new plugin author did was open a directory that was not there.
+    """
+    directories = {
+        entry.name
+        for entry in ROOT.iterdir()
+        if entry.is_dir() and not entry.name.startswith(".")
+    }
+    # A path is anything with a slash inside backticks, a fenced block, or a
+    # link target. The first segment is what gets checked: a name that is not
+    # a directory here is either a typo or a leftover.
+    reference = re.compile(r"(?<![\w./-])([A-Za-z][\w-]*)/([\w./-]*)")
+
+    docs = [ROOT / "README.md", *sorted((ROOT / "docs/i18n").glob("*.md"))]
+    for doc in docs:
+        if not doc.exists():
+            fail(f"{doc.relative_to(ROOT)} 不在了")
+            continue
+        seen: set[str] = set()
+        for match in reference.finditer(doc.read_text(encoding="utf-8")):
+            head, rest = match.group(1), match.group(2)
+            # Only names that look like they mean a directory in here: either
+            # one that exists, or one this repository has had before.
+            if head not in directories and head not in {"examples", "tool", "tools"}:
+                continue
+            whole = f"{head}/{rest}".rstrip("/.,)")
+            if whole in seen:
+                continue
+            seen.add(whole)
+            if not (ROOT / whole).exists():
+                fail(f"{doc.relative_to(ROOT)} 指向不存在的 {whole}")
+
+
 def main() -> int:
     check_sdk_parity()
     check_schema()
+    check_documented_paths()
     if problems:
         print("检查没通过：")
         for problem in problems:

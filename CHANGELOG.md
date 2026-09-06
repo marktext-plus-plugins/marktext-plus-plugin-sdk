@@ -2,8 +2,19 @@
 
 ## [Unreleased]
 
-Nothing here changes what a plugin can do. Recorded because it changes what
-this repository can promise.
+Nothing here changes how a plugin behaves. One of them changes what the
+documentation tells you to do, which for someone starting a plugin is the
+same thing.
+
+### Fixed
+
+- The README and all eleven translations pointed at `examples/`, a directory
+  renamed to `packages/` before 0.1.2, and taught a `tool/run-js-plugin.mjs`
+  that was deleted at the same time. Both had been corrected; the 0.1.2 release
+  commit rewrote those twelve files from an older copy and put them back, so
+  0.1.2 shipped telling a new plugin author to open a directory that is not
+  there. The check below now refuses any documented path this repository does
+  not have.
 
 ### Internal
 
@@ -13,6 +24,8 @@ this repository can promise.
   and none of them was enforced — a plugin written in one language and ported
   to the other would have been the first to find out otherwise.
   `scripts/check.py` runs the same checks locally, with no arguments.
+- It also refuses a README, in any language, that names a path this repository
+  does not have.
 
 ## [0.1.2] - 2026-09-05
 
