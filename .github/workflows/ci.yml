@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Agreement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pip install --disable-pip-version-check jsonschema
+
+      # Three implementations of one API, a schema, and the example manifests
+      # written against it. All of it was kept in step by hand until now, and
+      # the editor's repository has learned three times in one week what a
+      # list written twice does.
+      - name: Check
+        run: python3 scripts/check.py

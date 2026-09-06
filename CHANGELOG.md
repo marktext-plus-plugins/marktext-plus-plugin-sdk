@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased]
+
+Nothing here changes what a plugin can do. Recorded because it changes what
+this repository can promise.
+
+### Internal
+
+- The repository checks itself on every push: that the Lua and JavaScript
+  modules expose the same names, that the published schema is a valid JSON
+  Schema, and that each example manifest satisfies it. All three were true
+  and none of them was enforced — a plugin written in one language and ported
+  to the other would have been the first to find out otherwise.
+  `scripts/check.py` runs the same checks locally, with no arguments.
+
 ## [0.1.2] - 2026-09-05
 
 The first release rather than a pre-release. Still 0.x: the manifest and the
