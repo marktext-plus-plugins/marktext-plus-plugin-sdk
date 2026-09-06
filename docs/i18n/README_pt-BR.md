@@ -410,7 +410,9 @@ Isto diz respeito só às extensões compiladas, e ao Dart em particular, porque
 
 Nada disto se aplica a uma extensão em Lua ou JavaScript. Essas são interpretadas pelo próprio editor, que é todo o seu sentido: sem Dart, sem cadeia de ferramentas, sem compilação.
 
-**Porquê um processo e não uma biblioteca que o editor carrega.** As extensões em Lua e JS já correm dentro do processo do editor, no mesmo thread — é o caso normal, e é seguro porque são interpretadas: um script mau lança um erro que o editor apanha. O código nativo não tem essa fronteira. Um fio partilha o espaço de endereçamento, por isso uma falha de segmentação, um estouro de pilha ou um `abort()` em qualquer ponto de um `.so` carregado leva o editor consigo, juntamente com o documento não guardado de quem lê e sem maneira nenhuma de relatar o que aconteceu; um ciclo sem saída congela a janela sem que se possa interrompê-lo; e o descarregamento não é fiável, por isso desativar uma extensão não a pararia de fato. Um processo à parte devolve as três coisas — pode ir abaixo, pode bloquear, pode ser morto por tempo esgotado, e o editor sobrevive e sabe dizer de que extensão se tratava. (Para o Dart, de resto, não há nada a escolher: `dart compile` conhece `exe`, `aot-snapshot`, `js`, `wasm` e os formatos de instantâneo. Não existe subcomando que produza um `.so` ou uma `.dll` que se possa chamar a partir de C.)
+**Porquê um processo e não uma biblioteca que o editor carrega.** As extensões em Lua e JS já correm dentro do processo do editor, no mesmo thread — é o caso normal, e isso se sustenta porque são interpretadas: um script ruim lança um erro que o editor pega, então um deslize termina em mensagem e não em queda. O que isso não cobre é um script que nunca retorna; esse congela a janela do mesmo jeito, e é por isso que a regra acima pede que você delimite o próprio trabalho.
+
+O código nativo retira também o resto da fronteira. Um fio partilha o espaço de endereçamento, por isso uma falha de segmentação, um estouro de pilha ou um `abort()` em qualquer ponto de um `.so` carregado leva o editor consigo, juntamente com o documento não guardado de quem lê e sem maneira nenhuma de relatar o que aconteceu; e o descarregamento não é fiável, por isso desativar uma extensão não a pararia de fato. Um processo à parte devolve tudo isso — pode ir abaixo, pode bloquear, pode ser morto por tempo esgotado, e o editor sobrevive e sabe dizer de que extensão se tratava. (Para o Dart, de resto, não há nada a escolher: `dart compile` conhece `exe`, `aot-snapshot`, `js`, `wasm` e os formatos de instantâneo. Não existe subcomando que produza um `.so` ou uma `.dll` que se possa chamar a partir de C.)
 
 - **Use `serve()` e os dois pontos seguintes já estão tratados.** Uma extensão compilada inteira:
 
@@ -455,7 +457,10 @@ Uma extensão é um arquivo na máquina de outra pessoa, que este editor lê. Pa
 
 - Nunca escreva uma chave de API no diretório da extensão nem no manifesto.
 - Para o stdout não vai nada que não sejam mensagens do protocolo.
-- Mantenha o trabalho dentro de limites; o editor impõe tempos limite e limites de passos.
+- Delimite o trabalho você mesmo. Um script roda na própria thread do editor
+  e nada o interrompe: um laço sem saída congela a janela até alguém matar o
+  processo. Só os plugins compilados têm tempo limite, porque só eles são um
+  processo separado que dê para interromper.
 - Um ZIP com uma entrada que saia do diretório é recusado ao instalar.
 
 O SDK é distribuído sob a licença MIT.

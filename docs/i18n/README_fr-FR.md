@@ -411,7 +411,9 @@ Cela ne concerne que les extensions compilées, et Dart en particulier, parce qu
 
 Rien de tout cela ne s'applique à une extension Lua ou JavaScript. Celles-là sont interprétées par l'éditeur lui-même, ce qui est tout leur intérêt : pas de Dart, pas de chaîne d'outils, pas de compilation.
 
-**Pourquoi un processus et non une bibliothèque que l'éditeur charge.** Les extensions Lua et JS tournent déjà dans le processus de l'éditeur, sur son propre fil — c'est le cas normal, et c'est sûr parce qu'elles sont interprétées : un mauvais script lève une erreur que l'éditeur rattrape. Le code natif n'a pas cette frontière. Un fil partage l'espace d'adressage : une erreur de segmentation, un débordement de pile ou un `abort()` n'importe où dans un `.so` chargé emporte l'éditeur, avec le document non enregistré du lecteur et sans aucun moyen de rapporter ce qui s'est passé ; une boucle sans issue gèle la fenêtre sans qu'on puisse l'interrompre ; et le déchargement n'est pas fiable, désactiver une extension ne l'arrêterait donc pas vraiment. Un processus distinct rend ces trois choses — il peut planter, se bloquer, être tué après un délai, et l'éditeur survit et peut dire de quelle extension il s'agissait. (Pour Dart, il n'y a de toute façon rien à choisir : `dart compile` connaît `exe`, `aot-snapshot`, `js`, `wasm` et les formats d'instantané. Aucune sous-commande ne produit un `.so` ou une `.dll` appelable depuis C.)
+**Pourquoi un processus et non une bibliothèque que l'éditeur charge.** Les extensions Lua et JS tournent déjà dans le processus de l'éditeur, sur son propre fil — c'est le cas normal, et cela tient parce qu'elles sont interprétées : un mauvais script lève une erreur que l'éditeur rattrape, une maladresse finit donc en message et non en plantage. Ce que cela ne couvre pas, c'est un script qui ne revient jamais ; il fige la fenêtre tout autant, et c'est pourquoi la règle ci-dessus vous demande de borner vous-même votre travail.
+
+Le code natif retire aussi le reste de la frontière. Un fil partage l'espace d'adressage : une erreur de segmentation, un débordement de pile ou un `abort()` n'importe où dans un `.so` chargé emporte l'éditeur, avec le document non enregistré du lecteur et sans aucun moyen de rapporter ce qui s'est passé ; et le déchargement n'est pas fiable, désactiver une extension ne l'arrêterait donc pas vraiment. Un processus distinct rend tout cela — il peut planter, se bloquer, être tué après un délai, et l'éditeur survit et peut dire de quelle extension il s'agissait. (Pour Dart, il n'y a de toute façon rien à choisir : `dart compile` connaît `exe`, `aot-snapshot`, `js`, `wasm` et les formats d'instantané. Aucune sous-commande ne produit un `.so` ou une `.dll` appelable depuis C.)
 
 - **Utilisez `serve()` et les deux points suivants sont déjà réglés.** Une extension compilée entière :
 
@@ -456,7 +458,10 @@ Une extension est un fichier sur la machine de quelqu'un d'autre, que cet édite
 
 - N'écrivez jamais une clé d'API dans le répertoire de l'extension ni dans le manifeste.
 - Rien d'autre que les messages du protocole ne va sur stdout.
-- Bornez le travail ; l'éditeur impose des délais et des limites de pas.
+- Bornez le travail vous-même. Un script s'exécute sur le fil de l'éditeur et
+  rien ne l'interrompt : une boucle sans issue fige la fenêtre jusqu'à ce que
+  quelqu'un tue le processus. Seuls les greffons compilés ont un délai, car eux
+  seuls sont un processus distinct qu'on peut interrompre.
 - Un ZIP d'extension contenant une entrée qui remonte hors du répertoire est refusé à l'installation.
 
 Le SDK est sous licence MIT.

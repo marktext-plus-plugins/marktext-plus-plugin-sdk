@@ -410,7 +410,9 @@ Riguarda solo le estensioni compilate, e Dart in particolare, perché l'editor �
 
 Niente di tutto questo vale per un'estensione Lua o JavaScript. Quelle le interpreta l'editor stesso, ed è tutto il loro senso: niente Dart, niente toolchain, niente build.
 
-**Perché un processo e non una libreria che l'editor carica.** Le estensioni Lua e JS girano già dentro il processo dell'editor, sul suo stesso thread — è il caso normale, ed è sicuro perché sono interpretate: uno script sbagliato solleva un errore che l'editor intercetta. Il codice nativo non ha quel confine. Un thread condivide lo spazio di indirizzamento, quindi un errore di segmentazione, un overflow dello stack o un `abort()` in un qualsiasi punto di un `.so` caricato si porta via l'editor, insieme al documento non salvato di chi legge e senza alcun modo di riferire che cosa sia successo; un ciclo senza uscita congela la finestra senza che si possa interromperlo; e lo scaricamento non è affidabile, quindi disabilitare un'estensione non la fermerebbe davvero. Un processo separato restituisce tutte e tre le cose — può andare in crash, bloccarsi, essere ucciso a scadenza, e l'editor sopravvive e sa dire di quale estensione si trattava. (Per Dart, del resto, non c'è nulla da scegliere: `dart compile` conosce `exe`, `aot-snapshot`, `js`, `wasm` e i formati snapshot. Non esiste alcun sottocomando che produca un `.so` o una `.dll` richiamabile da C.)
+**Perché un processo e non una libreria che l'editor carica.** Le estensioni Lua e JS girano già dentro il processo dell'editor, sul suo stesso thread — è il caso normale, e regge perché sono interpretate: uno script sbagliato solleva un errore che l'editor intercetta, così una svista finisce in un messaggio e non in un crash. Ciò che non copre è uno script che non torna mai; quello congela la finestra allo stesso modo, ed è per questo che la regola qui sopra vi chiede di porre voi stessi un limite al lavoro.
+
+Il codice nativo toglie anche il resto del confine. Un thread condivide lo spazio di indirizzamento, quindi un errore di segmentazione, un overflow dello stack o un `abort()` in un qualsiasi punto di un `.so` caricato si porta via l'editor, insieme al documento non salvato di chi legge e senza alcun modo di riferire che cosa sia successo; e lo scaricamento non è affidabile, quindi disabilitare un'estensione non la fermerebbe davvero. Un processo separato restituisce tutto questo — può andare in crash, bloccarsi, essere ucciso a scadenza, e l'editor sopravvive e sa dire di quale estensione si trattava. (Per Dart, del resto, non c'è nulla da scegliere: `dart compile` conosce `exe`, `aot-snapshot`, `js`, `wasm` e i formati snapshot. Non esiste alcun sottocomando che produca un `.so` o una `.dll` richiamabile da C.)
 
 - **Usate `serve()` e i due punti seguenti sono già a posto.** Un'intera estensione compilata:
 
@@ -455,7 +457,10 @@ Un'estensione è un file sulla macchina di qualcun altro, che questo editor legg
 
 - Non scrivete mai una chiave API nella directory dell'estensione o nel manifest.
 - Su stdout non va nulla che non siano messaggi del protocollo.
-- Tenete il lavoro entro limiti; l'editor impone scadenze e limiti di passi.
+- Ponete voi il limite al lavoro. Uno script gira sul thread dell'editor e
+  niente lo interrompe: un ciclo senza uscita congela la finestra finché
+  qualcuno non uccide il processo. Solo i plugin compilati hanno una scadenza,
+  perché solo loro sono un processo separato da interrompere.
 - Uno ZIP con una voce che risale fuori dalla directory viene rifiutato all'installazione.
 
 L'SDK è sotto licenza MIT.

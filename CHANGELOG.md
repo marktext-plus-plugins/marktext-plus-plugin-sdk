@@ -8,6 +8,21 @@ same thing.
 
 ### Fixed
 
+- **The safety rules promised a protection that does not exist.** "Keep work
+  bounded; the editor enforces timeouts and step limits" — it does not, for
+  Lua or JavaScript. Both run on the editor's own thread, synchronously, with
+  no interrupt available: `lua_dardo` exposes no debug hook and `flutter_js`
+  does not surface QuickJS's interrupt handler. A loop with no exit freezes
+  the window until the process is killed. Only compiled plugins are timed out,
+  because only they are a separate process. The rule now says that, in all
+  twelve languages.
+- The same paragraph that argues for compiled plugins being a separate process
+  listed "a loop with no exit freezes the window" among the things native code
+  costs you — and called scripts safe "because both are interpreted". The
+  interpreting boundary is real and it catches errors; it does nothing about a
+  script that never returns. That sentence has been corrected rather than
+  removed: knowing which half of the boundary holds is the point of the
+  paragraph.
 - The README and all eleven translations pointed at `examples/`, a directory
   renamed to `packages/` before 0.1.2, and taught a `tool/run-js-plugin.mjs`
   that was deleted at the same time. Both had been corrected; the 0.1.2 release

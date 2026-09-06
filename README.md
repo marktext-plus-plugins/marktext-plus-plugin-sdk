@@ -564,13 +564,16 @@ build.
 
 **Why a process and not a library the editor loads.** Lua and JS plugins
 already run inside the editor, on its own thread — that is the normal case, and
-it is safe because both are interpreted: a bad script raises an error the
-editor catches. Native code has no such boundary. A thread shares the address
+it holds because both are interpreted: a bad script raises an error the editor
+catches, so a mistake ends as a message rather than as a crash. What it does
+not cover is a script that never returns; that freezes the window just as
+surely, which is why the rule above asks you to bound your own work.
+
+Native code removes the rest of the boundary too. A thread shares the address
 space, so a segfault, a stack overflow or an `abort()` anywhere in a loaded
 `.so` takes the editor down with the reader's unsaved document and no way to
-report what happened; a loop with no exit freezes the window with no way to
-interrupt it; and unloading is unreliable, so disabling a plugin would not
-actually stop it. A separate process gives all three back — it can crash, hang
+report what happened; and unloading is unreliable, so disabling a plugin would
+not actually stop it. A separate process gives all of it back — it can crash, hang
 or be killed on a timeout, and the editor survives and says which plugin did
 it. (For Dart specifically there is also no choice to make: `dart compile` has
 `exe`, `aot-snapshot`, `js`, `wasm` and the snapshot formats. There is no
@@ -657,7 +660,10 @@ the launch token above for what it does instead.
 
 - Never write an API key into the plugin directory or the manifest.
 - Do not put anything in `stdout` other than protocol messages.
-- Keep work bounded; the editor enforces timeouts and step limits.
+- Keep work bounded yourself. A script runs on the editor's own thread and
+  nothing interrupts it: a loop with no exit freezes the window until someone
+  kills the process. Only compiled plugins get a timeout, because only they
+  are a separate process to time out.
 - A plugin ZIP with a path-traversing entry is rejected at install time.
 
 The SDK is MIT licensed.

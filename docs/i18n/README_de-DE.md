@@ -404,7 +404,9 @@ Das betrifft nur kompilierte Plug-ins, und besonders Dart, weil der Editor darin
 
 Nichts davon gilt für ein Lua- oder JavaScript-Plug-in. Die interpretiert der Editor selbst, was ihr ganzer Sinn ist: kein Dart, keine Toolchain, kein Build.
 
-**Warum ein Prozess und keine Bibliothek, die der Editor lädt.** Lua- und JS-Plug-ins laufen bereits im Prozess des Editors, in seinem eigenen Thread — das ist der Normalfall, und es ist sicher, weil beide interpretiert werden: ein schlechtes Skript wirft einen Fehler, den der Editor auffängt. Nativer Code hat diese Grenze nicht. Ein Thread teilt den Adressraum, also nimmt ein Speicherzugriffsfehler, ein Stapelüberlauf oder ein `abort()` irgendwo in einer geladenen `.so` den Editor mit, samt dem ungesicherten Dokument der Lesenden und ohne jede Möglichkeit zu berichten, was geschah; eine Schleife ohne Ausgang friert das Fenster ein, ohne dass man sie unterbrechen könnte; und Entladen ist unzuverlässig, ein Plug-in zu deaktivieren würde es also nicht wirklich anhalten. Ein eigener Prozess gibt alle drei zurück — er darf abstürzen, hängen oder nach einer Zeitüberschreitung getötet werden, und der Editor überlebt und sagt, welches Plug-in es war. (Für Dart gibt es ohnehin nichts zu wählen: `dart compile` kennt `exe`, `aot-snapshot`, `js`, `wasm` und die Snapshot-Formate. Einen Unterbefehl, der eine von C aufrufbare `.so` oder `.dll` erzeugt, gibt es **nicht**.)
+**Warum ein Prozess und keine Bibliothek, die der Editor lädt.** Lua- und JS-Plug-ins laufen bereits im Prozess des Editors, in seinem eigenen Thread — das ist der Normalfall, und das trägt, weil beide interpretiert werden: ein schlechtes Skript wirft einen Fehler, den der Editor auffängt, ein Fehlgriff endet also als Meldung und nicht als Absturz. Was es nicht abdeckt, ist ein Skript, das nie zurückkehrt; das friert das Fenster ebenso ein, weshalb die Regel oben Sie bittet, Ihre Arbeit selbst zu begrenzen.
+
+Nativer Code nimmt auch den Rest der Grenze weg. Ein Thread teilt den Adressraum, also nimmt ein Speicherzugriffsfehler, ein Stapelüberlauf oder ein `abort()` irgendwo in einer geladenen `.so` den Editor mit, samt dem ungesicherten Dokument der Lesenden und ohne jede Möglichkeit zu berichten, was geschah; und Entladen ist unzuverlässig, ein Plug-in zu deaktivieren würde es also nicht wirklich anhalten. Ein eigener Prozess gibt all das zurück — er darf abstürzen, hängen oder nach einer Zeitüberschreitung getötet werden, und der Editor überlebt und sagt, welches Plug-in es war. (Für Dart gibt es ohnehin nichts zu wählen: `dart compile` kennt `exe`, `aot-snapshot`, `js`, `wasm` und die Snapshot-Formate. Einen Unterbefehl, der eine von C aufrufbare `.so` oder `.dll` erzeugt, gibt es **nicht**.)
 
 - **Benutzen Sie `serve()`, dann sind die nächsten zwei Punkte bereits erledigt.** Ein ganzes kompiliertes Plug-in:
 
@@ -449,7 +451,10 @@ Ein Plug-in ist eine Datei auf der Maschine einer anderen Person, die dieser Edi
 
 - Schreiben Sie nie einen API-Schlüssel in das Plug-in-Verzeichnis oder das Manifest.
 - Auf stdout gehört nichts außer Protokollnachrichten.
-- Halten Sie die Arbeit begrenzt; der Editor erzwingt Zeitüberschreitungen und Schrittgrenzen.
+- Begrenzen Sie die Arbeit selbst. Ein Skript läuft im Thread des Editors, und
+  nichts unterbricht es: eine Schleife ohne Ausgang friert das Fenster ein, bis
+  jemand den Prozess beendet. Nur kompilierte Plugins bekommen eine
+  Zeitüberschreitung — nur sie sind ein eigener Prozess, den man abbrechen kann.
 - Ein Plug-in-ZIP mit einem Eintrag, der aus dem Verzeichnis hinausführt, wird beim Installieren abgelehnt.
 
 Das SDK steht unter der MIT-Lizenz.

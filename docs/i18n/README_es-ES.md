@@ -410,7 +410,9 @@ Esto atañe solo a los complementos compilados, y a Dart en particular, porque e
 
 Nada de esto se aplica a un complemento en Lua o JavaScript. Esos los interpreta el propio editor, que es todo su sentido: sin Dart, sin cadena de herramientas, sin compilación.
 
-**Por qué un proceso y no una biblioteca que el editor cargue.** Los complementos en Lua y JS ya se ejecutan dentro del proceso del editor, en su mismo hilo: ese es el caso normal, y es seguro porque son interpretados: un script malo lanza un error que el editor atrapa. El código nativo no tiene esa frontera. Un hilo comparte el espacio de direcciones, así que un fallo de segmentación, un desbordamiento de pila o un `abort()` en cualquier punto de un `.so` cargado se lleva al editor, junto con el documento sin guardar de quien lee y sin manera alguna de informar de lo ocurrido; un bucle sin salida congela la ventana sin que se pueda interrumpir; y la descarga no es fiable, así que desactivar un complemento no lo detendría de verdad. Un proceso aparte devuelve esas tres cosas: puede caerse, colgarse, ser terminado por tiempo de espera, y el editor sobrevive y sabe decir de qué complemento se trataba. (Para Dart, además, no hay nada que elegir: `dart compile` conoce `exe`, `aot-snapshot`, `js`, `wasm` y los formatos de instantánea. No existe ninguna subinstrucción que produzca un `.so` o una `.dll` invocable desde C.)
+**Por qué un proceso y no una biblioteca que el editor cargue.** Los complementos en Lua y JS ya se ejecutan dentro del proceso del editor, en su mismo hilo: ese es el caso normal, y se sostiene porque son interpretados: un script malo lanza un error que el editor atrapa, de modo que un desliz acaba en mensaje y no en caída. Lo que no cubre es un script que nunca regresa; ese congela la ventana igual, y por eso la regla de arriba le pide acotar usted mismo su trabajo.
+
+El código nativo retira también el resto de la frontera. Un hilo comparte el espacio de direcciones, así que un fallo de segmentación, un desbordamiento de pila o un `abort()` en cualquier punto de un `.so` cargado se lleva al editor, junto con el documento sin guardar de quien lee y sin manera alguna de informar de lo ocurrido; y la descarga no es fiable, así que desactivar un complemento no lo detendría de verdad. Un proceso aparte devuelve todo eso: puede caerse, colgarse, ser terminado por tiempo de espera, y el editor sobrevive y sabe decir de qué complemento se trataba. (Para Dart, además, no hay nada que elegir: `dart compile` conoce `exe`, `aot-snapshot`, `js`, `wasm` y los formatos de instantánea. No existe ninguna subinstrucción que produzca un `.so` o una `.dll` invocable desde C.)
 
 - **Use `serve()` y los dos puntos siguientes ya están resueltos.** Un complemento compilado entero:
 
@@ -455,7 +457,10 @@ Un complemento es un archivo en la máquina de otra persona, que este editor lee
 
 - No escriba nunca una clave de API en el directorio del complemento ni en el manifiesto.
 - A stdout no va nada que no sean mensajes del protocolo.
-- Mantenga el trabajo acotado; el editor impone tiempos de espera y límites de pasos.
+- Acote el trabajo usted mismo. Un script se ejecuta en el propio hilo del
+  editor y nada lo interrumpe: un bucle sin salida congela la ventana hasta que
+  alguien mata el proceso. Solo los complementos compilados tienen tiempo de
+  espera, porque solo ellos son un proceso aparte al que interrumpir.
 - Un ZIP con una entrada que sale del directorio se rechaza al instalar.
 
 El SDK se distribuye bajo licencia MIT.
