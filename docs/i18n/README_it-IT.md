@@ -461,6 +461,9 @@ Un'estensione è un file sulla macchina di qualcun altro, che questo editor legg
   niente lo interrompe: un ciclo senza uscita congela la finestra finché
   qualcuno non uccide il processo. Solo i plugin compilati hanno una scadenza,
   perché solo loro sono un processo separato da interrompere.
-- Uno ZIP con una voce che risale fuori dalla directory viene rifiutato all'installazione.
+- Un ZIP di estensione con una voce che esce dalla cartella viene rifiutato
+  all'installazione; così pure uno oltre i 64 MB, uno con più di 10000 voci, o
+  uno che si scompatta oltre i 256 MB. Un eseguibile per tre piattaforme ci sta;
+  una cartella di build versionata no.
 
 L'SDK è sotto licenza MIT.

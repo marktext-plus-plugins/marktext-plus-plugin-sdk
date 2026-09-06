@@ -6,6 +6,14 @@ Nothing here changes how a plugin behaves. One of them changes what the
 documentation tells you to do, which for someone starting a plugin is the
 same thing.
 
+### Added
+
+- The safety rules now state the limits an installed ZIP has to fit: 64 MB for
+  the archive, 10000 entries, 256 MB unpacked. They were added to the editor
+  today (a ZIP was free to claim it unpacked to gigabytes, and to mean it), and
+  an author who packages three platforms' executables should hear the number
+  from here rather than from a failed install.
+
 ### Fixed
 
 - **The safety rules promised a protection that does not exist.** "Keep work

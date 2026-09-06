@@ -455,6 +455,9 @@ Ein Plug-in ist eine Datei auf der Maschine einer anderen Person, die dieser Edi
   nichts unterbricht es: eine Schleife ohne Ausgang friert das Fenster ein, bis
   jemand den Prozess beendet. Nur kompilierte Plugins bekommen eine
   Zeitüberschreitung — nur sie sind ein eigener Prozess, den man abbrechen kann.
-- Ein Plug-in-ZIP mit einem Eintrag, der aus dem Verzeichnis hinausführt, wird beim Installieren abgelehnt.
+- Ein Plug-in-ZIP mit einem Eintrag, der aus dem Verzeichnis ausbricht, wird bei
+  der Installation abgelehnt — ebenso eines über 64 MB, eines mit mehr als 10000
+  Einträgen und eines, das auf mehr als 256 MB entpackt. Eine ausführbare Datei
+  für drei Plattformen passt hinein; ein eingechecktes Build-Verzeichnis nicht.
 
 Das SDK steht unter der MIT-Lizenz.

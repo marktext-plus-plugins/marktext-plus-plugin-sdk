@@ -462,6 +462,9 @@ Une extension est un fichier sur la machine de quelqu'un d'autre, que cet édite
   rien ne l'interrompt : une boucle sans issue fige la fenêtre jusqu'à ce que
   quelqu'un tue le processus. Seuls les greffons compilés ont un délai, car eux
   seuls sont un processus distinct qu'on peut interrompre.
-- Un ZIP d'extension contenant une entrée qui remonte hors du répertoire est refusé à l'installation.
+- Un ZIP d'extension contenant une entrée qui sort du répertoire est refusé à
+  l'installation ; de même un ZIP de plus de 64 Mo, un ZIP de plus de 10000
+  entrées, ou un ZIP qui se décompresse au-delà de 256 Mo. Un exécutable pour
+  trois plateformes tient ; un répertoire de compilation versionné, non.
 
 Le SDK est sous licence MIT.

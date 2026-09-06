@@ -461,6 +461,9 @@ Un complemento es un archivo en la máquina de otra persona, que este editor lee
   editor y nada lo interrumpe: un bucle sin salida congela la ventana hasta que
   alguien mata el proceso. Solo los complementos compilados tienen tiempo de
   espera, porque solo ellos son un proceso aparte al que interrumpir.
-- Un ZIP con una entrada que sale del directorio se rechaza al instalar.
+- Un ZIP de complemento con una entrada que se sale del directorio se rechaza al
+  instalar; también uno de más de 64 MB, uno con más de 10000 entradas, o uno que
+  se descomprima a más de 256 MB. Un ejecutable para tres plataformas cabe; un
+  directorio de compilación versionado, no.
 
 El SDK se distribuye bajo licencia MIT.

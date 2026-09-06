@@ -664,6 +664,9 @@ the launch token above for what it does instead.
   nothing interrupts it: a loop with no exit freezes the window until someone
   kills the process. Only compiled plugins get a timeout, because only they
   are a separate process to time out.
-- A plugin ZIP with a path-traversing entry is rejected at install time.
+- A plugin ZIP with a path-traversing entry is rejected at install time, and
+  so is one over 64 MB, one with more than 10000 entries, or one that unpacks
+  to more than 256 MB. An executable for three platforms fits; a checked-in
+  build directory does not.
 
 The SDK is MIT licensed.

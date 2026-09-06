@@ -461,6 +461,9 @@ Uma extensão é um arquivo na máquina de outra pessoa, que este editor lê. Pa
   e nada o interrompe: um laço sem saída congela a janela até alguém matar o
   processo. Só os plugins compilados têm tempo limite, porque só eles são um
   processo separado que dê para interromper.
-- Um ZIP com uma entrada que saia do diretório é recusado ao instalar.
+- Um ZIP de extensão com uma entrada que sai da pasta é recusado na instalação;
+  o mesmo vale para um acima de 64 MB, um com mais de 10000 entradas, ou um que
+  descompacte para mais de 256 MB. Um executável para três plataformas cabe; uma
+  pasta de build versionada não.
 
 O SDK é distribuído sob a licença MIT.
