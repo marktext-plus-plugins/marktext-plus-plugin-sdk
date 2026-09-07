@@ -293,11 +293,20 @@ return sdk.ui({ column = {
 | `select` | `id` (obbligatorio), `options`, `value` — un menù a tendina, quando sono troppe per i chip |
 | `checkbox` | `id` (obbligatorio), `label`, `value`; il valore arriva come `"true"` o `"false"` |
 | `markdown` | Markdown, disegnato dal renderer dell'editor: la vostra risposta somiglia al documento di cui parla |
+| `image` | `source` (obbligatorio), `height` — vedi sotto |
 | `spacer` | spazio vuoto; in una riga spinge il seguito all'estremità |
 
 Premere un pulsante o scegliere un chip chiama `on_event(ctx, id, values)`, dove `id` è quello di quel nodo e `values` contiene **tutti gli input dell'albero** per id. Non dovete ricordare il modulo disegnato un passo prima: ce l'ha l'editor.
 
 Non è HTML, ed è proprio questo il punto: sono i componenti dell'editor stesso. Non costano nulla all'avvio, seguono il tema di chi legge senza che l'estensione sappia quale sia, e non possono disegnare fuori dal contenitore che hanno ricevuto.
+
+**Immagini.** `source` è una di tre cose:
+
+- una URI `data:` — decodificata sul posto, nulla lascia la macchina;
+- un percorso relativo alla cartella della vostra estensione — uno assoluto viene rifiutato, perché leggere file dal disco di chi legge è compito di `workspace.read`;
+- un URL `http(s)` — **lo prende l'editor**, non la vostra estensione: così segue il proxy di sistema e finisce nel registro della vostra estensione con host, stato, dimensione e tempo. Richiede `network.request`.
+
+Quest'ultima riga è voluta. Potete uscire in rete; chi legge può sapere dove. **Un permesso che nessuno può verificare dopo è una promessa, non un permesso.**
 
 **Un nodo scritto male fa rifiutare l'intero albero**, con un errore che vedrete, invece di non disegnare nulla in silenzio. Lo stesso per un albero più profondo di 12 livelli o più grande di 500 nodi: mezzo modulo è peggio di nessuno, perché chi legge compila quello che vede e poi preme un pulsante mai disegnato.
 
@@ -397,6 +406,7 @@ Dichiarati nel manifest, mostrati a chi legge, e **applicati**. VS Code e Intell
 | `clipboard.read` / `clipboard.write` | gli appunti |
 | `workspace.read` / `workspace.write` | i file sotto la cartella aperta da chi legge |
 | `network.request` | fare richieste HTTP proprie. **La più ampia che si possa chiedere**: tutto ciò che può leggere, può mandarlo ovunque |
+| `ui.webview` | aprire la propria pagina web dentro l'editor. **Si porta dietro `network.request`**, e chi legge lo viene a sapere: una pagina in una vista web va a prendersi quel che vuole |
 
 Chiedete quello che usate. Un'estensione che chiede `network.request` per aggiungere una voce di menu è un'estensione che chi legge dovrebbe rifiutare.
 

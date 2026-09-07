@@ -371,6 +371,7 @@ return sdk.ui({ column = {
 | `select` | `id` (required), `options`, `value` — a dropdown, for when there are too many for chips |
 | `checkbox` | `id` (required), `label`, `value`; its value arrives as `"true"` or `"false"` |
 | `markdown` | Markdown, drawn by the editor's own renderer — your answer looks like the document it is about |
+| `image` | `source` (required), `height` — see below |
 | `spacer` | blank space; in a row it pushes what follows to the far end |
 
 Pressing a button or choosing a chip calls `on_event(ctx, id, values)`, where
@@ -381,6 +382,19 @@ It is not HTML, and that is the point: these are the editor's own widgets, so
 they cost nothing at startup, follow the reader's theme without your plugin
 knowing what the theme is, and cannot draw outside the container they were
 given.
+
+**Pictures.** `source` is one of three things:
+
+- a `data:` URI — decoded in place, nothing leaves the machine;
+- a path relative to your plugin's directory — an absolute one is refused,
+  because reading files off the reader's disk is what `workspace.read` is for;
+- an `http(s)` URL — fetched **by the editor**, not by your plugin, so it
+  follows the reader's system proxy and is written to your plugin's log with
+  the host, status, size and time. Needs `network.request`.
+
+That last line is deliberate. You may reach the network; the reader may find
+out where you went. A permission nobody can check up on afterwards is a
+promise rather than a permission.
 
 **A misspelled node refuses the whole tree** with an error you will see, rather
 than quietly drawing nothing. The same goes for a tree deeper than 12 levels or
@@ -527,6 +541,7 @@ for it.
 | `clipboard.read` / `clipboard.write` | the clipboard |
 | `workspace.read` / `workspace.write` | files under the folder the reader opened |
 | `network.request` | make HTTP requests of its own. The widest thing to ask for: anything it can read, it can send anywhere. |
+| `ui.webview` | open its own web page inside the editor. **Carries `network.request` with it** and the reader is told so: a page in a web view fetches whatever it likes |
 
 Ask for what you use. A plugin asking for `network.request` to add a menu entry
 is one the reader should decline.

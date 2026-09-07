@@ -293,11 +293,20 @@ return sdk.ui({ column = {
 | `select` | `id` (erforderlich), `options`, `value` — ein Aufklappmenü, wenn es für Chips zu viele sind |
 | `checkbox` | `id` (erforderlich), `label`, `value`; der Wert kommt als `"true"` oder `"false"` an |
 | `markdown` | Markdown, gezeichnet vom Renderer des Editors — Ihre Antwort sieht aus wie das Dokument, um das es geht |
+| `image` | `source` (erforderlich), `height` — siehe unten |
 | `spacer` | Leerraum; in einer Zeile schiebt er das Folgende ans Ende |
 
 Ein Druck auf einen Knopf oder die Wahl eines Chips ruft `on_event(ctx, id, values)`. `id` ist die id jenes Knotens, und `values` enthält **jede Eingabe des Baums** nach id. Sie müssen sich das Formular, das Sie einen Schritt zuvor gezeichnet haben, nicht merken — der Editor hat es.
 
 Es ist kein HTML, und genau darum geht es: das sind die Widgets des Editors selbst. Sie kosten beim Start nichts, folgen dem Thema der Lesenden, ohne dass Ihr Plug-in das Thema kennen muss, und können nicht außerhalb ihres Behälters zeichnen.
+
+**Bilder.** `source` ist eines von dreien:
+
+- eine `data:`-URI — an Ort und Stelle dekodiert, nichts verlässt die Maschine;
+- ein Pfad relativ zum Verzeichnis Ihres Plug-ins — ein absoluter wird abgelehnt, denn Dateien von der Platte der Lesenden zu lesen ist die Aufgabe von `workspace.read`;
+- eine `http(s)`-URL — **vom Editor geholt**, nicht von Ihrem Plug-in. Sie folgt also dem Systemproxy der Lesenden und wird mit Host, Status, Größe und Dauer in das Protokoll Ihres Plug-ins geschrieben. Braucht `network.request`.
+
+Die letzte Zeile ist Absicht. Sie dürfen ins Netz; die Lesenden dürfen erfahren, wohin. **Eine Berechtigung, die niemand nachprüfen kann, ist ein Versprechen und keine Berechtigung.**
 
 **Ein falsch geschriebener Knoten weist den ganzen Baum zurück**, mit einem Fehler, den Sie sehen — statt stillschweigend nichts zu zeichnen. Ebenso ein Baum tiefer als 12 oder größer als 500 Knoten: ein halbes Formular ist schlimmer als keines, denn die Lesenden füllen aus, was da ist, und drücken dann einen Knopf, der nie gezeichnet wurde.
 
@@ -396,6 +405,7 @@ Im Manifest erklärt, den Lesenden gezeigt und **durchgesetzt**. VS Code und Int
 | `clipboard.read` / `clipboard.write` | die Zwischenablage |
 | `workspace.read` / `workspace.write` | Dateien unter dem geöffneten Ordner |
 | `network.request` | eigene HTTP-Anfragen. **Das Weiteste, worum man bitten kann**: was es lesen kann, kann es überallhin senden |
+| `ui.webview` | eine eigene Webseite im Editor öffnen. **Bringt `network.request` mit**, und die Lesenden erfahren das: eine Seite in einer Web-Ansicht holt sich, was sie will |
 
 Bitten Sie um das, was Sie benutzen. Ein Plug-in, das für einen Menüeintrag um `network.request` bittet, sollten die Lesenden ablehnen.
 

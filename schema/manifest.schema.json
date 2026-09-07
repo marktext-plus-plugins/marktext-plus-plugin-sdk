@@ -194,7 +194,8 @@
           "clipboard.write",
           "workspace.read",
           "workspace.write",
-          "network.request"
+          "network.request",
+          "ui.webview"
         ]
       },
       "description": "Shown to the reader and enforced by the editor. An action the plugin did not ask for is refused, not performed."

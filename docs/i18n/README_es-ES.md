@@ -293,11 +293,20 @@ return sdk.ui({ column = {
 | `select` | `id` (obligatorio), `options`, `value` — un desplegable, cuando son demasiadas para fichas |
 | `checkbox` | `id` (obligatorio), `label`, `value`; su valor llega como `"true"` o `"false"` |
 | `markdown` | Markdown, dibujado por el propio renderizador del editor: su respuesta se ve como el documento del que trata |
+| `image` | `source` (obligatorio), `height` — véase abajo |
 | `spacer` | espacio en blanco; en una fila empuja lo que sigue hasta el extremo |
 
 Pulsar un botón o elegir una ficha llama a `on_event(ctx, id, values)`, donde `id` es el de ese nodo y `values` contiene **todas las entradas del árbol** por id. No tiene que recordar el formulario que dibujó un paso antes: el editor lo tiene.
 
 No es HTML, y ahí está la clave: son los propios componentes del editor. No cuestan nada al arrancar, siguen el tema de quien lee sin que su complemento sepa cuál es, y no pueden dibujar fuera del contenedor que se les dio.
+
+**Imágenes.** `source` es una de tres cosas:
+
+- una URI `data:` — se descodifica en el sitio, nada sale de la máquina;
+- una ruta relativa al directorio de su complemento — una absoluta se rechaza, porque leer archivos del disco de quien lee es cosa de `workspace.read`;
+- una URL `http(s)` — **la trae el editor**, no su complemento: así sigue el proxy del sistema y queda escrita en el registro de su complemento con el host, el estado, el tamaño y el tiempo. Necesita `network.request`.
+
+Esa última línea es intencionada. Usted puede salir a la red; quien lee puede saber adónde. **Un permiso que nadie puede comprobar después es una promesa, no un permiso.**
 
 **Un nodo mal escrito hace que se rechace el árbol entero**, con un error que usted verá, en lugar de no dibujar nada en silencio. Lo mismo con un árbol de más de 12 niveles o de más de 500 nodos: medio formulario es peor que ninguno, porque quien lee rellena lo que ve y luego pulsa un botón que nunca se dibujó.
 
@@ -397,6 +406,7 @@ Declarados en el manifiesto, mostrados a quien lee y **aplicados**. VS Code e In
 | `clipboard.read` / `clipboard.write` | el portapapeles |
 | `workspace.read` / `workspace.write` | los archivos bajo la carpeta que quien lee abrió |
 | `network.request` | hacer sus propias peticiones HTTP. **Lo más amplio que se puede pedir**: todo lo que pueda leer, puede enviarlo a cualquier sitio |
+| `ui.webview` | abrir su propia página web dentro del editor. **Lleva consigo `network.request`**, y así se le dice a quien lee: una página en una vista web pide lo que quiere |
 
 Pida lo que use. Un complemento que pide `network.request` para añadir una entrada de menú es uno que quien lee debería rechazar.
 

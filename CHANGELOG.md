@@ -23,6 +23,16 @@
   everything a plugin is told is a string), and `markdown` — drawn by the
   editor's own renderer, so an answer that is a document looks like one
   instead of showing its own `##` and `**`.
+- An `image` node. `source` is a `data:` URI, a path inside your own plugin
+  directory, or an `http(s)` URL — and that last one is fetched **by the
+  editor**, so it follows the reader's system proxy and lands in your plugin's
+  log with the host, status, size and time. You may reach the network; the
+  reader may find out where you went. A permission nobody can check up on
+  afterwards is a promise rather than a permission.
+- `ui.webview` joins the permission list, and **carries `network.request` with
+  it** — the reader is shown both, because a permission list that understates
+  what it grants is worse than none. The web view itself lands in a later
+  release; the permission and the logging are here first.
 
 Nothing here changes how a plugin behaves. One of them changes what the
 documentation tells you to do, which for someone starting a plugin is the

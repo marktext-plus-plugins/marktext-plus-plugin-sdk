@@ -293,11 +293,20 @@ return sdk.ui({ column = {
 | `select` | `id` (obrigatório), `options`, `value` — um menu suspenso, quando são demais para chips |
 | `checkbox` | `id` (obrigatório), `label`, `value`; o valor chega como `"true"` ou `"false"` |
 | `markdown` | Markdown, desenhado pelo renderizador do próprio editor — sua resposta fica com a cara do documento de que trata |
+| `image` | `source` (obrigatório), `height` — veja abaixo |
 | `spacer` | espaço em branco; numa linha empurra o que vem depois para a ponta |
 
 Apertar um botão ou escolher um chip chama `on_event(ctx, id, values)`, onde `id` é o daquele nó e `values` traz **todas as entradas da árvore** por id. Você não precisa lembrar do formulário que desenhou um passo antes — o editor tem ele.
 
 Não é HTML, e é justamente esse o ponto: são os componentes do próprio editor. Não custam nada na inicialização, seguem o tema de quem lê sem que o seu plugin saiba qual é, e não conseguem desenhar fora do contêiner que receberam.
+
+**Imagens.** `source` é uma de três coisas:
+
+- uma URI `data:` — decodificada no lugar, nada sai da máquina;
+- um caminho relativo à pasta do seu plugin — um absoluto é recusado, porque ler arquivos do disco de quem lê é tarefa do `workspace.read`;
+- uma URL `http(s)` — **quem busca é o editor**, não o seu plugin: assim segue o proxy do sistema e fica registrado no log do seu plugin com o host, o status, o tamanho e o tempo. Precisa de `network.request`.
+
+Essa última linha é proposital. Você pode ir à rede; quem lê pode saber aonde. **Uma permissão que ninguém consegue conferir depois é uma promessa, não uma permissão.**
 
 **Um nó escrito errado faz a árvore inteira ser recusada**, com um erro que você vai ver, em vez de silenciosamente não desenhar nada. O mesmo vale para uma árvore com mais de 12 níveis ou mais de 500 nós: meio formulário é pior que nenhum, porque quem lê preenche o que está à vista e depois aperta um botão que nunca foi desenhado.
 
@@ -397,6 +406,7 @@ Declaradas no manifesto, mostradas a quem lê e **impostas**. O VS Code e o Inte
 | `clipboard.read` / `clipboard.write` | a área de transferência |
 | `workspace.read` / `workspace.write` | os arquivos sob a pasta que quem lê abriu |
 | `network.request` | fazer pedidos HTTP próprios. **O mais amplo que se pode pedir**: tudo o que conseguir ler, consegue enviar para qualquer lado |
+| `ui.webview` | abrir a própria página web dentro do editor. **Traz `network.request` junto**, e quem lê é avisado disso: uma página numa webview busca o que quiser |
 
 Peça o que usa. Uma extensão que pede `network.request` para acrescentar uma entrada de menu é uma que quem lê deve recusar.
 

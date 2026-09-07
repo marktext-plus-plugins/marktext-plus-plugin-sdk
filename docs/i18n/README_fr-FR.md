@@ -293,11 +293,20 @@ return sdk.ui({ column = {
 | `select` | `id` (requis), `options`, `value` — une liste déroulante quand il y en a trop pour des puces |
 | `checkbox` | `id` (requis), `label`, `value` ; sa valeur arrive en `"true"` ou `"false"` |
 | `markdown` | du Markdown, dessiné par le moteur de rendu de l'éditeur — votre réponse ressemble au document dont elle parle |
+| `image` | `source` (requis), `height` — voir ci-dessous |
 | `spacer` | un blanc ; dans une ligne il pousse la suite vers le bout |
 
 Presser un bouton ou choisir une puce appelle `on_event(ctx, id, values)`, où `id` est celui de ce nœud et `values` contient **toutes les entrées de l'arbre**, par id. Vous n'avez pas à retenir le formulaire dessiné à l'étape précédente — l'éditeur l'a.
 
 Ce n'est pas du HTML, et c'est tout l'intérêt : ce sont les composants de l'éditeur lui-même. Ils ne coûtent rien au démarrage, suivent le thème du lecteur sans que votre greffon ait à le connaître, et ne peuvent pas dessiner hors du cadre qu'on leur a donné.
+
+**Images.** `source` est l'une de trois choses :
+
+- une URI `data:` — décodée sur place, rien ne quitte la machine ;
+- un chemin relatif au répertoire de votre greffon — un chemin absolu est refusé, car lire des fichiers sur le disque du lecteur relève de `workspace.read` ;
+- une URL `http(s)` — **récupérée par l'éditeur**, pas par votre greffon : elle suit donc le proxy système du lecteur et s'inscrit dans le journal de votre greffon avec l'hôte, le statut, la taille et la durée. Nécessite `network.request`.
+
+Cette dernière ligne est voulue. Vous pouvez aller sur le réseau ; le lecteur peut savoir où. **Une permission que personne ne peut vérifier après coup est une promesse, pas une permission.**
 
 **Un nœud mal orthographié fait refuser l'arbre entier**, avec une erreur que vous verrez, plutôt que de ne rien dessiner en silence. De même pour un arbre de plus de 12 niveaux ou de plus de 500 nœuds : un demi-formulaire est pire que rien, car le lecteur remplit ce qu'il voit puis appuie sur un bouton qui n'a jamais été dessiné.
 
@@ -398,6 +407,7 @@ Déclarées dans le manifeste, montrées au lecteur, et **appliquées**. VS Code
 | `clipboard.read` / `clipboard.write` | le presse-papiers |
 | `workspace.read` / `workspace.write` | les fichiers sous le dossier ouvert par le lecteur |
 | `network.request` | émettre ses propres requêtes HTTP. **La plus large que l'on puisse demander** : tout ce qu'elle peut lire, elle peut l'envoyer n'importe où |
+| `ui.webview` | ouvrir sa propre page web dans l'éditeur. **Emporte `network.request` avec elle**, et le lecteur en est informé : une page dans une vue web va chercher ce qu'elle veut |
 
 Ne demandez que ce que vous utilisez. Une extension qui demande `network.request` pour ajouter une entrée de menu est une extension que le lecteur devrait refuser.
 
