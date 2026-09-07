@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | dice una línea a quien lee | termina |
 | `{ diff = { original = "…", result = "…" } }` | muestra los dos textos uno al lado del otro | termina; no se escribe nada |
 | `{ replace = "…" }` | sustituye la selección | termina |
+| `{ ui = <nodo>, title = "…" }` | dibuja su propia interfaz — véase abajo | llama a `on_event(ctx, id, values)` cuando quien lee la usa |
 | cualquier otra cosa | nada | termina |
+
+### Dibujar su propia interfaz
+
+`ui` lleva un árbol que el editor dibuja con sus propios componentes. Los nodos son tablas con una sola clave:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Nodo | Campos |
+|---|---|
+| `text` | la cadena misma; `emphasis = true` la dibuja como encabezado |
+| `input` | `id` (obligatorio), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (obligatorio), `options` — una lista de cadenas |
+| `button` | `id` (obligatorio), `label`, `primary` |
+| `row` / `column` | una lista de nodos |
+| `spacer` | espacio en blanco; en una fila empuja lo que sigue hasta el extremo |
+
+Pulsar un botón o elegir una ficha llama a `on_event(ctx, id, values)`, donde `id` es el de ese nodo y `values` contiene **todas las entradas del árbol** por id. No tiene que recordar el formulario que dibujó un paso antes: el editor lo tiene.
+
+No es HTML, y ahí está la clave: son los propios componentes del editor. No cuestan nada al arrancar, siguen el tema de quien lee sin que su complemento sepa cuál es, y no pueden dibujar fuera del contenedor que se les dio.
+
+**Un nodo mal escrito hace que se rechace el árbol entero**, con un error que usted verá, en lugar de no dibujar nada en silencio. Lo mismo con un árbol de más de 12 niveles o de más de 500 nodos: medio formulario es peor que ninguno, porque quien lee rellena lo que ve y luego pulsa un botón que nunca se dibujó.
 
 **Qué hay que pedir.** Estos cuatro se rechazan si el manifiesto no declara el
 permiso:

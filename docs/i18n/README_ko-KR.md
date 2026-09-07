@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | 읽는 사람에게 한 줄 전합니다 | 끝 |
 | `{ diff = { original = "…", result = "…" } }` | 두 텍스트를 나란히 보여 줍니다 | 끝. 문서에는 아무것도 쓰지 않습니다 |
 | `{ replace = "…" }` | 선택 영역을 바꿉니다 | 끝 |
+| `{ ui = <노드>, title = "…" }` | 직접 화면을 그립니다 — 아래 참조 | 독자가 사용하면 `on_event(ctx, id, values)` 를 부릅니다 |
 | 그 밖의 것 | 아무것도 하지 않습니다 | 끝 |
+
+### 직접 화면 그리기
+
+`ui` 가 나르는 것은 트리이고, 에디터는 그것을 자기 위젯으로 그립니다. 노드는 키가 하나뿐인 테이블입니다:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| 노드 | 필드 |
+|---|---|
+| `text` | 문자열 자체. `emphasis = true` 면 제목처럼 그립니다 |
+| `input` | `id`(필수), `value`, `placeholder`, `multiline` |
+| `chips` | `id`(필수), `options` — 문자열 목록 |
+| `button` | `id`(필수), `label`, `primary` |
+| `row` / `column` | 노드 목록 |
+| `spacer` | 빈 공간. 행 안에서는 뒤따르는 것을 끝으로 밀어냅니다 |
+
+버튼을 누르거나 칩을 고르면 `on_event(ctx, id, values)` 가 불립니다. `id` 는 그 노드의 id 이고, `values` 는 **이 트리 안의 모든 입력**을 id 로 담은 테이블입니다. 한 걸음 전에 그린 폼을 기억할 필요가 없습니다 — 에디터가 가지고 있습니다.
+
+HTML 이 아니며, 그게 핵심입니다. 이것들은 에디터 자신의 위젯이라 시작할 때 비용이 없고, 플러그인이 테마를 몰라도 독자의 테마를 따라가며, 주어진 그릇 밖으로는 그릴 수 없습니다.
+
+**노드 이름을 틀리면 트리 전체가 거부되고** 눈에 보이는 오류가 납니다. 조용히 아무것도 안 그리는 일은 없습니다. 12 단계보다 깊거나 500 노드보다 큰 트리도 마찬가지입니다 — 반쪽 폼은 없느니만 못합니다. 독자는 보이는 것을 채우고, 그려지지도 않은 버튼을 누르러 갑니다.
 
 **먼저 요청해야 하는 것.** 이 네 가지는 manifest가 권한을 선언하지 않으면 거절됩니다.
 

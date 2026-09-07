@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | dit une ligne au lecteur | s'arrête |
 | `{ diff = { original = "…", result = "…" } }` | montre les deux textes côte à côte | s'arrête ; rien n'est écrit |
 | `{ replace = "…" }` | remplace la sélection | s'arrête |
+| `{ ui = <nœud>, title = "…" }` | dessine votre propre interface — voir ci-dessous | appelle `on_event(ctx, id, values)` dès que le lecteur s'en sert |
 | n'importe quoi d'autre | rien | s'arrête |
+
+### Dessiner votre propre interface
+
+`ui` porte un arbre que l'éditeur rend avec ses propres composants. Les nœuds sont des tables à une seule clé :
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Nœud | Champs |
+|---|---|
+| `text` | la chaîne elle-même ; `emphasis = true` la dessine en titre |
+| `input` | `id` (requis), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (requis), `options` — une liste de chaînes |
+| `button` | `id` (requis), `label`, `primary` |
+| `row` / `column` | une liste de nœuds |
+| `spacer` | un blanc ; dans une ligne il pousse la suite vers le bout |
+
+Presser un bouton ou choisir une puce appelle `on_event(ctx, id, values)`, où `id` est celui de ce nœud et `values` contient **toutes les entrées de l'arbre**, par id. Vous n'avez pas à retenir le formulaire dessiné à l'étape précédente — l'éditeur l'a.
+
+Ce n'est pas du HTML, et c'est tout l'intérêt : ce sont les composants de l'éditeur lui-même. Ils ne coûtent rien au démarrage, suivent le thème du lecteur sans que votre greffon ait à le connaître, et ne peuvent pas dessiner hors du cadre qu'on leur a donné.
+
+**Un nœud mal orthographié fait refuser l'arbre entier**, avec une erreur que vous verrez, plutôt que de ne rien dessiner en silence. De même pour un arbre de plus de 12 niveaux ou de plus de 500 nœuds : un demi-formulaire est pire que rien, car le lecteur remplit ce qu'il voit puis appuie sur un bouton qui n'a jamais été dessiné.
 
 **Ce qu'il faut demander.** Ces quatre-là sont refusés si le manifeste ne
 déclare pas le droit :

@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | diz uma linha a quem lê | termina |
 | `{ diff = { original = "…", result = "…" } }` | mostra os dois textos lado a lado | termina; nada é escrito |
 | `{ replace = "…" }` | substitui a selecção | termina |
+| `{ ui = <nó>, title = "…" }` | desenha a sua própria interface — ver abaixo | chama `on_event(ctx, id, values)` quando quem lê a usa |
 | qualquer outra coisa | nada | termina |
+
+### Desenhar a sua própria interface
+
+`ui` transporta uma árvore que o editor desenha com os seus próprios componentes. Os nós são tabelas com uma só chave:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Nó | Campos |
+|---|---|
+| `text` | a própria cadeia; `emphasis = true` desenha-a como título |
+| `input` | `id` (obrigatório), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (obrigatório), `options` — uma lista de cadeias |
+| `button` | `id` (obrigatório), `label`, `primary` |
+| `row` / `column` | uma lista de nós |
+| `spacer` | espaço em branco; numa linha empurra o que se segue para a ponta |
+
+Carregar num botão ou escolher uma ficha chama `on_event(ctx, id, values)`, onde `id` é o desse nó e `values` contém **todas as entradas da árvore** por id. Não tem de recordar o formulário que desenhou um passo antes — o editor tem-no.
+
+Não é HTML, e é esse o ponto: são os próprios componentes do editor. Não custam nada no arranque, seguem o tema de quem lê sem que a sua extensão saiba qual é, e não podem desenhar fora do recipiente que lhes foi dado.
+
+**Um nó mal escrito faz recusar a árvore inteira**, com um erro que verá, em vez de não desenhar nada em silêncio. O mesmo para uma árvore com mais de 12 níveis ou mais de 500 nós: meio formulário é pior do que nenhum, porque quem lê preenche o que vê e depois carrega num botão que nunca foi desenhado.
 
 **O que precisa de ser pedido.** Estes quatro são recusados se o manifesto não
 declarar a permissão:

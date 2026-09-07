@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | 読者に一行伝える | 終了 |
 | `{ diff = { original = "…", result = "…" } }` | 二つのテキストを並べて見せる | 終了。ドキュメントには何も書かない |
 | `{ replace = "…" }` | 選択範囲を置き換える | 終了 |
+| `{ ui = <ノード>, title = "…" }` | 自前の画面を描く——下記参照 | 読者がそれを使うと `on_event(ctx, id, values)` を呼ぶ |
 | その他 | 何もしない | 終了 |
+
+### 自前の画面を描く
+
+`ui` が運ぶのは木構造で、エディタはそれを自分のウィジェットとして描きます。ノードはキーを一つだけ持つテーブルです：
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| ノード | フィールド |
+|---|---|
+| `text` | 文字列そのもの。`emphasis = true` で見出しとして描かれます |
+| `input` | `id`（必須）、`value`、`placeholder`、`multiline` |
+| `chips` | `id`（必須）、`options`——文字列のリスト |
+| `button` | `id`（必須）、`label`、`primary` |
+| `row` / `column` | ノードのリスト |
+| `spacer` | 余白。行の中では続くものを右端へ押しやります |
+
+ボタンを押す、あるいはチップを選ぶと `on_event(ctx, id, values)` が呼ばれます。`id` はそのノードの id、`values` は**この木の中のすべての入力**を id で並べたテーブルです。一手前に自分が描いたフォームを覚えておく必要はありません——エディタが持っています。
+
+HTML ではありません。そこが要点です：これらはエディタ自身のウィジェットなので、起動時のコストはゼロ、読者のテーマに自動で従い（プラグインがテーマを知る必要はありません）、与えられた容器の外には描けません。
+
+**ノードの綴りを間違えると木ごと拒否され**、あなたに見えるエラーになります。黙って何も描かない、ということにはなりません。12 段より深い木、500 ノードより大きい木も同じです——半分のフォームは無いより悪い。読者は見えている分を埋め、描かれてもいないボタンを押しに行きます。
 
 **申請が要るもの。** この四つは、manifest が権限を宣言していなければ拒否されます。
 

@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | 告诉用户一句话 | 结束 |
 | `{ diff = { original = "…", result = "…" } }` | 左右对照显示两段文本 | 结束；不写入文档 |
 | `{ replace = "…" }` | 替换当前选区 | 结束 |
+| `{ ui = <节点>, title = "…" }` | 画你自己的界面——见下 | 读者用了它就调用 `on_event(ctx, id, values)` |
 | 其它任何东西 | 什么都不做 | 结束 |
+
+### 画你自己的界面
+
+`ui` 带的是一棵树，编辑器把它渲染成自己的组件。每个节点是一张只有一个键的表：
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| 节点 | 字段 |
+|---|---|
+| `text` | 字符串本身；`emphasis = true` 按标题画 |
+| `input` | `id`（必填）、`value`、`placeholder`、`multiline` |
+| `chips` | `id`（必填）、`options`——字符串列表 |
+| `button` | `id`（必填）、`label`、`primary` |
+| `row` / `column` | 一列节点 |
+| `spacer` | 空白；在行里它把后面的东西推到最右 |
+
+按下按钮或选中一个 chip 会调用 `on_event(ctx, id, values)`，`id` 是那个节点的 id，`values` 是**这棵树里所有输入**按 id 排好的表。你不必记住自己一步之前画了什么表单——编辑器有。
+
+它不是 HTML，而这正是重点：这些就是编辑器自己的组件，所以启动时零代价、自动跟着读者的主题走（你的插件不必知道主题是什么），也画不出被给定的容器之外。
+
+**拼错一个节点会让整棵树被拒绝**并报出你看得见的错误，而不是安静地什么都不画。树超过 12 层深或 500 个节点也一样——半张表单比没有更糟，读者会把看得见的填完，然后去按一个根本没画出来的按钮。
 
 **哪些需要先申请。** 这四个，manifest 没声明对应权限就会被拒：
 

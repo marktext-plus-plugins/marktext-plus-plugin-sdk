@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | dice una riga a chi legge | finisce |
 | `{ diff = { original = "…", result = "…" } }` | mostra i due testi affiancati | finisce; non scrive nulla |
 | `{ replace = "…" }` | sostituisce la selezione | finisce |
+| `{ ui = <nodo>, title = "…" }` | disegna la vostra interfaccia — vedi sotto | chiama `on_event(ctx, id, values)` quando chi legge la usa |
 | qualunque altra cosa | niente | finisce |
+
+### Disegnare la propria interfaccia
+
+`ui` porta un albero che l'editor disegna con i propri componenti. I nodi sono tabelle con una sola chiave:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Nodo | Campi |
+|---|---|
+| `text` | la stringa stessa; `emphasis = true` la disegna come titolo |
+| `input` | `id` (obbligatorio), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (obbligatorio), `options` — un elenco di stringhe |
+| `button` | `id` (obbligatorio), `label`, `primary` |
+| `row` / `column` | un elenco di nodi |
+| `spacer` | spazio vuoto; in una riga spinge il seguito all'estremità |
+
+Premere un pulsante o scegliere un chip chiama `on_event(ctx, id, values)`, dove `id` è quello di quel nodo e `values` contiene **tutti gli input dell'albero** per id. Non dovete ricordare il modulo disegnato un passo prima: ce l'ha l'editor.
+
+Non è HTML, ed è proprio questo il punto: sono i componenti dell'editor stesso. Non costano nulla all'avvio, seguono il tema di chi legge senza che l'estensione sappia quale sia, e non possono disegnare fuori dal contenitore che hanno ricevuto.
+
+**Un nodo scritto male fa rifiutare l'intero albero**, con un errore che vedrete, invece di non disegnare nulla in silenzio. Lo stesso per un albero più profondo di 12 livelli o più grande di 500 nodi: mezzo modulo è peggio di nessuno, perché chi legge compila quello che vede e poi preme un pulsante mai disegnato.
 
 **Cosa va chiesto.** Questi quattro vengono rifiutati se il manifesto non
 dichiara il permesso:

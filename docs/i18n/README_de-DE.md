@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | sagt den Lesenden eine Zeile | endet |
 | `{ diff = { original = "…", result = "…" } }` | zeigt beide Texte nebeneinander | endet; nichts wird geschrieben |
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
+| `{ ui = <Knoten>, title = "…" }` | zeichnet Ihre eigene Oberfläche — siehe unten | ruft `on_event(ctx, id, values)`, sobald die Lesenden sie benutzen |
 | irgendetwas anderes | nichts | endet |
+
+### Eine eigene Oberfläche zeichnen
+
+`ui` trägt einen Baum, den der Editor als seine eigenen Widgets zeichnet. Knoten sind Tabellen mit je einem Schlüssel:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Knoten | Felder |
+|---|---|
+| `text` | die Zeichenkette selbst; `emphasis = true` zeichnet sie als Überschrift |
+| `input` | `id` (erforderlich), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (erforderlich), `options` — eine Liste von Zeichenketten |
+| `button` | `id` (erforderlich), `label`, `primary` |
+| `row` / `column` | eine Liste von Knoten |
+| `spacer` | Leerraum; in einer Zeile schiebt er das Folgende ans Ende |
+
+Ein Druck auf einen Knopf oder die Wahl eines Chips ruft `on_event(ctx, id, values)`. `id` ist die id jenes Knotens, und `values` enthält **jede Eingabe des Baums** nach id. Sie müssen sich das Formular, das Sie einen Schritt zuvor gezeichnet haben, nicht merken — der Editor hat es.
+
+Es ist kein HTML, und genau darum geht es: das sind die Widgets des Editors selbst. Sie kosten beim Start nichts, folgen dem Thema der Lesenden, ohne dass Ihr Plug-in das Thema kennen muss, und können nicht außerhalb ihres Behälters zeichnen.
+
+**Ein falsch geschriebener Knoten weist den ganzen Baum zurück**, mit einem Fehler, den Sie sehen — statt stillschweigend nichts zu zeichnen. Ebenso ein Baum tiefer als 12 oder größer als 500 Knoten: ein halbes Formular ist schlimmer als keines, denn die Lesenden füllen aus, was da ist, und drücken dann einen Knopf, der nie gezeichnet wurde.
 
 **Was angemeldet sein muss.** Diese vier werden abgelehnt, wenn das Manifest
 das Recht nicht anmeldet:

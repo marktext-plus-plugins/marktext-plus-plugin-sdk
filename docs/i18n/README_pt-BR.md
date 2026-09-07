@@ -264,7 +264,39 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | diz uma linha a quem lê | termina |
 | `{ diff = { original = "…", result = "…" } }` | mostra os dois textos lado a lado | termina; nada é escrito |
 | `{ replace = "…" }` | substitui a seleção | termina |
+| `{ ui = <nó>, title = "…" }` | desenha a sua própria interface — veja abaixo | chama `on_event(ctx, id, values)` quando quem lê a usa |
 | qualquer outra coisa | nada | termina |
+
+### Desenhar a sua própria interface
+
+`ui` carrega uma árvore que o editor desenha com os próprios componentes. Os nós são tabelas com uma única chave:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Nó | Campos |
+|---|---|
+| `text` | a própria string; `emphasis = true` desenha como título |
+| `input` | `id` (obrigatório), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (obrigatório), `options` — uma lista de strings |
+| `button` | `id` (obrigatório), `label`, `primary` |
+| `row` / `column` | uma lista de nós |
+| `spacer` | espaço em branco; numa linha empurra o que vem depois para a ponta |
+
+Apertar um botão ou escolher um chip chama `on_event(ctx, id, values)`, onde `id` é o daquele nó e `values` traz **todas as entradas da árvore** por id. Você não precisa lembrar do formulário que desenhou um passo antes — o editor tem ele.
+
+Não é HTML, e é justamente esse o ponto: são os componentes do próprio editor. Não custam nada na inicialização, seguem o tema de quem lê sem que o seu plugin saiba qual é, e não conseguem desenhar fora do contêiner que receberam.
+
+**Um nó escrito errado faz a árvore inteira ser recusada**, com um erro que você vai ver, em vez de silenciosamente não desenhar nada. O mesmo vale para uma árvore com mais de 12 níveis ou mais de 500 nós: meio formulário é pior que nenhum, porque quem lê preenche o que está à vista e depois aperta um botão que nunca foi desenhado.
 
 **O que precisa ser pedido.** Estes quatro são recusados se o manifesto não
 declarar a permissão:
