@@ -381,7 +381,15 @@ El intérprete es un Lua escrito enteramente en Dart —precisamente por eso un 
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` y `s:sub` | no devuelve absolutamente nada |
 | `s:gmatch("[^\n]*")` | lo mismo | nunca avanza más allá de una coincidencia vacía |
 
-El conjunto de pruebas del propio editor fija estos cuatro puntos, así que si se sustituye el intérprete esta tabla se corregirá en vez de quedarse induciendo a error.
+| un `return` sin valor dentro de una función anidada | `return nil` | se ignora, y las líneas siguientes se ejecutan |
+
+**El último merece más que una fila.** `if not ok then return end` es como todo programador de Lua escribe una guarda, y dentro de una función anidada no guarda nada: las líneas que debía saltarse se ejecutan igual. Tu validación pasa, el caso vacío queda «tratado», y el tratamiento no ocurre.
+
+Dentro de `while true do ... end` es peor. El bucle no tiene salida, y lo que el lector ve es un editor que ha dejado de responder.
+
+El arreglo es una palabra: escribe `return nil`. Es Lua corriente, y seguirá funcionando el día en que se arregle el intérprete.
+
+El conjunto de pruebas del propio editor fija estos puntos, así que si se sustituye el intérprete esta tabla se corregirá en vez de quedarse induciendo a error. El comportamiento del `return` sin valor está fijado por una prueba que afirma que está **roto**: el día en que esa prueba falle será el día en que el rodeo pueda desaparecer.
 
 El motor de JavaScript es QuickJS y no tiene lagunas comparables que merezca la pena enumerar.
 

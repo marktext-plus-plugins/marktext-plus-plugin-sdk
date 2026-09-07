@@ -382,7 +382,15 @@ L'interpréteur est un Lua écrit entièrement en Dart — c'est précisément p
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` et `s:sub` | ne renvoie absolument rien |
 | `s:gmatch("[^\n]*")` | idem | n'avance jamais au-delà d'une correspondance vide |
 
-La suite de tests de l'éditeur fixe ces quatre points : si l'interpréteur est remplacé, ce tableau sera corrigé plutôt que laissé à induire en erreur.
+| un `return` sans valeur dans une fonction imbriquée | `return nil` | il est ignoré, et les lignes suivantes s'exécutent |
+
+**Le dernier mérite plus qu'une ligne.** `if not ok then return end` est la façon dont tout programmeur Lua écrit une garde, et dans une fonction imbriquée elle ne garde rien : les lignes qu'elle devait sauter s'exécutent quand même. Votre validation passe, le cas vide est « traité », et le traitement n'a pas lieu.
+
+Dans `while true do ... end`, c'est pire. La boucle n'a pas de sortie, et ce que voit le lecteur, c'est un éditeur qui ne répond plus.
+
+La correction tient en un mot — écrivez `return nil`. C'est du Lua ordinaire, qui continuera de fonctionner le jour où l'interpréteur sera corrigé.
+
+La suite de tests de l'éditeur fixe ces points : si l'interpréteur est remplacé, ce tableau sera corrigé plutôt que laissé à induire en erreur. Le comportement du `return` sans valeur est fixé par un test qui affirme qu'il est **cassé** : le jour où ce test échouera sera le jour où le contournement pourra disparaître.
 
 Le moteur JavaScript est QuickJS et ne présente pas de lacunes comparables qui mériteraient d'être listées.
 

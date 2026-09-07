@@ -381,7 +381,15 @@ L'interprete è un Lua scritto interamente in Dart — è proprio per questo che
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` e `s:sub` | non restituisce proprio niente |
 | `s:gmatch("[^\n]*")` | lo stesso | non supera mai una corrispondenza vuota |
 
-La suite di test dell'editor fissa questi quattro punti: se l'interprete viene sostituito, questa tabella verrà corretta invece di restare a trarre in inganno.
+| un `return` senza valore dentro una funzione annidata | `return nil` | viene ignorato, e le righe successive vengono eseguite |
+
+**L'ultimo merita più di una riga.** `if not ok then return end` è il modo in cui ogni programmatore Lua scrive una guardia, e dentro una funzione annidata non protegge nulla: le righe che doveva saltare vengono eseguite lo stesso. La validazione passa, il caso vuoto è «gestito», e la gestione non avviene.
+
+Dentro `while true do ... end` è peggio. Il ciclo non ha via d'uscita, e quello che il lettore vede è un editor che ha smesso di rispondere.
+
+La correzione è una parola — scrivi `return nil`. È Lua ordinario, e continuerà a funzionare il giorno in cui l'interprete sarà corretto.
+
+La suite di test dell'editor fissa questi punti: se l'interprete viene sostituito, questa tabella verrà corretta invece di restare a trarre in inganno. Il comportamento del `return` senza valore è fissato da un test che afferma che è **rotto**: il giorno in cui quel test fallirà sarà il giorno in cui l'aggiramento potrà sparire.
 
 Il runtime JavaScript è QuickJS e non ha lacune paragonabili che valga la pena elencare.
 

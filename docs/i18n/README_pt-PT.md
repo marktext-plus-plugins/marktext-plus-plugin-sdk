@@ -381,7 +381,15 @@ O interpretador é um Lua escrito inteiramente em Dart — é precisamente por i
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` e `s:sub` | não devolve absolutamente nada |
 | `s:gmatch("[^\n]*")` | o mesmo | nunca passa além de uma correspondência vazia |
 
-O conjunto de testes do próprio editor fixa estes quatro pontos, por isso se o interpretador for substituído esta tabela será corrigida em vez de ficar a induzir em erro.
+| um `return` sem valor dentro de uma função aninhada | `return nil` | é ignorado, e as linhas seguintes são executadas |
+
+**O último merece mais do que uma linha.** `if not ok then return end` é como qualquer programador de Lua escreve uma guarda, e dentro de uma função aninhada não guarda nada: as linhas que devia saltar são executadas na mesma. A sua validação passa, o caso vazio fica «tratado», e o tratamento não acontece.
+
+Dentro de `while true do ... end` é pior. O ciclo não tem saída, e o que o leitor vê é um editor que deixou de responder.
+
+A correcção é uma palavra — escreva `return nil`. É Lua vulgar, e continuará a funcionar no dia em que o interpretador for corrigido.
+
+O conjunto de testes do próprio editor fixa estes pontos, por isso se o interpretador for substituído esta tabela será corrigida em vez de ficar a induzir em erro. O comportamento do `return` sem valor está fixado por um teste que afirma que está **avariado**: o dia em que esse teste falhar será o dia em que o desvio pode desaparecer.
 
 O motor de JavaScript é QuickJS e não tem lacunas comparáveis que valha a pena enumerar.
 

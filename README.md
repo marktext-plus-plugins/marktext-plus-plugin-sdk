@@ -500,8 +500,8 @@ stranger's repository, so it gets what it declared and nothing else.
 ### What this Lua does not do
 
 The interpreter is a pure-Dart Lua, which is why a script plugin needs nothing
-installed — and it is not complete. These four all fail **silently**, which is
-the part that costs time: a pattern that matches nothing looks exactly like a
+installed — and it is not complete. These all fail **silently**, which is the
+part that costs time: a pattern that matches nothing looks exactly like a
 document with nothing in it.
 
 | Instead of | Use | Because |
@@ -510,9 +510,23 @@ document with nothing in it.
 | `s:match("%S")`, `%s` | compare characters: `s:sub(i, i) == " "` | the classes match nothing, so every line looks blank |
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` and `s:sub` | returns nothing at all |
 | `s:gmatch("[^\n]*")` | the same | never advances past an empty match |
+| a valueless `return` inside a nested function | `return nil` | it is ignored, and the lines after it run |
+
+**That last one deserves more than a row.** `if not ok then return end` is how
+every Lua programmer writes a guard, and inside a nested function it guards
+nothing: the lines it was meant to skip run anyway. Your validation passes, the
+empty case is handled, and the handling does not happen.
+
+Inside `while true do ... end` it is worse. The loop has no way out, and what
+the reader sees is an editor that has stopped answering.
+
+The fix is one word — write `return nil`. It is ordinary Lua, so it keeps
+working the day the interpreter is fixed.
 
 The editor's own test suite pins these, so if the interpreter is replaced this
-table is corrected rather than left to mislead.
+table is corrected rather than left to mislead. The bare-`return` behaviour is
+pinned by a test that asserts it is *broken*: the day that test fails is the
+day the workaround can go.
 
 The JavaScript runtime is QuickJS and has no equivalent gaps worth listing.
 

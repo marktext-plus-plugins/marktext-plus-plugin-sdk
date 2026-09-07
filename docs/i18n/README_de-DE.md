@@ -380,7 +380,15 @@ Der Interpreter ist ein Lua in reinem Dart — genau deshalb braucht ein Skript-
 | `for l in s:gmatch("(.-)\n")` | `s:find("\n", pos, true)` und `s:sub` | gibt überhaupt nichts zurück |
 | `s:gmatch("[^\n]*")` | dasselbe | kommt über eine leere Fundstelle nie hinaus |
 
-Die Testsuite des Editors hält diese vier fest, wird der Interpreter also ersetzt, wird diese Tabelle korrigiert statt weiter in die Irre zu führen.
+| ein wertloses `return` in einer verschachtelten Funktion | `return nil` | es wird ignoriert, und die Zeilen danach laufen |
+
+**Der letzte Punkt verdient mehr als eine Zeile.** `if not ok then return end` ist die Art, wie jeder Lua-Programmierer eine Schutzabfrage schreibt, und in einer verschachtelten Funktion schützt sie nichts: Die Zeilen, die übersprungen werden sollten, laufen trotzdem. Ihre Prüfung geht durch, der leere Fall ist „behandelt", und die Behandlung findet nicht statt.
+
+In `while true do ... end` ist es schlimmer. Die Schleife hat keinen Ausgang, und was der Leser sieht, ist ein Editor, der nicht mehr antwortet.
+
+Die Korrektur ist ein Wort — schreiben Sie `return nil`. Es ist gewöhnliches Lua und funktioniert auch an dem Tag weiter, an dem der Interpreter repariert ist.
+
+Die Testsuite des Editors hält diese fest, wird der Interpreter also ersetzt, wird diese Tabelle korrigiert statt weiter in die Irre zu führen. Das Verhalten des wertlosen `return` ist durch einen Test festgehalten, der behauptet, es sei **kaputt**: Der Tag, an dem dieser Test fehlschlägt, ist der Tag, an dem der Umweg verschwinden kann.
 
 Die JavaScript-Laufzeit ist QuickJS und hat keine vergleichbaren Lücken, die aufzuzählen wären.
 
