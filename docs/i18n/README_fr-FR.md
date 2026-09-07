@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (requis), `options` — une liste de chaînes |
 | `button` | `id` (requis), `label`, `primary` |
 | `row` / `column` | une liste de nœuds |
+| `select` | `id` (requis), `options`, `value` — une liste déroulante quand il y en a trop pour des puces |
+| `checkbox` | `id` (requis), `label`, `value` ; sa valeur arrive en `"true"` ou `"false"` |
+| `markdown` | du Markdown, dessiné par le moteur de rendu de l'éditeur — votre réponse ressemble au document dont elle parle |
 | `spacer` | un blanc ; dans une ligne il pousse la suite vers le bout |
 
 Presser un bouton ou choisir une puce appelle `on_event(ctx, id, values)`, où `id` est celui de ce nœud et `values` contient **toutes les entrées de l'arbre**, par id. Vous n'avez pas à retenir le formulaire dessiné à l'étape précédente — l'éditeur l'a.

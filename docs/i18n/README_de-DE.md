@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (erforderlich), `options` — eine Liste von Zeichenketten |
 | `button` | `id` (erforderlich), `label`, `primary` |
 | `row` / `column` | eine Liste von Knoten |
+| `select` | `id` (erforderlich), `options`, `value` — ein Aufklappmenü, wenn es für Chips zu viele sind |
+| `checkbox` | `id` (erforderlich), `label`, `value`; der Wert kommt als `"true"` oder `"false"` an |
+| `markdown` | Markdown, gezeichnet vom Renderer des Editors — Ihre Antwort sieht aus wie das Dokument, um das es geht |
 | `spacer` | Leerraum; in einer Zeile schiebt er das Folgende ans Ende |
 
 Ein Druck auf einen Knopf oder die Wahl eines Chips ruft `on_event(ctx, id, values)`. `id` ist die id jenes Knotens, und `values` enthält **jede Eingabe des Baums** nach id. Sie müssen sich das Formular, das Sie einen Schritt zuvor gezeichnet haben, nicht merken — der Editor hat es.

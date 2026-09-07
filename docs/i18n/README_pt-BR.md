@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (obrigatório), `options` — uma lista de strings |
 | `button` | `id` (obrigatório), `label`, `primary` |
 | `row` / `column` | uma lista de nós |
+| `select` | `id` (obrigatório), `options`, `value` — um menu suspenso, quando são demais para chips |
+| `checkbox` | `id` (obrigatório), `label`, `value`; o valor chega como `"true"` ou `"false"` |
+| `markdown` | Markdown, desenhado pelo renderizador do próprio editor — sua resposta fica com a cara do documento de que trata |
 | `spacer` | espaço em branco; numa linha empurra o que vem depois para a ponta |
 
 Apertar um botão ou escolher um chip chama `on_event(ctx, id, values)`, onde `id` é o daquele nó e `values` traz **todas as entradas da árvore** por id. Você não precisa lembrar do formulário que desenhou um passo antes — o editor tem ele.

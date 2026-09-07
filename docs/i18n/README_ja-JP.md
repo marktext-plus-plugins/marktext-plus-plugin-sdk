@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id`（必須）、`options`——文字列のリスト |
 | `button` | `id`（必須）、`label`、`primary` |
 | `row` / `column` | ノードのリスト |
+| `select` | `id`（必須）、`options`、`value` —— チップに収まらないほど多いときのドロップダウン |
+| `checkbox` | `id`（必須）、`label`、`value`。値は `"true"` / `"false"` として届きます |
+| `markdown` | Markdown。エディタ自身のレンダラで描かれ、答えはそれが語っている文書と同じ見た目になります |
 | `spacer` | 余白。行の中では続くものを右端へ押しやります |
 
 ボタンを押す、あるいはチップを選ぶと `on_event(ctx, id, values)` が呼ばれます。`id` はそのノードの id、`values` は**この木の中のすべての入力**を id で並べたテーブルです。一手前に自分が描いたフォームを覚えておく必要はありません——エディタが持っています。

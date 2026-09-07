@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (obbligatorio), `options` — un elenco di stringhe |
 | `button` | `id` (obbligatorio), `label`, `primary` |
 | `row` / `column` | un elenco di nodi |
+| `select` | `id` (obbligatorio), `options`, `value` — un menù a tendina, quando sono troppe per i chip |
+| `checkbox` | `id` (obbligatorio), `label`, `value`; il valore arriva come `"true"` o `"false"` |
+| `markdown` | Markdown, disegnato dal renderer dell'editor: la vostra risposta somiglia al documento di cui parla |
 | `spacer` | spazio vuoto; in una riga spinge il seguito all'estremità |
 
 Premere un pulsante o scegliere un chip chiama `on_event(ctx, id, values)`, dove `id` è quello di quel nodo e `values` contiene **tutti gli input dell'albero** per id. Non dovete ricordare il modulo disegnato un passo prima: ce l'ha l'editor.

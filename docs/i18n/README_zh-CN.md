@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id`（必填）、`options`——字符串列表 |
 | `button` | `id`（必填）、`label`、`primary` |
 | `row` / `column` | 一列节点 |
+| `select` | `id`（必填）、`options`、`value`——下拉框，选项多到 chips 放不下时用 |
+| `checkbox` | `id`（必填）、`label`、`value`；它的值以 `"true"` / `"false"` 送回 |
+| `markdown` | Markdown，由编辑器自己的渲染器画——你的答案看起来就像它所关于的那份文档 |
 | `spacer` | 空白；在行里它把后面的东西推到最右 |
 
 按下按钮或选中一个 chip 会调用 `on_event(ctx, id, values)`，`id` 是那个节点的 id，`values` 是**这棵树里所有输入**按 id 排好的表。你不必记住自己一步之前画了什么表单——编辑器有。

@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (obligatorio), `options` — una lista de cadenas |
 | `button` | `id` (obligatorio), `label`, `primary` |
 | `row` / `column` | una lista de nodos |
+| `select` | `id` (obligatorio), `options`, `value` — un desplegable, cuando son demasiadas para fichas |
+| `checkbox` | `id` (obligatorio), `label`, `value`; su valor llega como `"true"` o `"false"` |
+| `markdown` | Markdown, dibujado por el propio renderizador del editor: su respuesta se ve como el documento del que trata |
 | `spacer` | espacio en blanco; en una fila empuja lo que sigue hasta el extremo |
 
 Pulsar un botón o elegir una ficha llama a `on_event(ctx, id, values)`, donde `id` es el de ese nodo y `values` contiene **todas las entradas del árbol** por id. No tiene que recordar el formulario que dibujó un paso antes: el editor lo tiene.

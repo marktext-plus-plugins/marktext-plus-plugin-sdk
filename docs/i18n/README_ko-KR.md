@@ -290,6 +290,9 @@ return sdk.ui({ column = {
 | `chips` | `id`(필수), `options` — 문자열 목록 |
 | `button` | `id`(필수), `label`, `primary` |
 | `row` / `column` | 노드 목록 |
+| `select` | `id`(필수), `options`, `value` — 칩으로 담기엔 많을 때 쓰는 드롭다운 |
+| `checkbox` | `id`(필수), `label`, `value`. 값은 `"true"` / `"false"` 로 옵니다 |
+| `markdown` | 마크다운. 에디터 자신의 렌더러가 그리므로 답이 그 문서와 같은 모습이 됩니다 |
 | `spacer` | 빈 공간. 행 안에서는 뒤따르는 것을 끝으로 밀어냅니다 |
 
 버튼을 누르거나 칩을 고르면 `on_event(ctx, id, values)` 가 불립니다. `id` 는 그 노드의 id 이고, `values` 는 **이 트리 안의 모든 입력**을 id 로 담은 테이블입니다. 한 걸음 전에 그린 폼을 기억할 필요가 없습니다 — 에디터가 가지고 있습니다.

@@ -368,6 +368,9 @@ return sdk.ui({ column = {
 | `chips` | `id` (required), `options` — a list of strings |
 | `button` | `id` (required), `label`, `primary` |
 | `row` / `column` | a list of nodes |
+| `select` | `id` (required), `options`, `value` — a dropdown, for when there are too many for chips |
+| `checkbox` | `id` (required), `label`, `value`; its value arrives as `"true"` or `"false"` |
+| `markdown` | Markdown, drawn by the editor's own renderer — your answer looks like the document it is about |
 | `spacer` | blank space; in a row it pushes what follows to the far end |
 
 Pressing a button or choosing a chip calls `on_event(ctx, id, values)`, where

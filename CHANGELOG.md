@@ -18,6 +18,11 @@
   A misspelled node refuses the whole tree with an error rather than quietly
   drawing nothing, and so does a tree deeper than 12 or larger than 500 nodes —
   half a form is worse than none.
+- Three more nodes: `select` (a dropdown, for when there are too many options
+  for chips), `checkbox` (its value arrives as `"true"` or `"false"`, because
+  everything a plugin is told is a string), and `markdown` — drawn by the
+  editor's own renderer, so an answer that is a document looks like one
+  instead of showing its own `##` and `**`.
 
 Nothing here changes how a plugin behaves. One of them changes what the
 documentation tells you to do, which for someone starting a plugin is the
