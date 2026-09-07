@@ -341,7 +341,48 @@ function on_result(ctx, result) {
 | `{ notify = "…" }` | tells the reader | stops |
 | `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
+| `{ ui = <node>, title = "…" }` | draws your own interface — see below | calls `on_event(ctx, id, values)` when the reader uses it |
 | anything else | nothing | stops |
+
+### Drawing your own interface
+
+`ui` carries a tree the editor renders as its own widgets. Nodes are tables
+with one key each:
+
+```lua
+return sdk.ui({ column = {
+  { text = sdk.t("ask.instruction"), emphasis = true },
+  { input = { id = "brief", multiline = true, placeholder = "…" } },
+  { chips = { id = "idea", options = prompts.writing_ideas(sdk.t) } },
+  { row = {
+    { spacer = true },
+    { button = { id = "go", label = sdk.t("action.write"), primary = true } },
+  }},
+}}, sdk.t("menu.write"))
+```
+
+| Node | Fields |
+|---|---|
+| `text` | the string itself; `emphasis = true` draws it as a heading |
+| `input` | `id` (required), `value`, `placeholder`, `multiline` |
+| `chips` | `id` (required), `options` — a list of strings |
+| `button` | `id` (required), `label`, `primary` |
+| `row` / `column` | a list of nodes |
+| `spacer` | blank space; in a row it pushes what follows to the far end |
+
+Pressing a button or choosing a chip calls `on_event(ctx, id, values)`, where
+`id` is that node's id and `values` holds **every input in the tree** by id.
+You do not have to remember the form you drew a step ago — the editor has it.
+
+It is not HTML, and that is the point: these are the editor's own widgets, so
+they cost nothing at startup, follow the reader's theme without your plugin
+knowing what the theme is, and cannot draw outside the container they were
+given.
+
+**A misspelled node refuses the whole tree** with an error you will see, rather
+than quietly drawing nothing. The same goes for a tree deeper than 12 levels or
+larger than 500 nodes — half a form is worse than no form, since the reader
+fills in what is there and presses a button that was never drawn.
 
 **What needs asking for.** Four of these are refused unless the manifest
 declares the permission:

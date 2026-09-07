@@ -108,6 +108,23 @@ module.exports = {
   },
 
   /** Do nothing. */
+  /**
+   * Draw your own interface: a tree the editor renders as its own widgets.
+   *
+   * Nodes are plain objects with one key each: text, input, chips, button,
+   * row, column, spacer. Anything the editor does not recognise refuses the
+   * whole tree with an error, so a misspelling is something you hear about
+   * rather than something that quietly vanishes.
+   *
+   * Pressing a button calls `on_event(ctx, id, values)`, where `values` holds
+   * every input in the tree by its id.
+   *
+   * @param {object} root @param {string} [title]
+   */
+  ui: function (root, title) {
+    return { ui: root, title: title };
+  },
+
   nothing: function () {
     return {};
   },

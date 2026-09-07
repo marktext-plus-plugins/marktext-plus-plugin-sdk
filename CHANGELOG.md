@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+- **`sdk.ui` — a plugin can draw its own interface.** It returns a tree of
+  nodes (`text`, `input`, `chips`, `button`, `row`, `column`, `spacer`) and the
+  editor renders them as its own widgets; pressing a button calls
+  `on_event(ctx, id, values)` with every input in the tree by id, so a plugin
+  never has to remember the form it drew a step ago.
+
+  Not HTML, and deliberately: these are the editor's own widgets, so they cost
+  nothing at startup, follow the reader's theme without the plugin knowing what
+  the theme is, and cannot draw outside the container they were given. A
+  WebView escape hatch is planned separately for what this cannot express.
+
+  A misspelled node refuses the whole tree with an error rather than quietly
+  drawing nothing, and so does a tree deeper than 12 or larger than 500 nodes —
+  half a form is worse than none.
+
 Nothing here changes how a plugin behaves. One of them changes what the
 documentation tells you to do, which for someone starting a plugin is the
 same thing.
