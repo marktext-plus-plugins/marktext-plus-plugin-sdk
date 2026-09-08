@@ -146,6 +146,18 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 
 这就是编译型插件的全部检查：它能编译，而且在没人给它启动令牌时拒绝运行。
 
+### 装上了却没出现
+
+`manifest.json` 读不进来的插件不会出现在列表里，而**列表里没有**和**从没装过**看起来一模一样——于是下一步通常是再装一遍，然后还是什么都没有。
+
+编辑器会把它单独列在已加载的插件下面，**并写出原因**：读不了的是哪个键、那里本该是什么。那一行自带删除按钮——加载不了的插件没有自己的页面可供卸载。
+
+原因大多是这几种：
+
+- `runtime` 只能是 `lua`、`js`、`process` 或 `data`
+- `lua` 和 `js` 需要 `entrypoint`；`process` 需要 `entrypoints`，每个操作系统一条路径
+- 入口不能是 `.dart` 文件。编辑器不带 Dart SDK，也不能假定读者装了——请编译好，用 `runtime: "process"` 发布可执行文件
+
 ## 清单
 
 `manifest.json` 放在插件根目录。编辑器**不运行任何代码**就能读它。见 [`schema/manifest.schema.json`](../../schema/manifest.schema.json)。

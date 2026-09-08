@@ -146,6 +146,18 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 
 es toda la comprobación de un complemento compilado: compila, y se niega a ejecutarse cuando nadie le ha dado un testigo de arranque.
 
+### Se instaló y no apareció
+
+Un complemento cuyo `manifest.json` no se puede leer no figura en la lista, y lo que falta en la lista se parece exactamente a lo que nunca se instaló — así que lo normal es instalarlo otra vez, y otra vez no aparece nada.
+
+El editor lo enumera aparte, debajo de los que sí cargaron, **con el motivo**: la clave que no pudo leer y qué esperaba encontrar ahí. Esa fila lleva su propio botón de borrado, porque un complemento que no carga no tiene página desde la que desinstalarse.
+
+El motivo suele ser uno de estos:
+
+- `runtime` tiene que ser `lua`, `js`, `process` o `data`
+- `lua` y `js` necesitan `entrypoint`; `process` necesita `entrypoints`, una ruta por sistema operativo
+- ningún punto de entrada puede ser un archivo `.dart`. El editor no incluye un SDK de Dart ni puede dar por hecho que el lector tenga uno: compílelo y distribuya el ejecutable con `runtime: "process"`
+
 ## Manifiesto
 
 `manifest.json` está en la raíz del complemento. El editor lo lee **sin ejecutar nada**. Véase [`schema/manifest.schema.json`](../../schema/manifest.schema.json).

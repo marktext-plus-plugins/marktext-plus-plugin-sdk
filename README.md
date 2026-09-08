@@ -202,6 +202,26 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 is the whole check for a compiled plugin: it builds, and it declines to run
 when nothing gave it a launch token.
 
+### It installed and did not appear
+
+A plugin whose `manifest.json` cannot be read is not in the list, and a plugin
+missing from the list looks exactly like one that was never installed — so the
+usual next move is to install it again, and again nothing appears.
+
+The editor lists it separately, below the ones that loaded, with the reason:
+the key it could not read and what it expected to find there. That row carries
+a delete button of its own, since a plugin that will not load has no page to
+uninstall it from.
+
+Most reasons are one of these:
+
+- `runtime` has to be `lua`, `js`, `process` or `data`
+- `lua` and `js` need `entrypoint`; `process` needs `entrypoints`, one path per
+  operating system
+- no entry point may be a `.dart` file. The editor does not ship a Dart SDK and
+  cannot assume the reader has one — compile it and ship the executable with
+  `runtime: "process"`
+
 ## Manifest
 
 `manifest.json` sits at the root of the plugin. The editor reads it without

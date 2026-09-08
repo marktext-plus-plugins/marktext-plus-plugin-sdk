@@ -146,6 +146,18 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 
 c'est toute la vérification d'une extension compilée : elle se compile, et elle refuse de tourner quand personne ne lui a donné de jeton de lancement.
 
+### Elle s'est installée et n'apparaît pas
+
+Une extension dont le `manifest.json` ne peut pas être lu ne figure pas dans la liste — et ce qui manque à la liste ressemble exactement à ce qui n'a jamais été installé. On l'installe donc une seconde fois, et de nouveau rien n'apparaît.
+
+L'éditeur la range à part, sous celles qui se sont chargées, **avec la raison** : la clé qu'il n'a pas su lire et ce qu'il s'attendait à y trouver. Cette ligne porte son propre bouton de suppression — une extension qui ne se charge pas n'a pas de page depuis laquelle la désinstaller.
+
+La raison est presque toujours l'une de celles-ci :
+
+- `runtime` doit valoir `lua`, `js`, `process` ou `data`
+- `lua` et `js` exigent `entrypoint` ; `process` exige `entrypoints`, un chemin par système d'exploitation
+- aucun point d'entrée ne peut être un fichier `.dart`. L'éditeur n'embarque pas de SDK Dart et ne peut pas en supposer un chez le lecteur — compilez, et livrez l'exécutable avec `runtime: "process"`
+
 ## Manifeste
 
 `manifest.json` est à la racine de l'extension. L'éditeur le lit **sans rien exécuter**. Voir [`schema/manifest.schema.json`](../../schema/manifest.schema.json).

@@ -146,6 +146,18 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 
 ist die ganze Prüfung für ein kompiliertes Plug-in: es baut, und es weigert sich zu laufen, wenn ihm niemand ein Start-Token gegeben hat.
 
+### Es wurde installiert und erschien nicht
+
+Ein Plug-in, dessen `manifest.json` sich nicht lesen lässt, steht nicht in der Liste — und was in der Liste fehlt, sieht genauso aus wie etwas, das nie installiert wurde. Also installiert man es noch einmal, und wieder erscheint nichts.
+
+Der Editor führt es getrennt auf, unter den geladenen, **mit dem Grund**: der Schlüssel, den er nicht lesen konnte, und was dort stehen sollte. Diese Zeile hat einen eigenen Löschknopf — ein Plug-in, das nicht lädt, hat keine eigene Seite, von der aus man es entfernen könnte.
+
+Meist ist der Grund einer von diesen:
+
+- `runtime` muss `lua`, `js`, `process` oder `data` sein
+- `lua` und `js` brauchen `entrypoint`; `process` braucht `entrypoints`, einen Pfad je Betriebssystem
+- kein Einstiegspunkt darf eine `.dart`-Datei sein. Der Editor liefert kein Dart-SDK mit und kann keines beim Leser voraussetzen — kompilieren Sie es und liefern Sie die ausführbare Datei mit `runtime: "process"` aus
+
 ## Manifest
 
 `manifest.json` liegt im Wurzelverzeichnis des Plug-ins. Der Editor liest es, **ohne irgendetwas auszuführen**. Siehe [`schema/manifest.schema.json`](../../schema/manifest.schema.json).

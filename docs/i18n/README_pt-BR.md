@@ -146,6 +146,18 @@ echo | ./bin/linux/plugin       # should refuse: it was not started by the edito
 
 é toda a verificação de uma extensão compilada: compila, e recusa-se em execução quando ninguém lhe deu uma senha de arranque.
 
+### Instalou e não apareceu
+
+Uma extensão cujo `manifest.json` não pode ser lido não aparece na lista, e o que falta na lista se parece exatamente com o que nunca foi instalado — então o passo seguinte costuma ser instalar de novo, e de novo nada aparece.
+
+O editor a lista à parte, abaixo das que carregaram, **com o motivo**: a chave que não conseguiu ler e o que esperava encontrar ali. Essa linha tem seu próprio botão de exclusão, porque uma extensão que não carrega não tem página de onde ser desinstalada.
+
+O motivo quase sempre é um destes:
+
+- `runtime` precisa ser `lua`, `js`, `process` ou `data`
+- `lua` e `js` exigem `entrypoint`; `process` exige `entrypoints`, um caminho por sistema operacional
+- nenhum ponto de entrada pode ser um arquivo `.dart`. O editor não traz um SDK do Dart nem pode supor que o leitor tenha um — compile e distribua o executável com `runtime: "process"`
+
 ## Manifesto
 
 `manifest.json` está na raiz da extensão. O editor lê-o **sem executar nada**. Veja [`schema/manifest.schema.json`](../../schema/manifest.schema.json).
