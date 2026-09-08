@@ -38,15 +38,44 @@ Nothing here changes how a plugin behaves. One of them changes what the
 documentation tells you to do, which for someone starting a plugin is the
 same thing.
 
-### Added
-
 - The safety rules now state the limits an installed ZIP has to fit: 64 MB for
   the archive, 10000 entries, 256 MB unpacked. They were added to the editor
   today (a ZIP was free to claim it unpacked to gigabytes, and to mean it), and
   an author who packages three platforms' executables should hear the number
   from here rather than from a failed install.
 
+- **The icon names a panel may use are in the schema.** It asked only for a
+  non-empty string, so the forty names the editor can draw were something to
+  guess at — and a name it does not know draws a generic plugin square with
+  nothing said, which reads as the editor ignoring your icon rather than as a
+  typo. An editor writing your manifest now completes them and refuses the
+  rest.
+- **Where to look when a plugin installs and does not appear.** The editor
+  lists a plugin whose manifest it could not read below the ones that loaded,
+  with the key it could not read and what it expected there, and a delete
+  button on that row. "Trying a plugin before you ship it" only covered trying
+  one before shipping; it now covers the case where it is installed and
+  invisible, with the three reasons that account for most of it.
+
 ### Fixed
+
+- **The German, Japanese, Korean and Chinese docs had no `panels` in them at
+  all** — no line in the manifest field list, neither paragraph explaining
+  what a panel is. Anyone reading those four did not know a plugin could put
+  anything in the right side bar. Eight of twelve described one more
+  capability than the rest, and the guard comparing the translations counts
+  headings and fenced blocks, which that section has neither of.
+- **A panel asks in its own drawer now, and the docs said otherwise.** They
+  said a command returning `ask` is reported there as text "because a drawer is
+  not a conversation". The question goes in the drawer — its text, the
+  `choices` you named, a box holding last time's answer — and the reply comes
+  back to the same drawer. A command started from a menu still asks in the
+  floating card, having no room of its own.
+- **`return` on its own inside a nested function does nothing in the editor's
+  Lua.** `if not ok then return end` continues into the failure it was
+  checking for, and `while true do return end` is an infinite loop. Write
+  `return nil`. Every guard an experienced Lua programmer writes by reflex is
+  the shape that does not work here.
 
 - **The safety rules promised a protection that does not exist.** "Keep work
   bounded; the editor enforces timeouts and step limits" — it does not, for
