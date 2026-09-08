@@ -444,7 +444,7 @@ Pida lo que use. Un complemento que pide `network.request` para añadir una entr
 
 `panels` pone un icono en la barra lateral derecha; pulsarlo abre un cajón que se rellena ejecutando su orden con el mismo `id`. Necesita `ui.sidebar`, y necesita un `icon`, porque la barra es una fila de iconos y una entrada sin nada que dibujar sería un hueco que abre algo. Si ningún complemento aporta un panel, no hay barra en absoluto: una franja de iconos sin iconos es anchura quitada al documento para nada.
 
-Un panel se abre y responde: una orden que devuelve `ask` o `ai` se informa allí como texto en vez de detenerse a preguntar, porque un cajón no es una conversación.
+Un panel pregunta en su propio cajón: una orden que devuelve `ask` pone allí la pregunta —su texto, las `choices` que hayas nombrado y una casilla que ya contiene la respuesta de la vez anterior— y la respuesta llega a ese mismo cajón. Antes se preguntaba en la tarjeta flotante mientras la respuesta aterrizaba en el cajón: un solo intercambio en dos sitios. Cerrar el cajón es como el lector se niega. Una orden iniciada desde un menú sigue preguntando en la tarjeta, porque no tiene sitio propio donde hacerlo.
 
 `when` dice cuándo merece la pena ofrecer una entrada de menú: `selection` solo con una selección, `noSelection` solo sin ella, y su ausencia significa siempre. Sin eso se ofrecen todas a la vez: «Traducir la selección» sin nada seleccionado y «Traducir el documento» mientras quien lee señala un párrafo. Un valor que el editor no conoce se rechaza al instalar en lugar de leerse en silencio como «siempre».
 

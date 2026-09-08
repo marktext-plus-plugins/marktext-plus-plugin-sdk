@@ -601,9 +601,13 @@ draw would be a gap that opens something. With no plugin contributing a panel
 there is no rail at all — a strip of icons with no icons in it is width taken
 from the document for nothing.
 
-A panel is opened and answers: a command that returns `ask` or `ai` is reported
-as text there rather than stopping to ask, because a drawer is not a
-conversation.
+A panel asks in its own drawer. A command that returns `ask` puts the question
+there — the text, whatever `choices` you named, and a box already holding the
+answer from last time — and the reply arrives in the same drawer. It used to be
+asked in the floating card while the answer landed in the drawer, which is one
+exchange in two places. Closing the drawer is how the reader declines. A
+command started from a menu still asks in the card, since it has no room of its
+own to ask in.
 
 `when` says when a menu entry is worth offering: `selection` only with
 something selected, `noSelection` only without, and absent means always.

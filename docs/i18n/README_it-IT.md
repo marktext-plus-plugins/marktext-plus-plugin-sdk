@@ -444,7 +444,7 @@ Chiedete quello che usate. Un'estensione che chiede `network.request` per aggiun
 
 `panels` mette un'icona nella barra laterale di destra; premerla apre un cassetto riempito eseguendo il vostro comando con lo stesso `id`. Richiede `ui.sidebar`, e richiede un'`icon`, perché la barra è una fila di icone e una voce senza nulla da disegnare sarebbe un vuoto che apre qualcosa. Se nessuna estensione contribuisce un pannello, la fila non c'è affatto — una striscia di icone senza icone è larghezza tolta al documento per niente.
 
-Un pannello si apre e risponde: un comando che restituisce `ask` o `ai` viene riportato lì come testo invece di fermarsi a chiedere, perché un cassetto non è una conversazione.
+Un pannello chiede nel proprio cassetto: un comando che restituisce `ask` mette lì la domanda — il testo, le `choices` che hai indicato e una casella che contiene già la risposta della volta scorsa — e la risposta arriva nello stesso cassetto. Prima la domanda veniva posta nella scheda fluttuante mentre la risposta atterrava nel cassetto: un solo scambio in due posti. Chiudere il cassetto è il modo in cui il lettore rifiuta. Un comando avviato da un menu continua a chiedere nella scheda, non avendo un posto proprio.
 
 `when` dice quando una voce di menu vale la pena di essere offerta: `selection` solo con una selezione, `noSelection` solo senza, e la sua assenza significa sempre. Senza, tutte le voci vengono offerte insieme — «Traduci la selezione» senza nulla di selezionato, e «Traduci il documento» mentre chi legge sta indicando un paragrafo. Un valore che l'editor non conosce viene rifiutato all'installazione invece di essere letto in silenzio come «sempre».
 

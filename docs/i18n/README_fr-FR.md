@@ -445,7 +445,7 @@ Ne demandez que ce que vous utilisez. Une extension qui demande `network.request
 
 `panels` place une icône dans la barre latérale de droite ; la presser ouvre un tiroir rempli en exécutant votre commande du même `id`. Cela nécessite `ui.sidebar`, et une `icon`, car la barre est un rail d'icônes et une entrée sans rien à dessiner serait un vide qui ouvre quelque chose. Si aucune extension ne contribue de panneau, il n'y a pas de rail du tout — une bande d'icônes sans icônes, c'est de la largeur prise au document pour rien.
 
-Un panneau s'ouvre et répond : une commande qui renvoie `ask` ou `ai` y est rapportée sous forme de texte plutôt que de s'arrêter pour demander, car un tiroir n'est pas une conversation.
+Un panneau pose sa question dans son propre tiroir : une commande qui renvoie `ask` y met la question — son texte, les `choices` que vous avez nommés, et un champ contenant déjà la réponse de la dernière fois — et la réponse arrive dans ce même tiroir. Auparavant la question était posée dans la carte flottante tandis que la réponse atterrissait dans le tiroir : un seul échange à deux endroits. Fermer le tiroir, c'est ainsi que le lecteur refuse. Une commande lancée depuis un menu demande toujours dans la carte, faute d'un endroit à elle.
 
 `when` dit quand une entrée de menu mérite d'être proposée : `selection` seulement s'il y a une sélection, `noSelection` seulement s'il n'y en a pas, et son absence signifie toujours. Sans cela, toutes les entrées sont proposées en même temps — « Traduire la sélection » sans rien de sélectionné, et « Traduire le document » alors que le lecteur pointe un paragraphe. Une valeur que l'éditeur ne connaît pas est refusée à l'installation au lieu d'être lue en silence comme « toujours ».
 

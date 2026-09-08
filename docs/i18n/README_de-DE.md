@@ -435,10 +435,15 @@ Bitten Sie um das, was Sie benutzen. Ein Plug-in, das für einen Menüeintrag um
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
 "toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
+"panels":   [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
 
 `title` darf ein Übersetzungsschlüssel sein. `location` ist ein Platz, den der Editor definiert — ein Plug-in stellt Dinge an benannte Plätze, nie an Pixelkoordinaten, und reicht dem Editor nie eigene Widgets.
+
+`panels` setzt ein Symbol in die rechte Seitenleiste; ein Druck darauf öffnet eine Schublade, die durch Ausführen Ihres Befehls mit derselben `id` gefüllt wird. Es braucht `ui.sidebar` und ein `icon`, denn jene Leiste ist eine Reihe von Symbolen, und eines ohne etwas zu zeichnen wäre eine Lücke, die etwas öffnet. Trägt kein Plug-in eine Leiste bei, erscheint die Leiste gar nicht — ein Streifen Symbole ohne Symbole darin ist Breite, die dem Dokument für nichts genommen wurde.
+
+Eine Leiste fragt in ihrer eigenen Schublade. Ein Befehl, der `ask` zurückgibt, stellt die Frage dorthin — den Text, die von Ihnen genannten `choices` und ein Feld, in dem die Antwort vom letzten Mal schon steht — und die Antwort kommt in derselben Schublade an. Früher wurde in der schwebenden Karte gefragt, während die Antwort in der Schublade landete: ein Austausch an zwei Orten. Die Schublade zu schließen ist die Art, wie der Leser ablehnt. Ein aus einem Menü gestarteter Befehl fragt weiterhin in der Karte, weil er keinen eigenen Ort dafür hat.
 
 `when` sagt, wann ein Menüeintrag es wert ist, angeboten zu werden: `selection` nur mit einer Auswahl, `noSelection` nur ohne, und fehlt es, dann immer. Ohne das werden alle Einträge auf einmal angeboten — „Auswahl übersetzen" ohne Auswahl und „Dokument übersetzen", während die Lesenden auf einen Absatz zeigen. Ein Wert, den der Editor nicht kennt, wird beim Installieren abgelehnt, statt still als „immer" gelesen zu werden.
 

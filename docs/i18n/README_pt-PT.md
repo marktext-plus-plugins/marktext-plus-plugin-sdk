@@ -444,7 +444,7 @@ Peça o que usa. Uma extensão que pede `network.request` para acrescentar uma e
 
 `panels` põe um ícone na barra lateral direita; premi-lo abre uma gaveta preenchida ao executar o seu comando com o mesmo `id`. Precisa de `ui.sidebar`, e precisa de um `icon`, porque a barra é uma fila de ícones e uma entrada sem nada para desenhar seria um vazio que abre alguma coisa. Se nenhuma extensão contribuir com um painel, não há barra nenhuma — uma faixa de ícones sem ícones é largura tirada ao documento para nada.
 
-Um painel abre-se e responde: um comando que devolva `ask` ou `ai` é ali relatado como texto em vez de parar para perguntar, porque uma gaveta não é uma conversa.
+Um painel pergunta na sua própria gaveta: um comando que devolve `ask` coloca ali a pergunta — o texto, as `choices` que indicou e uma caixa que já traz a resposta da última vez — e a resposta chega à mesma gaveta. Antes a pergunta era feita no cartão flutuante enquanto a resposta aterrava na gaveta: uma só troca em dois sítios. Fechar a gaveta é como o leitor recusa. Um comando iniciado a partir de um menu continua a perguntar no cartão, por não ter sítio próprio para o fazer.
 
 `when` diz quando uma entrada de menu vale a pena ser oferecida: `selection` só com uma selecção, `noSelection` só sem ela, e a ausência significa sempre. Sem isso são oferecidas todas ao mesmo tempo — «Traduzir a selecção» sem nada seleccionado, e «Traduzir o documento» enquanto quem lê aponta para um parágrafo. Um valor que o editor não conhece é recusado ao instalar em vez de ser lido em silêncio como «sempre».
 
