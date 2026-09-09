@@ -264,6 +264,28 @@ function on_result(ctx, result) {
 }
 ```
 
+### A un panel se le puede volver a preguntar
+
+Una orden lanzada desde un panel puede ejecutarse una segunda vez: quien lee
+pide que se cambie la respuesta en lugar de describirlo todo de nuevo. El
+editor lo dice con los campos que tu script ya conoce:
+
+- `ctx.selection` es **tu propia última respuesta**, porque una petición
+  posterior trata del borrador que se tiene delante, no del documento.
+- `ctx.answer` es lo que se ha pedido esta vez: el mismo campo en el que llega
+  la respuesta a tu `ask`.
+
+Una orden que lee la selección como «la parte sobre la que trabajar» no
+necesita nada nuevo. Una que ignora `ctx.selection` reescribirá el documento
+desde cero cada vez, que no es lo que se pidió.
+
+El recuadro sólo se ofrece si la orden preguntó algo al principio, porque ahí
+es donde llega la petición posterior; una orden que nunca pregunta se ejecuta
+una vez. Lo que `apply` sustituye sigue siendo lo que nombró la primera
+respuesta: un segundo borrador más corto sustituye igualmente el párrafo del
+que nació el primero, no el borrador del que proviene, que no está en el
+documento.
+
 ### Las acciones
 
 | Devuelve | Qué hace el editor | Después |

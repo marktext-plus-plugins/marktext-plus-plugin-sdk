@@ -349,6 +349,27 @@ function on_result(ctx, result) {
 }
 ```
 
+### A panel may be asked again
+
+A command run from a panel can be run a second time, with the reader asking for
+the answer to be changed rather than describing the whole thing afresh. The
+editor says this in the terms your script already knows:
+
+- `ctx.selection` is **your own last answer**, because a follow-up is about the
+  draft the reader is looking at rather than about the document.
+- `ctx.answer` is what they asked for this time — the same field your `ask`
+  question is answered in.
+
+So a command that reads the selection as "the part to work on" needs nothing
+new. One that ignores `ctx.selection` will keep rewriting the document from
+scratch, which is not what the reader asked for.
+
+The box is only offered when the command asked something in the first place,
+since that is where a follow-up arrives; a command that never asks is run
+once. What the editor would replace on `apply` stays what the first answer
+named — a shorter second draft still replaces the paragraph the first one was
+made from, not the draft it came from, which is nowhere in the document.
+
 ### The actions
 
 | Return | The editor does | Then |

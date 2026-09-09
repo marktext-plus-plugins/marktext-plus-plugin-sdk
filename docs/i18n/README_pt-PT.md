@@ -264,6 +264,27 @@ function on_result(ctx, result) {
 }
 ```
 
+### Um painel pode ser questionado de novo
+
+Um comando iniciado a partir de um painel pode ser executado uma segunda vez:
+quem lê pede que a resposta seja alterada em vez de descrever tudo outra vez. O
+editor di-lo nos campos que o seu script já conhece:
+
+- `ctx.selection` é **a sua própria última resposta**, porque um pedido
+  seguinte diz respeito ao rascunho à frente dos olhos, não ao documento.
+- `ctx.answer` é o que foi pedido desta vez — o mesmo campo onde chega a
+  resposta ao seu `ask`.
+
+Um comando que lê a selecção como «a parte a trabalhar» não precisa de nada de
+novo. Um que ignora `ctx.selection` reescreverá o documento do início de cada
+vez, o que não é o que foi pedido.
+
+A caixa só é oferecida se o comando tiver perguntado algo no início, pois é aí
+que chega o pedido seguinte; um comando que nunca pergunta corre uma vez. O que
+`apply` substitui continua a ser o que a primeira resposta indicou: um segundo
+rascunho mais curto substitui na mesma o parágrafo de que o primeiro nasceu, e
+não o rascunho de que provém, que não está no documento.
+
 ### As acções
 
 | Devolve | O que o editor faz | Depois |

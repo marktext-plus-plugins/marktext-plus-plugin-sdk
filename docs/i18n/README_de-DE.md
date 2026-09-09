@@ -264,6 +264,27 @@ function on_result(ctx, result) {
 }
 ```
 
+### Ein Panel kann erneut gefragt werden
+
+Ein aus einem Panel gestarteter Befehl kann ein zweites Mal laufen: Die
+lesende Person bittet darum, die Antwort zu ändern, statt alles noch einmal zu
+beschreiben. Der Editor sagt das in den Feldern, die Ihr Skript schon kennt:
+
+- `ctx.selection` ist **Ihre eigene letzte Antwort**, denn eine Nachfrage
+  betrifft den Entwurf vor Augen, nicht das Dokument.
+- `ctx.answer` ist, worum diesmal gebeten wurde — dasselbe Feld, in dem Ihre
+  `ask`-Frage beantwortet wird.
+
+Ein Befehl, der die Auswahl als „der zu bearbeitende Teil" liest, braucht also
+nichts Neues. Einer, der `ctx.selection` ignoriert, schreibt das Dokument
+immer wieder von vorn — nicht das, worum gebeten wurde.
+
+Das Feld erscheint nur, wenn der Befehl überhaupt etwas gefragt hat, denn dort
+kommt eine Nachfrage an; ein Befehl, der nie fragt, läuft einmal. Was `apply`
+ersetzt, bleibt das, was die erste Antwort benannt hat: Ein kürzerer zweiter
+Entwurf ersetzt weiterhin den Absatz, aus dem der erste entstand, nicht den
+Entwurf, aus dem er selbst hervorging — der steht nirgends im Dokument.
+
 ### Die Aktionen
 
 | Rückgabe | Was der Editor tut | Danach |

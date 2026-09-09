@@ -264,6 +264,28 @@ function on_result(ctx, result) {
 }
 ```
 
+### Un pannello può essere interrogato di nuovo
+
+Un comando avviato da un pannello può essere eseguito una seconda volta: chi
+legge chiede di cambiare la risposta invece di ridescrivere tutto. L'editor lo
+dice nei campi che il vostro script già conosce:
+
+- `ctx.selection` è **la vostra ultima risposta**, perché una richiesta
+  successiva riguarda la bozza che si ha davanti, non il documento.
+- `ctx.answer` è ciò che è stato chiesto stavolta — lo stesso campo in cui
+  arriva la risposta al vostro `ask`.
+
+Un comando che legge la selezione come «la parte su cui lavorare» non ha
+bisogno di nulla di nuovo. Uno che ignora `ctx.selection` riscriverà ogni volta
+il documento da capo, che non è ciò che è stato chiesto.
+
+Il riquadro compare solo se il comando ha chiesto qualcosa all'inizio, perché è
+lì che arriva la richiesta successiva; un comando che non chiede nulla viene
+eseguito una volta. Ciò che `apply` sostituisce resta quanto indicato dalla
+prima risposta: una seconda bozza più breve sostituisce comunque il paragrafo
+da cui è nata la prima, non la bozza da cui proviene, che nel documento non
+c'è.
+
 ### Le azioni
 
 | Ritorno | Che cosa fa l'editor | Poi |

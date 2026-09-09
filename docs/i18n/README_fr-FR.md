@@ -264,6 +264,27 @@ function on_result(ctx, result) {
 }
 ```
 
+### Un panneau peut être sollicité une seconde fois
+
+Une commande lancée depuis un panneau peut être exécutée une deuxième fois :
+le lecteur demande que la réponse soit modifiée plutôt que de tout redécrire.
+L'éditeur le dit dans les champs que votre script connaît déjà :
+
+- `ctx.selection` est **votre propre dernière réponse**, car une relance porte
+  sur le brouillon sous les yeux, pas sur le document.
+- `ctx.answer` est ce qui est demandé cette fois — le même champ où arrive la
+  réponse à votre `ask`.
+
+Une commande qui lit la sélection comme « la partie à traiter » n'a donc rien à
+changer. Une qui ignore `ctx.selection` réécrira le document depuis le début à
+chaque fois, ce qui n'est pas ce qui a été demandé.
+
+Le champ n'est proposé que si la commande a posé une question au départ, car
+c'est là qu'arrive une relance ; une commande qui ne demande rien s'exécute une
+fois. Ce que `apply` remplace reste ce que la première réponse désignait : un
+deuxième brouillon plus court remplace toujours le paragraphe dont le premier
+est né, et non le brouillon dont il provient, absent du document.
+
 ### Les actions
 
 | Retour | Ce que fait l'éditeur | Ensuite |
