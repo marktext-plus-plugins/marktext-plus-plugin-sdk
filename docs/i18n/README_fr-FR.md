@@ -373,7 +373,7 @@ La forme suit le nombre de cases, et reste symétrique à chaque étape :
 
 Les séparateurs se déplacent, comme celui entre source et aperçu.
 
-Les noms `right`, `bottom`, `corner` sont aussi l'adresse par laquelle vous retrouverez un volet plus tard, pour y ajouter ou remplacer ce qu'il contient. Un volet est un volet, quel que soit son nom : ne remplir que `corner` vous donne un volet à côté du document, pas un coin précédé de deux cases vides. Un nom que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui paraît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
+Les noms `right`, `bottom`, `corner` sont aussi l'adresse par laquelle vous retrouverez un volet plus tard, pour y ajouter ou remplacer ce qu'il contient. Un volet reste un volet : ne remplir que `corner` vous donne un volet à côté du document, pas un coin précédé de deux cases vides. Le sens, en revanche, c'est le nom qui le décide — ne remplir que `bottom` place le volet sous le document, tout autre emplacement le met à côté —, car une réécriture du paragraphe que vous lisez se lit mieux dessous : même largeur de ligne, et l'œil descend au lieu de traverser. Le lecteur peut l'inverser depuis la barre de titre du volet. Un nom que l'éditeur ne connaît pas est refusé plutôt que deviné : un volet qui paraît là où vous ne l'avez pas demandé, sans moyen de savoir pourquoi, est pire qu'un refus.
 
 **Un volet appartient à l'onglet où il a été ouvert.** Changer d'onglet le retire de l'écran, fermer l'onglet le ferme avec lui, et revenir le fait reparaître.
 

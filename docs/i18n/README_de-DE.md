@@ -372,7 +372,7 @@ Bei drei Zellen und einem nicht geteilten Dokument **wählen Sie, welche Hälfte
 
 Die Trenner lassen sich ziehen, wie der zwischen Quelltext und Vorschau.
 
-Die Namen `right`, `bottom`, `corner` sind zugleich die Adresse, unter der Sie einen Bereich später wieder ansprechen — um anzuhängen oder seinen Inhalt zu ersetzen. Ein Bereich ist ein Bereich, wie immer er sich nennt: nur `corner` zu füllen gibt Ihnen einen Bereich neben dem Dokument, keine Ecke mit zwei leeren Zellen davor. Ein Name, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der dort auftaucht, wo Sie ihn nicht wollten, ohne dass Sie erfahren könnten warum, ist schlimmer als eine Absage.
+Die Namen `right`, `bottom`, `corner` sind zugleich die Adresse, unter der Sie einen Bereich später wieder ansprechen — um anzuhängen oder seinen Inhalt zu ersetzen. Ein Bereich bleibt ein Bereich: nur `corner` zu füllen gibt Ihnen einen Bereich neben dem Dokument, keine Ecke mit zwei leeren Zellen davor. Die Richtung aber bestimmt der Name — nur `bottom` setzt den Bereich unter das Dokument, jeder andere Platz daneben —, denn eine Neufassung des Absatzes, den Sie gerade lesen, liest sich unter ihm am besten: gleiche Zeilenbreite, und das Auge geht nach unten statt zur Seite. Der Leser kann das über die Titelzeile des Bereichs umdrehen. Ein Name, den der Editor nicht kennt, wird abgelehnt statt geraten: ein Bereich, der dort auftaucht, wo Sie ihn nicht wollten, ohne dass Sie erfahren könnten warum, ist schlimmer als eine Absage.
 
 **Ein Bereich gehört dem Tab, in dem er geöffnet wurde.** Ein Tabwechsel nimmt ihn vom Bildschirm, das Schließen des Tabs schließt ihn mit, und beim Zurückwechseln ist er wieder da.
 

@@ -480,9 +480,14 @@ is divided is a view of the same panes, not a decision you keep making.
 The dividers drag, like the one between source and preview.
 
 The slot names — `right`, `bottom`, `corner` — are also how you address a pane
-again later, to append to it or to replace what it holds. One pane is one pane
-whichever slot it claimed: filling only `corner` gives you a pane beside the
-document, not a cell in a corner with two empty ones to reach it. A slot name
+again later, to append to it or to replace what it holds. One pane is still one
+pane: filling only `corner` gives you a pane beside the document, not a cell in
+a corner with two empty ones to reach it. Which way it goes is the name's to
+say, though — only `bottom` puts the pane under the document, any other slot
+beside it — because a rewrite of the paragraph you are looking at reads best
+under it, at the same line width, where the eye compares by dropping down
+rather than across. The reader can turn that around from the pane's title bar.
+A slot name
 the editor does not know is refused rather than guessed at: a pane appearing
 somewhere you did not ask for, with no way to find out why, is worse than being
 told.

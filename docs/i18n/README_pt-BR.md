@@ -372,7 +372,7 @@ Com três células e um documento que não está dividido, **você escolhe qual 
 
 Os separadores arrastam-se, como o que há entre código-fonte e pré-visualização.
 
-Os nomes `right`, `bottom`, `corner` são também a morada por onde você volta a um quadro mais tarde, para lhe acrescentar ou substituir o que ele tem. Um quadro é um quadro, seja qual for o nome que usou: preencher apenas `corner` dá-lhe um quadro ao lado do documento, e não um canto com duas células vazias à frente. Um nome que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
+Os nomes `right`, `bottom`, `corner` são também a morada por onde você volta a um quadro mais tarde, para lhe acrescentar ou substituir o que ele tem. Um quadro continua sendo um quadro: preencher apenas `corner` dá a você um quadro ao lado do documento, e não um canto com duas células vazias à frente. O sentido, esse, quem decide é o nome — preencher apenas `bottom` põe o quadro embaixo do documento, e qualquer outra casa põe ao lado —, porque uma reescrita do parágrafo que você está lendo se lê melhor embaixo, com a mesma largura de linha, onde o olho desce em vez de atravessar. O leitor pode virá-lo pela barra de título do quadro. Um nome que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.
 
 **Um quadro pertence à aba em que foi aberto.** Mudar de aba tira-o do ecrã, fechar a aba fecha-o com ela, e voltar traz-a de novo.
 

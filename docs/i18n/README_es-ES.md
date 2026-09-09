@@ -373,7 +373,7 @@ Con tres celdas y un documento que no está dividido, **eliges tú qué mitad se
 
 Los divisores se arrastran, como el que hay entre fuente y vista previa.
 
-Los nombres `right`, `bottom`, `corner` son además la dirección con la que vuelves a un cuadro más tarde, para añadirle algo o sustituir lo que contiene. Un cuadro es un cuadro, se llame como se llame: llenar sólo `corner` te da un cuadro junto al documento, no una esquina con dos celdas vacías delante. Un nombre que el editor no conoce se rechaza en vez de adivinarse: un cuadro que aparece donde no lo pediste, sin manera de saber por qué, es peor que una negativa.
+Los nombres `right`, `bottom`, `corner` son además la dirección con la que vuelves a un cuadro más tarde, para añadirle algo o sustituir lo que contiene. Un cuadro sigue siendo un cuadro: llenar sólo `corner` te da un cuadro junto al documento, no una esquina con dos celdas vacías delante. La dirección, en cambio, la decide el nombre: llenar sólo `bottom` pone el cuadro debajo del documento, y cualquier otra casilla lo pone al lado, porque una reescritura del párrafo que estás leyendo se lee mejor debajo, con el mismo ancho de línea, donde la vista baja en vez de cruzar. El lector puede darle la vuelta desde la barra de título del cuadro. Un nombre que el editor no conoce se rechaza en vez de adivinarse: un cuadro que aparece donde no lo pediste, sin manera de saber por qué, es peor que una negativa.
 
 **Un cuadro pertenece a la pestaña en la que se abrió.** Cambiar de pestaña lo quita de la pantalla, cerrar la pestaña lo cierra con ella, y volver lo trae de nuevo.
 

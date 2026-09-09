@@ -71,6 +71,20 @@ same thing.
 
 ### Fixed
 
+- **All twelve READMEs still described the rule the editor stopped following.**
+  A lone pane used to sit beside the document whatever slot it claimed — "one
+  pane is one pane whichever slot it claimed" — and since 2026-09-07 the name
+  decides: only `bottom` puts it under the document, any other slot beside it.
+  The editor was changed after manual testing, its own layout test was changed
+  with it, and the SDK was not. An author filling only `bottom` was told they
+  would get a pane beside the document and got one below it, while the official
+  writing and proofreading commands were already relying on the new behaviour.
+
+  The direction sentence is now in all twelve, and the editor's
+  `sdk_schema_agrees_test` counts `bottom` in that paragraph: it is named once
+  as a slot and a second time saying which way that slot goes, so a language
+  that keeps only the list fails. The identifier does not translate, which is
+  what makes the count work in eleven languages the guard cannot read.
 - **The German, Japanese, Korean and Chinese docs had no `panels` in them at
   all** — no line in the manifest field list, neither paragraph explaining
   what a panel is. Anyone reading those four did not know a plugin could put
