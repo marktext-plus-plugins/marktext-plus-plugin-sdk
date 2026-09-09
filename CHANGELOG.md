@@ -4,6 +4,18 @@
 
 ### Added
 
+- **What a panel is asked on a second round.** A command run from a panel can
+  now be run again, with the reader asking for its answer to be changed rather
+  than describing the whole thing afresh. The editor says so in fields the
+  script already knows: `ctx.selection` is the script's own last answer,
+  because a follow-up is about the draft in front of the reader rather than
+  the document, and `ctx.answer` is what was asked for this time.
+
+  A command that reads the selection as "the part to work on" needs no change.
+  One that ignores `ctx.selection` will rewrite the whole document every
+  round, which is not what was asked. The box is only offered when the command
+  asked something to begin with, since that is where a follow-up arrives.
+
 - **`sdk.ui` — a plugin can draw its own interface.** It returns a tree of
   nodes (`text`, `input`, `chips`, `button`, `row`, `column`, `spacer`) and the
   editor renders them as its own widgets; pressing a button calls
