@@ -398,6 +398,7 @@ HTML ではありません。そこが要点です：これらはエディタ自
 | `ctx.selection` | 選択されたテキスト。何も選択されていなければ `""` |
 | `ctx.document` | ドキュメント全体 |
 | `ctx.answer` | 前回尋ねたときに読者が入力したもの。なければ nil/undefined |
+| `ctx.view` | 読者が文書をどう見ているか: `source`、`preview`、`split` のいずれか |
 
 ### この Lua ができないこと
 

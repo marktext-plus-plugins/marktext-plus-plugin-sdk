@@ -71,6 +71,24 @@ same thing.
 
 ### Fixed
 
+- **The English README said there is no `require`, five paragraphs after
+  explaining how to use it.** The sandbox list — "no `os`, no `package`, no
+  `require`, no `dofile`, no `loadfile`" — was written before a plugin could be
+  more than one file. Lua's own `require` is indeed removed; the editor then
+  installs one that cannot leave the plugin's own directory, which is what
+  loads `lib/marktext-plus.lua`. So the document told an author their `require`
+  would fail while shipping a library file that needs it. All eleven
+  translations had been corrected and the English had not, which is the
+  opposite of the usual direction.
+- **`ctx.view` was documented in seven languages and missing from five.**
+  A script is told whether the reader is in `source`, `preview` or `split`;
+  English, German, Japanese, Korean and Chinese never said so. The same four
+  translations once lost the side panel.
+
+  Both were found by comparing the backticked identifiers across the twelve —
+  the one part of a document in eleven languages that does not change with the
+  language. The editor's `sdk_schema_agrees_test` now holds all twelve to the
+  same set of 108, with no exceptions.
 - **All twelve READMEs still described the rule the editor stopped following.**
   A lone pane used to sit beside the document whatever slot it claimed — "one
   pane is one pane whichever slot it claimed" — and since 2026-09-07 the name

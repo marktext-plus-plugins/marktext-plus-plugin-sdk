@@ -530,18 +530,20 @@ API key. What the model is asked is exactly the string you returned in `ai`.
 
 ### What a script can reach
 
-Only these. There is no `os`, no `package`, no `require`, no `dofile`, no
-`loadfile`, no file system and no network — a script plugin comes from a
-stranger's repository, so it gets what it declared and nothing else.
+Only these. There is no `os`, no `package`, no `dofile`, no `loadfile`, no file
+system and no network — a script plugin comes from a stranger's repository, so
+it gets what it declared and nothing else.
 
 | | |
 |---|---|
 | `storage.get(key)` / `storage.set(key, value)` | your own settings, in your own directory. Strings only. Needs `storage.local`. |
 | `t(key)` | your own string in the reader's language; returns the key itself if you have no translation for it |
+| `require(name)` | one of your own files, resolved only inside your plugin's directory |
 | `ctx.command` | the `id` of the menu entry or command that fired |
 | `ctx.selection` | the selected text, `""` when nothing is selected |
 | `ctx.document` | the whole document |
 | `ctx.answer` | what the reader typed last time you asked, otherwise nil/undefined |
+| `ctx.view` | how the reader is looking at the document: `source`, `preview` or `split` |
 
 ### What this Lua does not do
 
@@ -782,7 +784,7 @@ the launch token above for what it does instead.
 ## Safety rules
 
 - Never write an API key into the plugin directory or the manifest.
-- Do not put anything in `stdout` other than protocol messages.
+- Do not put anything in stdout other than protocol messages.
 - Keep work bounded yourself. A script runs on the editor's own thread and
   nothing interrupts it: a loop with no exit freezes the window until someone
   kills the process. Only compiled plugins get a timeout, because only they

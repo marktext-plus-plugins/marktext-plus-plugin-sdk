@@ -401,6 +401,7 @@ Nur dies. Kein `os`, kein `package`, kein `dofile`, kein `loadfile`, kein Dateis
 | `ctx.selection` | der markierte Text, `""` wenn nichts markiert ist |
 | `ctx.document` | das ganze Dokument |
 | `ctx.answer` | was die Lesenden beim letzten Fragen eingegeben haben, sonst nil/undefined |
+| `ctx.view` | wie die Lesenden das Dokument ansehen: `source`, `preview` oder `split` |
 
 ### Was dieses Lua nicht kann
 

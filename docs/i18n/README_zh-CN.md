@@ -395,6 +395,7 @@ return sdk.ui({ column = {
 | `ctx.selection` | 选中的文本，没有选中时为 `""` |
 | `ctx.document` | 整篇文档 |
 | `ctx.answer` | 上一次你提问时用户输入的内容，否则为 nil/undefined |
+| `ctx.view` | 读者正在怎么看这份文档：`source`、`preview` 或 `split` |
 
 ### 这个 Lua 做不到的事
 

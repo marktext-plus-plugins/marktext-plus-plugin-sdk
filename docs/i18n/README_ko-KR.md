@@ -399,6 +399,7 @@ HTML 이 아니며, 그게 핵심입니다. 이것들은 에디터 자신의 위
 | `ctx.selection` | 선택된 텍스트. 아무것도 선택되지 않았으면 `""` |
 | `ctx.document` | 문서 전체 |
 | `ctx.answer` | 지난번에 물었을 때 읽는 사람이 입력한 것, 없으면 nil/undefined |
+| `ctx.view` | 읽는 사람이 문서를 보고 있는 방식: `source`, `preview`, `split` 중 하나 |
 
 ### 이 Lua가 하지 못하는 것
 
