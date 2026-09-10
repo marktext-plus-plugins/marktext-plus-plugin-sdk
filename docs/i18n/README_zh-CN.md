@@ -448,18 +448,22 @@ JavaScript 那边是 QuickJS，没有值得单列的同类缺口。
 | `document.write` | 修改打开的文档 |
 | `ui.contextMenu` | 往右键菜单加条目 |
 | `ui.menuBar` | 往菜单栏加条目 |
-| `ui.toolbar` | 加一个工具栏按钮 |
+| `ui.toolbar` | 加一个工具栏按钮 † |
 | `ui.sidebar` | 加一个侧边栏面板 |
-| `ui.statusBar` | 加一个状态栏项 |
+| `ui.statusBar` | 加一个状态栏项 † |
 | `ui.settings` | 拥有自己的设置页 |
-| `ui.commandPalette` | 往命令面板加命令 |
+| `ui.commandPalette` | 往命令面板加命令 † |
 | `ui.notifications` | 向用户提示信息 |
 | `ai.chat` | 调用用户配置的模型（永远拿不到 key） |
 | `storage.local` | 在自己目录里保存自己的设置文件 |
-| `clipboard.read` / `clipboard.write` | 剪贴板 |
-| `workspace.read` / `workspace.write` | 用户打开的文件夹下的文件 |
+| `clipboard.read` / `clipboard.write` | 剪贴板 † |
+| `workspace.read` / `workspace.write` | 用户打开的文件夹下的文件 † |
 | `network.request` | 自行发起 HTTP 请求。**能申请的最宽的一项**：凡是它能读到的，它都能发出去 |
 | `ui.webview` | 在编辑器里打开它自己的网页。**它带着 `network.request` 一起**，而且会告诉读者：网页视图里的页面想取什么就取什么 |
+
+`†` —— 这个权限是真的，也会展示给读者，但**它背后的能力还没有**：编辑器里没有
+插件可以添加的工具栏、状态栏或命令面板，脚本也够不到剪贴板和工作区。今天声明它，
+插件什么也得不到。它们仍列在这里，因为它们是清单的一部分，等能力做出来时会被兑现。
 
 用到什么就申请什么。一个只为加个菜单项却申请 `network.request` 的插件，用户应该拒绝。
 

@@ -461,18 +461,25 @@ Declarados en el manifiesto, mostrados a quien lee y **aplicados**. VS Code e In
 | `document.write` | modificar el documento abierto |
 | `ui.contextMenu` | añadir entradas al menú contextual |
 | `ui.menuBar` | añadir entradas a la barra de menús |
-| `ui.toolbar` | añadir un botón a la barra de herramientas |
+| `ui.toolbar` | añadir un botón a la barra de herramientas † |
 | `ui.sidebar` | añadir un panel a la barra lateral |
-| `ui.statusBar` | añadir un elemento a la barra de estado |
+| `ui.statusBar` | añadir un elemento a la barra de estado † |
 | `ui.settings` | tener su propia página de ajustes |
-| `ui.commandPalette` | añadir órdenes a la paleta |
+| `ui.commandPalette` | añadir órdenes a la paleta † |
 | `ui.notifications` | decirle algo a quien lee |
 | `ai.chat` | consultar el modelo configurado (la clave nunca se entrega) |
 | `storage.local` | guardar su propio archivo de ajustes en su propio directorio |
-| `clipboard.read` / `clipboard.write` | el portapapeles |
-| `workspace.read` / `workspace.write` | los archivos bajo la carpeta que quien lee abrió |
+| `clipboard.read` / `clipboard.write` | el portapapeles † |
+| `workspace.read` / `workspace.write` | los archivos bajo la carpeta que quien lee abrió † |
 | `network.request` | hacer sus propias peticiones HTTP. **Lo más amplio que se puede pedir**: todo lo que pueda leer, puede enviarlo a cualquier sitio |
 | `ui.webview` | abrir su propia página web dentro del editor. **Lleva consigo `network.request`**, y así se le dice a quien lee: una página en una vista web pide lo que quiere |
+
+`†` — el permiso existe de verdad y se le muestra al lector, pero **todavía no
+hay nada detrás**: no hay barra de herramientas, barra de estado ni paleta de
+comandos a la que un plugin pueda añadir algo, ni portapapeles o espacio de
+trabajo que un script pueda alcanzar. Declararlo hoy no le aporta nada al
+plugin. Siguen en la lista porque forman parte del manifiesto, y se cumplirán
+cuando exista la capacidad.
 
 Pida lo que use. Un complemento que pide `network.request` para añadir una entrada de menú es uno que quien lee debería rechazar.
 

@@ -455,18 +455,24 @@ JavaScript 側は QuickJS で、並べて書くほどの欠落はありません
 | `document.write` | 開いているドキュメントを変更する |
 | `ui.contextMenu` | 右クリックメニューに項目を足す |
 | `ui.menuBar` | メニューバーに項目を足す |
-| `ui.toolbar` | ツールバーのボタンを足す |
+| `ui.toolbar` | ツールバーのボタンを足す † |
 | `ui.sidebar` | サイドバーのパネルを足す |
-| `ui.statusBar` | ステータスバーの項目を足す |
+| `ui.statusBar` | ステータスバーの項目を足す † |
 | `ui.settings` | 自分の設定ページを持つ |
-| `ui.commandPalette` | コマンドパレットにコマンドを足す |
+| `ui.commandPalette` | コマンドパレットにコマンドを足す † |
 | `ui.notifications` | 読者に伝える |
 | `ai.chat` | 読者が設定したモデルに尋ねる（鍵は決して渡らない） |
 | `storage.local` | 自分のディレクトリに自分の設定ファイルを持つ |
-| `clipboard.read` / `clipboard.write` | クリップボード |
-| `workspace.read` / `workspace.write` | 読者が開いたフォルダ配下のファイル |
+| `clipboard.read` / `clipboard.write` | クリップボード † |
+| `workspace.read` / `workspace.write` | 読者が開いたフォルダ配下のファイル † |
 | `network.request` | 自分で HTTP リクエストを出す。**求めうる最も広いもの**：読めるものは何でもどこへでも送れます |
 | `ui.webview` | エディタの中に自前のウェブページを開く。**`network.request` を伴います**——そしてそのことは読者に伝えられます。ウェブビューの中のページは好きなだけ取ってきます |
+
+`†` — この権限は実在し、読者にも表示されますが、**その先にあるものがまだ
+ありません**。プラグインが追加できるツールバー・ステータスバー・コマンドパレットは
+なく、スクリプトからクリップボードやワークスペースには届きません。いま宣言しても
+プラグインは何も得られません。マニフェストの一部なので記載は残し、機能ができた
+時点で有効になります。
 
 使うものだけを求めてください。メニュー項目を足すために `network.request` を求めるプラグインは、読者が断るべきものです。
 

@@ -461,18 +461,26 @@ Déclarées dans le manifeste, montrées au lecteur, et **appliquées**. VS Code
 | `document.write` | modifier le document ouvert |
 | `ui.contextMenu` | ajouter des entrées au menu contextuel |
 | `ui.menuBar` | ajouter des entrées à la barre de menus |
-| `ui.toolbar` | ajouter un bouton de barre d'outils |
+| `ui.toolbar` | ajouter un bouton de barre d'outils † |
 | `ui.sidebar` | ajouter un panneau à la barre latérale |
-| `ui.statusBar` | ajouter un élément à la barre d'état |
+| `ui.statusBar` | ajouter un élément à la barre d'état † |
 | `ui.settings` | avoir sa propre page de réglages |
-| `ui.commandPalette` | ajouter des commandes à la palette |
+| `ui.commandPalette` | ajouter des commandes à la palette † |
 | `ui.notifications` | dire quelque chose au lecteur |
 | `ai.chat` | interroger le modèle configuré (la clé n'est jamais transmise) |
 | `storage.local` | garder son propre fichier de réglages dans son propre répertoire |
-| `clipboard.read` / `clipboard.write` | le presse-papiers |
-| `workspace.read` / `workspace.write` | les fichiers sous le dossier ouvert par le lecteur |
+| `clipboard.read` / `clipboard.write` | le presse-papiers † |
+| `workspace.read` / `workspace.write` | les fichiers sous le dossier ouvert par le lecteur † |
 | `network.request` | émettre ses propres requêtes HTTP. **La plus large que l'on puisse demander** : tout ce qu'elle peut lire, elle peut l'envoyer n'importe où |
 | `ui.webview` | ouvrir sa propre page web dans l'éditeur. **Emporte `network.request` avec elle**, et le lecteur en est informé : une page dans une vue web va chercher ce qu'elle veut |
+
+`†` — la permission existe bel et bien et elle est montrée au lecteur, mais
+**il n'y a encore rien derrière** : aucune barre d'outils, barre d'état ni
+palette de commandes à laquelle un plugin puisse ajouter quoi que ce soit, et
+aucun presse-papiers ni espace de travail qu'un script puisse atteindre. La
+déclarer aujourd'hui n'apporte rien à un plugin. Elles restent listées parce
+qu'elles font partie du manifeste, et seront honorées dès que la capacité
+existera.
 
 Ne demandez que ce que vous utilisez. Une extension qui demande `network.request` pour ajouter une entrée de menu est une extension que le lecteur devrait refuser.
 

@@ -616,18 +616,24 @@ for it.
 | `document.write` | change the open document |
 | `ui.contextMenu` | add entries to the right-click menu |
 | `ui.menuBar` | add entries to the menu bar |
-| `ui.toolbar` | add a toolbar button |
+| `ui.toolbar` | add a toolbar button † |
 | `ui.sidebar` | add a side-bar panel |
-| `ui.statusBar` | add a status-bar item |
+| `ui.statusBar` | add a status-bar item † |
 | `ui.settings` | have a settings page |
-| `ui.commandPalette` | add commands to the palette |
+| `ui.commandPalette` | add commands to the palette † |
 | `ui.notifications` | tell the reader things |
 | `ai.chat` | ask the model the reader configured (never the key) |
 | `storage.local` | keep its own settings file in its own directory |
-| `clipboard.read` / `clipboard.write` | the clipboard |
-| `workspace.read` / `workspace.write` | files under the folder the reader opened |
+| `clipboard.read` / `clipboard.write` | the clipboard † |
+| `workspace.read` / `workspace.write` | files under the folder the reader opened † |
 | `network.request` | make HTTP requests of its own. The widest thing to ask for: anything it can read, it can send anywhere. |
 | `ui.webview` | open its own web page inside the editor. **Carries `network.request` with it** and the reader is told so: a page in a web view fetches whatever it likes |
+
+`†` — the permission is real and the reader is shown it, but there is nothing
+behind it yet: no toolbar, status bar or command palette a plugin can add to,
+and no clipboard or workspace a script can reach. Declaring one gains a plugin
+nothing today. They stay listed because they are part of the manifest, and they
+will be honoured when the capability arrives.
 
 Ask for what you use. A plugin asking for `network.request` to add a menu entry
 is one the reader should decline.

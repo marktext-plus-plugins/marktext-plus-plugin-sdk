@@ -456,18 +456,24 @@ JavaScript 쪽은 QuickJS이고, 따로 적을 만한 빈틈은 없습니다.
 | `document.write` | 열린 문서를 바꾸기 |
 | `ui.contextMenu` | 오른쪽 클릭 메뉴에 항목 더하기 |
 | `ui.menuBar` | 메뉴 바에 항목 더하기 |
-| `ui.toolbar` | 툴바 버튼 더하기 |
+| `ui.toolbar` | 툴바 버튼 더하기 † |
 | `ui.sidebar` | 사이드바 패널 더하기 |
-| `ui.statusBar` | 상태 표시줄 항목 더하기 |
+| `ui.statusBar` | 상태 표시줄 항목 더하기 † |
 | `ui.settings` | 자기 설정 페이지 갖기 |
-| `ui.commandPalette` | 명령 팔레트에 명령 더하기 |
+| `ui.commandPalette` | 명령 팔레트에 명령 더하기 † |
 | `ui.notifications` | 읽는 사람에게 알리기 |
 | `ai.chat` | 읽는 사람이 설정한 모델에 묻기(키는 결코 넘어가지 않음) |
 | `storage.local` | 자기 디렉터리에 자기 설정 파일 두기 |
-| `clipboard.read` / `clipboard.write` | 클립보드 |
-| `workspace.read` / `workspace.write` | 읽는 사람이 연 폴더 아래의 파일 |
+| `clipboard.read` / `clipboard.write` | 클립보드 † |
+| `workspace.read` / `workspace.write` | 읽는 사람이 연 폴더 아래의 파일 † |
 | `network.request` | 스스로 HTTP 요청 보내기. **청할 수 있는 가장 넓은 것**: 읽을 수 있는 것은 무엇이든 어디로든 보낼 수 있습니다 |
 | `ui.webview` | 에디터 안에 자기 웹 페이지를 엽니다. **`network.request` 를 함께 가져가며** 그 사실이 독자에게 표시됩니다. 웹뷰 안의 페이지는 무엇이든 가져옵니다 |
+
+`†` — 이 권한은 실재하며 사용자에게도 표시되지만, **뒤에 아직 아무것도
+없습니다**. 플러그인이 추가할 수 있는 도구 모음, 상태 표시줄, 명령 팔레트가 없고,
+스크립트가 클립보드나 작업 공간에 닿지 못합니다. 지금 선언해도 플러그인이 얻는
+것은 없습니다. 매니페스트의 일부이므로 목록에 남겨 두며, 기능이 생기면 그때
+지켜집니다.
 
 쓰는 것만 청하세요. 메뉴 항목 하나를 더하려고 `network.request`를 청하는 플러그인은 읽는 사람이 거절해야 할 것입니다.
 

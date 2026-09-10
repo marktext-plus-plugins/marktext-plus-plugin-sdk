@@ -86,6 +86,22 @@ same thing.
 
 ### Fixed
 
+- **Five rows of the permissions table promised things the editor has never
+  built.** "add a toolbar button", "add a status-bar item", "add commands to
+  the palette", the clipboard and the workspace: seven permissions in all, and
+  behind each of them nothing. There is no toolbar or status bar a plugin can
+  add to, nothing registers a plugin's commands in the palette, and neither
+  script runtime mentions a clipboard or a workspace anywhere. An author who
+  read a row, declared the permission, wrote the manifest entry and saw nothing
+  happen had lost an evening to a sentence.
+
+  They are marked `†` now, in all twelve languages, with a note under the table
+  saying what the dagger means: the permission is real and the reader is shown
+  it, and there is nothing behind it yet. The rows stay, because they are part
+  of the manifest and will be honoured when the capability arrives. The
+  editor's own test suite decides which rows carry the dagger — the day one of
+  these is implemented, the dagger has to come out or that test fails.
+
 - **The examples said they showed all of it, and showed seven of twelve.**
   "Every capability the editor offers is used once" opened both scripts, and
   the five they leave out include `pane` — the grid the editor lays results out

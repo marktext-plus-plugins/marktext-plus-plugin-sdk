@@ -461,18 +461,25 @@ Dichiarati nel manifest, mostrati a chi legge, e **applicati**. VS Code e Intell
 | `document.write` | modificare il documento aperto |
 | `ui.contextMenu` | aggiungere voci al menu contestuale |
 | `ui.menuBar` | aggiungere voci alla barra dei menu |
-| `ui.toolbar` | aggiungere un pulsante alla barra strumenti |
+| `ui.toolbar` | aggiungere un pulsante alla barra strumenti † |
 | `ui.sidebar` | aggiungere un pannello alla barra laterale |
-| `ui.statusBar` | aggiungere una voce alla barra di stato |
+| `ui.statusBar` | aggiungere una voce alla barra di stato † |
 | `ui.settings` | avere una propria pagina di impostazioni |
-| `ui.commandPalette` | aggiungere comandi alla palette |
+| `ui.commandPalette` | aggiungere comandi alla palette † |
 | `ui.notifications` | dire qualcosa a chi legge |
 | `ai.chat` | interrogare il modello configurato (la chiave non passa mai) |
 | `storage.local` | tenere il proprio file di impostazioni nella propria directory |
-| `clipboard.read` / `clipboard.write` | gli appunti |
-| `workspace.read` / `workspace.write` | i file sotto la cartella aperta da chi legge |
+| `clipboard.read` / `clipboard.write` | gli appunti † |
+| `workspace.read` / `workspace.write` | i file sotto la cartella aperta da chi legge † |
 | `network.request` | fare richieste HTTP proprie. **La più ampia che si possa chiedere**: tutto ciò che può leggere, può mandarlo ovunque |
 | `ui.webview` | aprire la propria pagina web dentro l'editor. **Si porta dietro `network.request`**, e chi legge lo viene a sapere: una pagina in una vista web va a prendersi quel che vuole |
+
+`†` — il permesso esiste davvero ed è mostrato al lettore, ma **dietro non c'è
+ancora nulla**: non esiste una barra degli strumenti, una barra di stato o una
+tavolozza dei comandi a cui un plugin possa aggiungere qualcosa, né appunti o
+spazio di lavoro che uno script possa raggiungere. Dichiararlo oggi non dà nulla
+al plugin. Restano elencati perché fanno parte del manifest, e saranno onorati
+quando la capacità arriverà.
 
 Chiedete quello che usate. Un'estensione che chiede `network.request` per aggiungere una voce di menu è un'estensione che chi legge dovrebbe rifiutare.
 

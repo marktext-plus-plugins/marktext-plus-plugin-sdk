@@ -460,18 +460,25 @@ Im Manifest erklärt, den Lesenden gezeigt und **durchgesetzt**. VS Code und Int
 | `document.write` | das offene Dokument zu ändern |
 | `ui.contextMenu` | Einträge im Kontextmenü |
 | `ui.menuBar` | Einträge in der Menüleiste |
-| `ui.toolbar` | eine Schaltfläche in der Werkzeugleiste |
+| `ui.toolbar` | eine Schaltfläche in der Werkzeugleiste † |
 | `ui.sidebar` | einen eigenen Bereich in der Seitenleiste |
-| `ui.statusBar` | einen Eintrag in der Statusleiste |
+| `ui.statusBar` | einen Eintrag in der Statusleiste † |
 | `ui.settings` | eine eigene Einstellungsseite |
-| `ui.commandPalette` | Befehle in der Befehlspalette |
+| `ui.commandPalette` | Befehle in der Befehlspalette † |
 | `ui.notifications` | den Lesenden etwas zu sagen |
 | `ai.chat` | das eingerichtete Modell zu fragen (der Schlüssel wird nie übergeben) |
 | `storage.local` | eine eigene Einstellungsdatei im eigenen Verzeichnis |
-| `clipboard.read` / `clipboard.write` | die Zwischenablage |
-| `workspace.read` / `workspace.write` | Dateien unter dem geöffneten Ordner |
+| `clipboard.read` / `clipboard.write` | die Zwischenablage † |
+| `workspace.read` / `workspace.write` | Dateien unter dem geöffneten Ordner † |
 | `network.request` | eigene HTTP-Anfragen. **Das Weiteste, worum man bitten kann**: was es lesen kann, kann es überallhin senden |
 | `ui.webview` | eine eigene Webseite im Editor öffnen. **Bringt `network.request` mit**, und die Lesenden erfahren das: eine Seite in einer Web-Ansicht holt sich, was sie will |
+
+`†` — die Berechtigung gibt es wirklich und sie wird dem Leser angezeigt, aber
+**dahinter steckt noch nichts**: Es gibt keine Symbolleiste, keine Statusleiste
+und keine Befehlspalette, zu der ein Plugin etwas hinzufügen könnte, und ein
+Skript erreicht weder Zwischenablage noch Arbeitsbereich. Sie heute zu
+deklarieren bringt einem Plugin nichts. Sie bleiben aufgeführt, weil sie zum
+Manifest gehören, und werden eingelöst, sobald es die Fähigkeit gibt.
 
 Bitten Sie um das, was Sie benutzen. Ein Plug-in, das für einen Menüeintrag um `network.request` bittet, sollten die Lesenden ablehnen.
 

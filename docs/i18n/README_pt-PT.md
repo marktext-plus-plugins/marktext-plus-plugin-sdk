@@ -459,18 +459,25 @@ Declaradas no manifesto, mostradas a quem lê e **impostas**. O VS Code e o Inte
 | `document.write` | alterar o documento aberto |
 | `ui.contextMenu` | acrescentar entradas ao menu de contexto |
 | `ui.menuBar` | acrescentar entradas à barra de menus |
-| `ui.toolbar` | acrescentar um botão à barra de ferramentas |
+| `ui.toolbar` | acrescentar um botão à barra de ferramentas † |
 | `ui.sidebar` | acrescentar um painel à barra lateral |
-| `ui.statusBar` | acrescentar um item à barra de estado |
+| `ui.statusBar` | acrescentar um item à barra de estado † |
 | `ui.settings` | ter a sua própria página de definições |
-| `ui.commandPalette` | acrescentar comandos à paleta |
+| `ui.commandPalette` | acrescentar comandos à paleta † |
 | `ui.notifications` | dizer algo a quem lê |
 | `ai.chat` | consultar o modelo configurado (a chave nunca é entregue) |
 | `storage.local` | guardar o seu ficheiro de definições no seu directório |
-| `clipboard.read` / `clipboard.write` | a área de transferência |
-| `workspace.read` / `workspace.write` | os ficheiros sob a pasta que quem lê abriu |
+| `clipboard.read` / `clipboard.write` | a área de transferência † |
+| `workspace.read` / `workspace.write` | os ficheiros sob a pasta que quem lê abriu † |
 | `network.request` | fazer pedidos HTTP próprios. **O mais amplo que se pode pedir**: tudo o que conseguir ler, consegue enviar para qualquer lado |
 | `ui.webview` | abrir a sua própria página web dentro do editor. **Traz `network.request` consigo**, e quem lê é informado disso: uma página numa vista web vai buscar o que lhe apetecer |
+
+`†` — a permissão existe mesmo e é mostrada ao leitor, mas **ainda não há nada
+por trás**: não existe barra de ferramentas, barra de estado nem paleta de
+comandos a que um plugin possa acrescentar algo, nem área de transferência ou
+espaço de trabalho que um script consiga alcançar. Declará-la hoje não traz nada
+ao plugin. Continuam listadas porque fazem parte do manifesto, e serão cumpridas
+quando a capacidade existir.
 
 Peça o que usa. Uma extensão que pede `network.request` para acrescentar uma entrada de menu é uma que quem lê deve recusar.
 
