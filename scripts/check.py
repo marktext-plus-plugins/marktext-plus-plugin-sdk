@@ -165,9 +165,92 @@ def check_every_export_is_documented() -> None:
             fail(f"js 的 {m.group(1)} 上面没有紧挨着的文档注释")
 
 
+def _action_names(text: str) -> list[str]:
+    """The action each row of the actions table is about, in order.
+
+    The name, not the whole cell. The cell holds a metavariable or two —
+    `<node>`, and the ellipses standing in for a string — and those are
+    translated on purpose, being English words rather than code. The key in
+    front of the `=` is the thing a plugin actually types.
+    """
+    names = []
+    for line in text.splitlines():
+        if not line.startswith("| `{ "):
+            continue
+        m = re.match(r"^\| `\{ (\w+)", line)
+        if m:
+            names.append(m.group(1))
+    return names
+
+
+def check_action_tables_agree() -> None:
+    """Every translation lists the same actions as the English README.
+
+    Eleven translations carry this table, and nothing compared them. An
+    eleventh action added to the English one would leave the other eleven at
+    ten — and an author reading in their own language would never learn the
+    action exists. The editor's repository has had exactly this guard for its
+    own README since a capability row went missing in translation.
+    """
+    english = _action_names((ROOT / "README.md").read_text(encoding="utf-8"))
+    if len(english) < 5:
+        fail(f"英文 README 只读出 {len(english)} 个动作，取法要跟着改")
+        return
+
+    for path in sorted((ROOT / "docs/i18n").glob("README_*.md")):
+        theirs = _action_names(path.read_text(encoding="utf-8"))
+        if theirs != english:
+            missing = [n for n in english if n not in theirs]
+            extra = [n for n in theirs if n not in english]
+            fail(
+                f"{path.relative_to(ROOT)} 的动作表与英文对不上"
+                f"（{len(theirs)} 行 vs {len(english)} 行）"
+                + (f"，少了 {missing}" if missing else "")
+                + (f"，多了 {extra}" if extra else "")
+            )
+
+
+def check_example_says_how_much_it_shows() -> None:
+    """The examples say how many of the API they use, and mean it.
+
+    They used to open with "Every capability the editor offers is used once",
+    which was not true of either: seven of the twelve, with `pane` — the grid
+    the editor actually lays results out in, and the one the shipped plugin
+    lives in — among the five missing. An example is the first thing an author
+    copies, so a claim on top of it is read as a map of the API.
+    """
+    lua_lib = (ROOT / "packages/lua/lib/marktext-plus.lua").read_text(encoding="utf-8")
+    exported = {
+        m.group(1)
+        for m in re.finditer(r"^(?:function )?M\.([A-Za-z_]\w*)\s*[=(]", lua_lib, re.M)
+    }
+
+    for path, call in (
+        (ROOT / "packages/lua/plugin.lua", "sdk."),
+        (ROOT / "packages/js/plugin.js", "sdk."),
+    ):
+        text = path.read_text(encoding="utf-8")
+        used = {name for name in exported if re.search(r"sdk\." + name + r"\b", text)}
+
+        claim = re.search(r"uses (\d+) of the (\d+)", text)
+        if claim is None:
+            fail(f"{path.relative_to(ROOT)} 开头没说它用了几个 API"
+                 f"（写成「uses N of the M」，N={len(used)} M={len(exported)}）")
+            continue
+        said_used, said_all = int(claim.group(1)), int(claim.group(2))
+        if said_used != len(used) or said_all != len(exported):
+            fail(
+                f"{path.relative_to(ROOT)} 说用了 {said_used}/{said_all}，"
+                f"实际 {len(used)}/{len(exported)}；没用到的是 "
+                f"{sorted(exported - used)}"
+            )
+
+
 def main() -> int:
     check_sdk_parity()
     check_every_export_is_documented()
+    check_action_tables_agree()
+    check_example_says_how_much_it_shows()
     check_schema()
     check_documented_paths()
     if problems:

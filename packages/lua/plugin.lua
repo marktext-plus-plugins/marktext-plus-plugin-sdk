@@ -1,4 +1,9 @@
---- A complete Lua plugin. Every capability the editor offers is used once.
+--- A complete Lua plugin. It uses 7 of the 12 calls the API module offers.
+---
+--- Enough for a first plugin, and not a tour: the five it leaves out are one
+--- line each and the README's actions table has them all. Read `pane` next —
+--- it is the grid the editor lays results out in, it takes a slot, a way of
+--- drawing and an Apply button, and it is where the shipped AI plugin lives.
 ---
 --- Two files ship: this one and lib/marktext-plus.lua, which `require` loads
 --- from this plugin's own directory. A plugin is not limited to those two —

@@ -2,20 +2,6 @@
 
 ## [Unreleased]
 
-### Fixed
-
-- **`nothing()` had lost its comment to `ui()`.** When `ui` was added between
-  `replace` and `nothing`, the one-line description stayed where it was — so
-  `Do nothing.` ended up on top of the interface-drawing documentation, and the
-  function that does nothing said nothing at all. In both languages, because
-  they were edited together. Nobody reads this module top to bottom; it is read
-  one function at a time in an editor's hover, where a comment one function out
-  describes the wrong thing with the same authority as a right one.
-
-  `scripts/check.py` now requires every exported name to have a doc comment
-  immediately above it, in both languages, so the next insertion cannot take
-  one with it.
-
 ### Added
 
 - **`as = "web"` — a plugin can draw its own HTML page.** `ui.webview` had been
@@ -99,6 +85,35 @@ same thing.
   invisible, with the three reasons that account for most of it.
 
 ### Fixed
+
+- **The examples said they showed all of it, and showed seven of twelve.**
+  "Every capability the editor offers is used once" opened both scripts, and
+  the five they leave out include `pane` — the grid the editor lays results out
+  in, the one that takes a slot, a way of drawing and an Apply button, and the
+  one the shipped AI plugin lives in. An example is the first thing an author
+  copies, so a claim on top of it is read as a map of the API. They now say
+  which seven, point at the actions table for the rest, and name `pane` as the
+  one to read next; `scripts/check.py` counts both numbers and fails when
+  either drifts.
+
+- **Nothing compared the eleven translated actions tables with the English
+  one.** An eleventh action added to the English table would have left the
+  other eleven at ten, and an author reading in their own language would never
+  have learned it existed. Compared by the action name rather than the whole
+  cell, since the metavariables inside it — `<node>` and the ellipses — are
+  English words and are translated on purpose.
+
+- **`nothing()` had lost its comment to `ui()`.** When `ui` was added between
+  `replace` and `nothing`, the one-line description stayed where it was — so
+  `Do nothing.` ended up on top of the interface-drawing documentation, and the
+  function that does nothing said nothing at all. In both languages, because
+  they were edited together. Nobody reads this module top to bottom; it is read
+  one function at a time in an editor's hover, where a comment one function out
+  describes the wrong thing with the same authority as a right one.
+
+  `scripts/check.py` now requires every exported name to have a doc comment
+  immediately above it, in both languages, so the next insertion cannot take
+  one with it.
 
 - **The English README said there is no `require`, five paragraphs after
   explaining how to use it.** The sandbox list — "no `os`, no `package`, no

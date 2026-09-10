@@ -1,6 +1,11 @@
-// A complete JavaScript plugin. Every capability the editor offers is used
-// once. The same plugin as ../lua — same manifest, same behaviour; pick the
+// A complete JavaScript plugin. It uses 7 of the 12 calls the API module
+// offers. The same plugin as ../lua — same manifest, same behaviour; pick the
 // language you would rather write.
+//
+// Enough for a first plugin, and not a tour: the five it leaves out are one
+// line each and the README's actions table has them all. Read `pane` next — it
+// is the grid the editor lays results out in, it takes a slot, a way of
+// drawing and an Apply button, and it is where the shipped AI plugin lives.
 //
 // Two files ship: this one and lib/marktext-plus.js, which `require` loads
 // from this plugin's own directory. A plugin is not limited to those two —
