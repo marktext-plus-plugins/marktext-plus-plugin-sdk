@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **`nothing()` had lost its comment to `ui()`.** When `ui` was added between
+  `replace` and `nothing`, the one-line description stayed where it was — so
+  `Do nothing.` ended up on top of the interface-drawing documentation, and the
+  function that does nothing said nothing at all. In both languages, because
+  they were edited together. Nobody reads this module top to bottom; it is read
+  one function at a time in an editor's hover, where a comment one function out
+  describes the wrong thing with the same authority as a right one.
+
+  `scripts/check.py` now requires every exported name to have a doc comment
+  immediately above it, in both languages, so the next insertion cannot take
+  one with it.
+
 ### Added
 
 - **`as = "web"` — a plugin can draw its own HTML page.** `ui.webview` had been

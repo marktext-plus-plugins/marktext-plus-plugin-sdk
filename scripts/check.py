@@ -130,8 +130,44 @@ def check_documented_paths() -> None:
                 fail(f"{doc.relative_to(ROOT)} 指向不存在的 {whole}")
 
 
+def check_every_export_is_documented() -> None:
+    """Every name a plugin author can call says what it does, right above it.
+
+    `nothing` lost its comment when `ui` was added between it and `replace`:
+    the line stayed where it was, so `--- Do nothing.` ended up on top of the
+    interface-drawing docs and the function that did nothing said nothing. In
+    both languages, because they were edited together.
+
+    Nobody reads this module top to bottom; it is read one function at a time,
+    in an editor's hover. A comment one function out is worse than none — it
+    describes the wrong thing with the same authority.
+    """
+    lua = (ROOT / "packages/lua/lib/marktext-plus.lua").read_text(encoding="utf-8")
+    lines = lua.splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(r"^(?:function )?M\.([A-Za-z_]\w*)\s*[=(]", line)
+        if not m:
+            continue
+        above = lines[i - 1].strip() if i > 0 else ""
+        if not above.startswith("---"):
+            fail(f"lua 的 M.{m.group(1)} 上面没有紧挨着的文档注释")
+
+    js = (ROOT / "packages/js/lib/marktext-plus.js").read_text(encoding="utf-8")
+    start = js.index("module.exports = {")
+    lines = js[start:].splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(r"^  ([A-Za-z_]\w*):", line)
+        if not m:
+            continue
+        above = lines[i - 1].strip() if i > 0 else ""
+        # Either the end of a block comment, or a one-line `/** ... */`.
+        if not (above.endswith("*/")):
+            fail(f"js 的 {m.group(1)} 上面没有紧挨着的文档注释")
+
+
 def main() -> int:
     check_sdk_parity()
+    check_every_export_is_documented()
     check_schema()
     check_documented_paths()
     if problems:

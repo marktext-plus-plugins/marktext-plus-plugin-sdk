@@ -94,7 +94,6 @@ end
 ---@param text string
 function M.replace(text) return { replace = text } end
 
---- Do nothing.
 --- Draw your own interface: a tree the editor renders as its own widgets.
 ---
 --- Nodes are plain tables with one key each. `text`, `input`, `chips`,
@@ -109,6 +108,12 @@ function M.replace(text) return { replace = text } end
 ---@param title string|nil
 function M.ui(root, title) return { ui = root, title = title } end
 
+--- Do nothing.
+---
+--- An action all the same, and not the same as returning nil: a command that
+--- decides there is nothing to do says so, and the editor stops there quietly
+--- instead of reporting that the plugin answered with something it could not
+--- read.
 function M.nothing() return {} end
 
 return M

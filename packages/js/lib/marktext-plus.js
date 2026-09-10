@@ -107,7 +107,6 @@ module.exports = {
     return { replace: text };
   },
 
-  /** Do nothing. */
   /**
    * Draw your own interface: a tree the editor renders as its own widgets.
    *
@@ -125,6 +124,14 @@ module.exports = {
     return { ui: root, title: title };
   },
 
+  /**
+   * Do nothing.
+   *
+   * An action all the same, and not the same as returning nothing at all: a
+   * command that decides there is nothing to do says so, and the editor stops
+   * there quietly instead of reporting that the plugin answered with something
+   * it could not read.
+   */
   nothing: function () {
     return {};
   },
