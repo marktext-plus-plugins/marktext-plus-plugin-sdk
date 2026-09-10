@@ -246,10 +246,62 @@ def check_example_says_how_much_it_shows() -> None:
             )
 
 
+def check_ui_nodes_agree() -> None:
+    """The node kinds the API module names are the ones the README describes.
+
+    Four kinds — select, checkbox, markdown, image — were added to the editor
+    and written into the README's table, and the one-line list inside both API
+    modules stayed at seven. That list is what an author sees in a hover, which
+    is where the question "what can I put in a tree?" is actually asked.
+
+    The README's table is the reference; the editor's repository is what holds
+    *that* to what the editor draws. This only asks the two halves of this
+    repository to agree.
+    """
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    table = re.search(
+        r"^\| `text` \|.*?(?=\n\n)", readme, re.S | re.M
+    )
+    if table is None:
+        fail("README 里找不到界面节点那张表，取法要跟着改")
+        return
+    documented = set()
+    for row in table.group(0).splitlines():
+        for name in re.findall(r"`(\w+)`", row.split("|")[1]):
+            documented.add(name)
+    if len(documented) < 5:
+        fail(f"节点表只读出 {sorted(documented)}，取法要跟着改")
+        return
+
+    for path, marker in (
+        (ROOT / "packages/lua/lib/marktext-plus.lua", "Nodes are plain tables"),
+        (ROOT / "packages/js/lib/marktext-plus.js", "Nodes are plain objects"),
+    ):
+        text = path.read_text(encoding="utf-8")
+        at = text.find(marker)
+        if at < 0:
+            fail(f"{path.relative_to(ROOT)} 里找不到节点清单那句话")
+            continue
+        # The sentence runs to the full stop that ends the list.
+        # The window covers the sentence and the two that follow it; nothing
+        # else in there is written in backticks today, and a word that starts
+        # being written that way shows up as `多了` rather than being ignored.
+        listed = set(re.findall(r"`(\w+)`", text[at:at + 400]))
+        missing = documented - listed
+        extra = listed - documented
+        if missing or extra:
+            fail(
+                f"{path.relative_to(ROOT)} 的节点清单与 README 对不上"
+                + (f"，少了 {sorted(missing)}" if missing else "")
+                + (f"，多了 {sorted(extra)}" if extra else "")
+            )
+
+
 def main() -> int:
     check_sdk_parity()
     check_every_export_is_documented()
     check_action_tables_agree()
+    check_ui_nodes_agree()
     check_example_says_how_much_it_shows()
     check_schema()
     check_documented_paths()

@@ -86,6 +86,18 @@ same thing.
 
 ### Fixed
 
+- **The API module still listed seven kinds of interface node; there are
+  eleven.** `select`, `checkbox`, `markdown` and `image` were added to the
+  editor and written into the README's table, and the one-line list inside both
+  API modules stayed where it was. That list is what an author reads in an
+  editor's hover, which is where "what can I put in a tree?" is actually asked
+  — and a tree is refused whole over one unknown node, so not knowing a kind
+  exists costs a whole interface rather than one node.
+
+  `scripts/check.py` now holds the two modules to the README's table, and the
+  editor's own test suite holds that table to the nodes it draws. Between them
+  a kind cannot be added in one place and missed in the other two.
+
 - **Five rows of the permissions table promised things the editor has never
   built.** "add a toolbar button", "add a status-bar item", "add commands to
   the palette", the clipboard and the workspace: seven permissions in all, and

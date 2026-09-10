@@ -96,10 +96,11 @@ function M.replace(text) return { replace = text } end
 
 --- Draw your own interface: a tree the editor renders as its own widgets.
 ---
---- Nodes are plain tables with one key each. `text`, `input`, `chips`,
---- `button`, `row`, `column`, `spacer`. Anything the editor does not
---- recognise refuses the whole tree with an error, so a misspelling is
---- something you hear about rather than something that quietly vanishes.
+--- Nodes are plain tables with one key each: `text`, `input`, `chips`,
+--- `button`, `select`, `checkbox`, `markdown`, `image`, `row`, `column`,
+--- `spacer`. The README describes what each one takes. Anything the editor
+--- does not recognise refuses the whole tree with an error, so a misspelling
+--- is something you hear about rather than something that quietly vanishes.
 ---
 --- Pressing a button calls `on_event(ctx, id, values)`, where `values` holds
 --- every input in the tree by its id.
