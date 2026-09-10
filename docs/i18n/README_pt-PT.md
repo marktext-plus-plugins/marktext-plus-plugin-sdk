@@ -294,6 +294,7 @@ não o rascunho de que provém, que não está no documento.
 | `{ show = "…", title = "…" }` | mostra uma resposta numa janela pequena, com um botão para copiar | termina; nada é escrito |
 | `{ panel = "…", title = "…" }` | mostra-a num painel ao lado do documento | termina; nada é escrito |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | preenche um dos quadros à volta do documento | termina; nada é escrito |
+| `{ pane = "<html>…", title = "…", as = "web" }` | desenha a sua própria página HTML nesse quadro, com o motor web do sistema. Precisa de `ui.webview` | stops |
 | `{ notify = "…" }` | diz uma linha a quem lê | termina |
 | `{ diff = { original = "…", result = "…" } }` | mostra os dois textos lado a lado | termina; nada é escrito |
 | `{ replace = "…" }` | substitui a selecção | termina |
@@ -352,10 +353,32 @@ declarar a permissão:
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` + `as = "web"` | `ui.webview`, que traz consigo `ui.sidebar` e `network.request` |
 
 `ask`, `show` e `diff` não pedem nada. Responder a quem acabou de executar o
 comando é a razão de existir de uma extensão; exigir permissão para isso faria com
 que toda a extensão a declarasse — e uma que todos têm não diz nada ao leitor.
+
+**A sua própria página.** `as = "web"` desenha o texto do quadro como uma página
+HTML em vez de como palavras. É o único caminho para uma interface que o editor
+não desenhou, e o caro: tudo o resto que pode devolver é *descrito* ao editor —
+nós com nome, ou texto — e desenhado com os componentes dele. Por isso aquilo não
+custa nada no arranque e segue o tema de quem lê sem que você saiba qual é.
+
+O motor é o do sistema — WebView2 no Windows, WKWebView no macOS — e **não um
+navegador distribuído com o editor**. A transferência e a memória ficam onde
+estavam, e as definições de proxy do leitor aplicam-se sem ninguém as arranjar. E
+**nada é criado até uma extensão pedir**: quem nunca abre uma destas nunca paga um
+motor.
+
+Para onde a página vai fica escrito no registo da extensão, que é o que
+`ui.webview` promete. **Envie HTML, não um endereço**: o que desenha é seu, e uma
+página que quer algo de um servidor pode pedi-lo sozinha.
+
+**Nem todas as máquinas têm um.** Um Linux sem motor web utilizável recebe uma
+frase que nomeia a sua extensão — não um quadro vazio, que pareceria uma extensão
+avariada. Não faça de uma página web a única forma de usar a sua extensão, a menos
+que queira deixar esses leitores de fora.
 
 **Os quadros.** O editor já divide um separador entre código-fonte e pré-visualização; `pane` é essa divisão posta à sua disposição. No máximo quatro células, e **as duas metades da vista dividida são duas delas** — foi daí que isto nasceu, por isso um documento em vista dividida já são duas células antes de você preencher o que quer que seja.
 

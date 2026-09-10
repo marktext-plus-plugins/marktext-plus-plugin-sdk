@@ -379,6 +379,7 @@ made from, not the draft it came from, which is nowhere in the document.
 | `{ show = "…", title = "…" }` | shows one answer in a small window, with a copy button | stops; nothing is written |
 | `{ panel = "…", title = "…" }` | shows it in a panel beside the document | stops; nothing is written |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | fills one of the panes around the document; `apply` offers to write it back | stops; nothing is written until the reader accepts |
+| `{ pane = "<html>…", title = "…", as = "web" }` | draws your own HTML page in that pane, using the system's web engine. Needs `ui.webview` | stops |
 | `{ notify = "…" }` | tells the reader | stops |
 | `{ diff = { original = "…", result = "…" } }` | shows both side by side | stops; nothing is written |
 | `{ replace = "…" }` | replaces the selection | stops |
@@ -451,10 +452,33 @@ declares the permission:
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` with `as = "web"` | `ui.webview`, which carries `ui.sidebar` and `network.request` |
 
 `ask`, `show` and `diff` need nothing. Answering the reader who ran the
 command is what a plugin is for, so requiring a permission would mean every
 plugin declares it — and one everybody holds tells the reader nothing.
+
+**Your own page.** `as = "web"` draws the pane's text as an HTML page instead
+of as words. It is the one way to an interface the editor did not design, and
+it is the expensive one: everything else you can return is described to the
+editor — named nodes, or text — and drawn with the editor's own widgets, which
+is why those cost nothing at startup and follow the reader's theme without you
+knowing what the theme is.
+
+The engine is the operating system's — WebView2 on Windows, WKWebView on macOS
+— not a browser packaged with the editor, so the download and the memory stay
+where they were and the reader's own proxy settings apply without anyone
+arranging it. Nothing is created until a plugin asks: a reader who never opens
+one never pays for an engine.
+
+Where the page goes is written to the plugin log, which is what `ui.webview`
+promises. Send HTML, not an address: what you draw is your own, and a page that
+wants something from a server can ask for it itself.
+
+**Not every machine has one.** A Linux box without a web engine the editor can
+use gets a line saying so, naming your plugin — not a blank pane, which would
+look like your plugin had failed. Do not make a web page the only way to use
+your plugin unless you mean to leave those readers out.
 
 **Panes.** The editor already splits a tab between source and preview; `pane`
 is that split offered to you. Four cells at most, and **the split view's own

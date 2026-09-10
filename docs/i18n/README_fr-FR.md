@@ -294,6 +294,7 @@ est né, et non le brouillon dont il provient, absent du document.
 | `{ show = "…", title = "…" }` | montre une réponse dans une petite fenêtre, avec un bouton de copie | s'arrête ; rien n'est écrit |
 | `{ panel = "…", title = "…" }` | la montre dans un panneau à côté du document | s'arrête ; rien n'est écrit |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | remplit l'un des volets autour du document | s'arrête ; rien n'est écrit |
+| `{ pane = "<html>…", title = "…", as = "web" }` | dessine votre propre page HTML dans ce volet, avec le moteur web du système. Demande `ui.webview` | stops |
 | `{ notify = "…" }` | dit une ligne au lecteur | s'arrête |
 | `{ diff = { original = "…", result = "…" } }` | montre les deux textes côte à côte | s'arrête ; rien n'est écrit |
 | `{ replace = "…" }` | remplace la sélection | s'arrête |
@@ -352,11 +353,34 @@ déclare pas le droit :
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` + `as = "web"` | `ui.webview`, qui entraîne `ui.sidebar` et `network.request` |
 
 `ask`, `show` et `diff` ne demandent rien. Répondre au lecteur qui vient de lancer
 la commande est la raison d'être d'une extension ; exiger un droit pour cela
 reviendrait à ce que chaque extension le déclare — et un droit que tout le monde
 possède n'apprend rien au lecteur.
+
+**Votre propre page.** `as = "web"` dessine le texte du volet comme une page HTML
+plutôt que comme des mots. C'est le seul chemin vers une interface que l'éditeur
+n'a pas conçue, et le chemin coûteux : tout le reste de ce que vous pouvez
+renvoyer est *décrit* à l'éditeur — des nœuds nommés, ou du texte — et dessiné
+avec ses propres widgets. C'est pourquoi cela ne coûte rien au démarrage et suit
+le thème du lecteur sans que vous sachiez lequel c'est.
+
+Le moteur est celui du système — WebView2 sous Windows, WKWebView sous macOS —
+et **non un navigateur livré avec l'éditeur**. Le téléchargement et la mémoire
+restent où ils étaient, et les réglages de proxy du lecteur s'appliquent sans que
+personne les arrange. Et **rien n'est créé tant qu'une extension ne le demande** :
+qui n'ouvre jamais une telle extension ne paie jamais de moteur.
+
+Où va la page est écrit dans le journal de l'extension, ce que `ui.webview`
+promet. **Envoyez du HTML, pas une adresse** : ce que vous dessinez est à vous, et
+une page qui veut quelque chose d'un serveur peut le demander elle-même.
+
+**Toutes les machines n'en ont pas.** Un Linux sans moteur web utilisable reçoit
+une phrase nommant votre extension — pas un volet vide, qui donnerait l'impression
+qu'elle a échoué. Ne faites pas d'une page web le seul usage de votre extension à
+moins de vouloir laisser ces lecteurs de côté.
 
 **Les volets.** L'éditeur partage déjà un onglet entre source et aperçu ; `pane` est ce partage, mis à votre disposition. Quatre cases au plus, et **les deux moitiés de la vue partagée en sont deux** — c'est de là que vient tout ceci, un document en vue partagée fait donc deux cases avant que vous ne remplissiez quoi que ce soit.
 

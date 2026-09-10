@@ -294,6 +294,7 @@ Entwurf, aus dem er selbst hervorging — der steht nirgends im Dokument.
 | `{ show = "…", title = "…" }` | zeigt eine Antwort in einem kleinen Fenster, mit Kopierschaltfläche | endet; nichts wird geschrieben |
 | `{ panel = "…", title = "…" }` | zeigt sie in einem Bereich neben dem Dokument | endet; nichts wird geschrieben |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | füllt einen der Bereiche um das Dokument | endet; nichts wird geschrieben |
+| `{ pane = "<html>…", title = "…", as = "web" }` | zeichnet Ihre eigene HTML-Seite in diesem Bereich, mit der Web-Engine des Systems. Braucht `ui.webview` | stops |
 | `{ notify = "…" }` | sagt den Lesenden eine Zeile | endet |
 | `{ diff = { original = "…", result = "…" } }` | zeigt beide Texte nebeneinander | endet; nichts wird geschrieben |
 | `{ replace = "…" }` | ersetzt die Auswahl | endet |
@@ -352,10 +353,33 @@ das Recht nicht anmeldet:
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` + `as = "web"` | `ui.webview`, das `ui.sidebar` und `network.request` mitbringt |
 
 `ask`, `show` und `diff` brauchen nichts. Dem Leser zu antworten, der den Befehl
 aufgerufen hat, ist die Aufgabe eines Plug-ins; ein Recht dafür zu verlangen hieße,
 dass jedes Plug-in es anmeldet — und eines, das alle haben, sagt dem Leser nichts.
+
+**Ihre eigene Seite.** `as = "web"` zeichnet den Text des Bereichs als HTML-Seite
+statt als Worte. Es ist der einzige Weg zu einer Oberfläche, die der Editor nicht
+entworfen hat, und der teure: alles andere, was Sie zurückgeben können, wird dem
+Editor *beschrieben* — benannte Knoten oder Text — und mit seinen eigenen Widgets
+gezeichnet. Darum kostet das beim Start nichts und folgt dem Thema der Lesenden,
+ohne dass Sie wissen müssen, welches es ist.
+
+Die Engine gehört dem Betriebssystem — WebView2 unter Windows, WKWebView unter
+macOS — und ist **kein mit dem Editor ausgelieferter Browser**. Download und
+Speicher bleiben, wo sie waren, und die Proxy-Einstellungen der Lesenden gelten,
+ohne dass jemand sie einrichtet. Und **nichts entsteht, bis ein Plug-in fragt**:
+wer so ein Plug-in nie öffnet, bezahlt nie für eine Engine.
+
+Wohin die Seite geht, steht im Plug-in-Protokoll — das ist es, was `ui.webview`
+verspricht. **Senden Sie HTML, keine Adresse**: was Sie zeichnen, ist Ihres, und
+eine Seite, die etwas von einem Server will, kann selbst danach fragen.
+
+**Nicht jede Maschine hat eine.** Ein Linux ohne nutzbare Web-Engine bekommt einen
+Satz, der Ihr Plug-in beim Namen nennt — keinen leeren Bereich, denn leer sieht
+aus, als wäre Ihr Plug-in kaputt. Machen Sie eine Webseite nicht zum einzigen Weg,
+Ihr Plug-in zu benutzen, wenn Sie diese Lesenden nicht ausschließen wollen.
 
 **Bereiche.** Der Editor teilt einen Tab ohnehin zwischen Quelltext und Vorschau; `pane` ist diese Teilung, Ihnen angeboten. Höchstens vier Zellen, und **die beiden Hälften der geteilten Ansicht sind zwei davon** — daraus ist das hier entstanden, ein geteiltes Dokument ist also zwei Zellen, bevor Sie etwas füllen.
 

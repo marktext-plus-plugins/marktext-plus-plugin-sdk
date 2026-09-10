@@ -295,6 +295,7 @@ c'è.
 | `{ show = "…", title = "…" }` | mostra una risposta in una finestrella, con un pulsante per copiare | finisce; non scrive nulla |
 | `{ panel = "…", title = "…" }` | la mostra in un pannello accanto al documento | finisce; non scrive nulla |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | riempie uno dei riquadri attorno al documento | finisce; non scrive nulla |
+| `{ pane = "<html>…", title = "…", as = "web" }` | disegna una tua pagina HTML in quel riquadro, con il motore web del sistema. Richiede `ui.webview` | stops |
 | `{ notify = "…" }` | dice una riga a chi legge | finisce |
 | `{ diff = { original = "…", result = "…" } }` | mostra i due testi affiancati | finisce; non scrive nulla |
 | `{ replace = "…" }` | sostituisce la selezione | finisce |
@@ -353,10 +354,33 @@ dichiara il permesso:
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` + `as = "web"` | `ui.webview`, che porta con sé `ui.sidebar` e `network.request` |
 
 `ask`, `show` e `diff` non chiedono nulla. Rispondere a chi ha appena lanciato il
 comando è ciò per cui esiste un'estensione; richiedere un permesso significherebbe
 che ogni estensione lo dichiara — e uno che hanno tutti non dice nulla al lettore.
+
+**La tua pagina.** `as = "web"` disegna il testo del riquadro come una pagina HTML
+invece che come parole. È l'unica via a un'interfaccia che l'editor non ha
+progettato, ed è quella costosa: tutto il resto di ciò che puoi restituire viene
+*descritto* all'editor — nodi con un nome, o testo — e disegnato con i suoi
+widget. Per questo non costa nulla all'avvio e segue il tema di chi legge senza
+che tu sappia quale sia.
+
+Il motore è quello del sistema — WebView2 su Windows, WKWebView su macOS — e
+**non un browser distribuito con l'editor**. Il download e la memoria restano
+dov'erano, e le impostazioni proxy del lettore valgono senza che nessuno le
+sistemi. E **nulla viene creato finché un plugin non lo chiede**: chi non apre mai
+un plugin così non paga mai un motore.
+
+Dove va la pagina finisce nel log del plugin, che è ciò che `ui.webview` promette.
+**Manda HTML, non un indirizzo**: quello che disegni è tuo, e una pagina che vuole
+qualcosa da un server può chiederlo da sé.
+
+**Non tutte le macchine ne hanno uno.** Un Linux senza un motore web utilizzabile
+riceve una frase che nomina il tuo plugin — non un riquadro vuoto, che sembrerebbe
+un plugin rotto. Non fare della pagina web l'unico modo di usare il tuo plugin, a
+meno di voler lasciare fuori quei lettori.
 
 **I riquadri.** L'editor divide già una scheda fra sorgente e anteprima; `pane` è quella divisione, messa a tua disposizione. Al massimo quattro celle, e **le due metà della vista divisa sono due di esse** — è da lì che viene tutto questo, quindi un documento in vista divisa è già due celle prima che tu riempia qualcosa.
 

@@ -295,6 +295,7 @@ documento.
 | `{ show = "…", title = "…" }` | muestra una respuesta en una ventana pequeña, con un botón para copiar | termina; no se escribe nada |
 | `{ panel = "…", title = "…" }` | la muestra en un panel junto al documento | termina; no se escribe nada |
 | `{ pane = "…", title = "…", slot = "right"\|"bottom"\|"corner", apply = true, replaces = "…" }` | rellena uno de los cuadros alrededor del documento | termina; no se escribe nada |
+| `{ pane = "<html>…", title = "…", as = "web" }` | dibuja tu propia página HTML en ese cuadro, con el motor web del sistema. Necesita `ui.webview` | stops |
 | `{ notify = "…" }` | dice una línea a quien lee | termina |
 | `{ diff = { original = "…", result = "…" } }` | muestra los dos textos uno al lado del otro | termina; no se escribe nada |
 | `{ replace = "…" }` | sustituye la selección | termina |
@@ -353,10 +354,33 @@ permiso:
 | `replace` | `document.write` |
 | `notify` | `ui.notifications` |
 | `pane`, `panel` | `ui.sidebar` |
+| `pane` + `as = "web"` | `ui.webview`, que arrastra `ui.sidebar` y `network.request` |
 
 `ask`, `show` y `diff` no necesitan nada. Responder a quien acaba de ejecutar la
 orden es para lo que está un complemento; exigir un permiso para eso significaría
 que todos lo declaran — y uno que tiene todo el mundo no le dice nada al lector.
+
+**Tu propia página.** `as = "web"` dibuja el texto del cuadro como una página HTML
+en vez de como palabras. Es el único camino a una interfaz que el editor no
+diseñó, y el caro: todo lo demás que puedes devolver se le *describe* al editor
+— nodos con nombre, o texto — y se dibuja con sus propios controles. Por eso
+aquello no cuesta nada al arrancar y sigue el tema del lector sin que tú sepas
+cuál es.
+
+El motor es el del sistema — WebView2 en Windows, WKWebView en macOS — y **no un
+navegador empaquetado con el editor**. La descarga y la memoria se quedan donde
+estaban, y la configuración de proxy del lector se aplica sin que nadie la
+prepare. Y **no se crea nada hasta que un complemento lo pide**: quien nunca abre
+uno así nunca paga un motor.
+
+A dónde va la página queda escrito en el registro del complemento, que es lo que
+`ui.webview` promete. **Manda HTML, no una dirección**: lo que dibujas es tuyo, y
+una página que quiere algo de un servidor puede pedirlo ella misma.
+
+**No todas las máquinas tienen uno.** Un Linux sin motor web utilizable recibe una
+frase que nombra tu complemento — no un cuadro en blanco, que parecería que tu
+complemento falló. No hagas de una página web la única manera de usar tu
+complemento, salvo que quieras dejar fuera a esos lectores.
 
 **Los cuadros.** El editor ya divide una pestaña entre fuente y vista previa; `pane` es esa división puesta a tu disposición. Cuatro celdas como mucho, y **las dos mitades de la vista dividida son dos de ellas**: de ahí salió todo esto, así que un documento en vista dividida ya son dos celdas antes de que llenes nada.
 

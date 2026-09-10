@@ -4,6 +4,21 @@
 
 ### Added
 
+- **`as = "web"` — a plugin can draw its own HTML page.** `ui.webview` had been
+  declared, described to the reader, listed here in twelve languages and given a
+  proxy of its own, and there was no way for a plugin to open a page. There is
+  now: a pane whose text is an HTML document, drawn by the operating system's
+  web engine rather than a browser packaged with the editor, and created only
+  when a plugin asks so a reader who never opens one never pays for an engine.
+  Where the page goes is written to the plugin log. Windows and macOS have an
+  engine the editor can use; a Linux box without one gets a line saying so,
+  naming the plugin, rather than an empty pane.
+
+  Declaring `ui.webview` now carries `ui.sidebar` as well as `network.request`:
+  a page arrives as a pane, and taking room beside the document is not something
+  to get for free alongside the engine.
+
+
 - **What a panel is asked on a second round.** A command run from a panel can
   now be run again, with the reader asking for its answer to be changed rather
   than describing the whole thing afresh. The editor says so in fields the
