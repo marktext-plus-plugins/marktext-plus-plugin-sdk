@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- **`check.py` compares each example's declared commands with the ones its
+  script names.** Both examples are correct today and name both of theirs.
+  What the check prevents is the way an example stops working without anyone
+  noticing: a menu entry added to the manifest and not to the script, so the
+  reader clicks it and the plugin does whatever its last branch happens to do.
+  The official plugin had exactly that shape. The reverse is checked too — a
+  branch for a command the manifest does not declare can never run, because
+  the editor refuses a command a plugin never declared.
+
 ## [0.1.3] - 2026-09-11
 
 ### Added

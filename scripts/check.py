@@ -64,6 +64,65 @@ def check_sdk_parity() -> None:
         fail(f"只有 js 有：{only_js}——插件作者换个语言就用不了")
 
 
+def check_commands_are_answered() -> None:
+    """Every command an example declares is one its script names.
+
+    An example that does not work teaches the wrong thing more effectively
+    than no example at all, and this is the way one stops working without
+    anybody noticing: a menu entry is added to the manifest and the script is
+    not, so the reader clicks it and the plugin does whatever its last branch
+    happens to do. The official plugin had precisely that shape — one of its
+    four commands reached the translation branch by not being either of the
+    two above it — and nothing in either repository could see it.
+
+    Both directions. A branch for a command the manifest does not declare can
+    never run: the editor refuses a command a plugin never declared, so that
+    code is dead and says otherwise.
+    """
+    pattern = re.compile(r'command\s*[=!~]==?\s*"([^"]+)"')
+    examples = 0
+    for manifest_path in sorted(ROOT.glob("packages/*/manifest.json")):
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        entry = manifest.get("entrypoint")
+        if not entry:
+            continue
+        script = manifest_path.parent / entry
+        if not script.exists():
+            fail(f"{manifest_path.parent.name} 的 entrypoint {entry} 不存在")
+            continue
+
+        declared = {
+            item["id"]
+            for key in ("menus", "panels", "toolbar", "commands")
+            for item in (manifest.get(key) or [])
+            if isinstance(item, dict) and item.get("id")
+        }
+        if not declared:
+            continue
+        examples += 1
+
+        answered = set(pattern.findall(script.read_text(encoding="utf-8")))
+        # A reading that stops matching returns an empty set, and an empty set
+        # agrees with nothing rather than with everything — say so.
+        if not answered:
+            fail(f"{script.relative_to(ROOT)} 里读不出任何命令比较，取法要跟着改")
+            continue
+
+        for missing in sorted(declared - answered):
+            fail(
+                f"{manifest_path.relative_to(ROOT)} 声明了 {missing}，"
+                f"而 {script.name} 从不与它比较"
+                "——一个什么都不做、或者做错事的菜单项"
+            )
+        for extra in sorted(answered - declared):
+            fail(
+                f"{script.relative_to(ROOT)} 处理 {extra}，"
+                f"而 manifest 没有声明它——编辑器会先拒绝，那个分支永远不会运行"
+            )
+
+    if examples < 2:
+        fail(f"只核对了 {examples} 个示例，路径或 manifest 结构变了")
+
 def check_schema() -> None:
     schema_path = ROOT / "schema/manifest.schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -331,6 +390,7 @@ def main() -> int:
     check_action_tables_agree()
     check_ui_nodes_agree()
     check_example_says_how_much_it_shows()
+    check_commands_are_answered()
     check_schema()
     check_documented_paths()
     if problems:
