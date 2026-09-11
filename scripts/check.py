@@ -123,6 +123,39 @@ def check_commands_are_answered() -> None:
     if examples < 2:
         fail(f"只核对了 {examples} 个示例，路径或 manifest 结构变了")
 
+def check_no_bare_return() -> None:
+    """No Lua here uses a valueless `return`.
+
+    The editor runs plugin Lua on `lua_dardo`, where a valueless `return`
+    inside a nested function is not a return at all: execution carries on to
+    the next statement. `if not ok then return end` is how every Lua
+    programmer writes a guard, so this is not an exotic corner — and inside
+    `while true` the same fault is a loop with no exit, which reaches the
+    reader as an editor that has stopped answering.
+
+    The README says all this in its own table. The examples beside it are what
+    an author copies, and nothing here compared the two: the check that does
+    lives in the editor's repository, and its CI only runs when the editor is
+    pushed. An example broken here stayed broken until then.
+
+    Every way Lua lets the statement be written: alone, before `end`, before
+    `else`, closed with a semicolon, or followed by a comment.
+    """
+    bare = re.compile(r'\breturn\s*(end\b|else\b|;|--|$)')
+    files = sorted(ROOT.glob("packages/**/*.lua"))
+    if not files:
+        fail("一个 .lua 都没扫到，路径变了")
+        return
+    for path in files:
+        for number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), 1):
+            if line.lstrip().startswith("--"):
+                continue
+            if bare.search(line):
+                fail(f"{path.relative_to(ROOT)}:{number} 的 return 不会真的返回，"
+                     f"改成 return nil：{line.strip()}")
+
+
 def check_schema() -> None:
     schema_path = ROOT / "schema/manifest.schema.json"
     schema = json.loads(schema_path.read_text(encoding="utf-8"))
@@ -391,6 +424,7 @@ def main() -> int:
     check_ui_nodes_agree()
     check_example_says_how_much_it_shows()
     check_commands_are_answered()
+    check_no_bare_return()
     check_schema()
     check_documented_paths()
     if problems:

@@ -4,6 +4,17 @@
 
 ### Changed
 
+- **`check.py` refuses a valueless `return` in any example.** On `lua_dardo` a
+  `return` with no value inside a nested function is not a return: execution
+  carries on to the next statement, so `if not ok then return end` — how every
+  Lua programmer writes a guard — does not guard, and inside `while true` it is
+  a loop with no exit that reaches the reader as an editor which has stopped
+  answering. The README's own table says this; nothing here held the examples
+  beside it to it. The only check that did lives in the editor's repository and
+  runs when the editor is pushed, so an example broken here stayed broken until
+  then. Every spelling is refused now: alone, before `end`, before `else`,
+  closed with a semicolon, or followed by a comment.
+
 - **`check.py` compares each example's declared commands with the ones its
   script names.** Both examples are correct today and name both of theirs.
   What the check prevents is the way an example stops working without anyone
