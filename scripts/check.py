@@ -297,8 +297,36 @@ def check_ui_nodes_agree() -> None:
             )
 
 
+def check_dart_package_version() -> None:
+    """The Dart package says the version this SDK was released at.
+
+    It had said 0.1.1 since a refactor, through two releases, because nothing
+    read it and nothing compared it. An author who takes the package by path
+    and looks at what they have would have been told the wrong thing — and a
+    version number is the one field whose whole purpose is to be believed.
+    """
+    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    released = re.findall(r"^## \[(\d+\.\d+\.\d+)\]", changelog, re.M)
+    if not released:
+        fail("CHANGELOG 里读不出任何已发布版本，取法要跟着改")
+        return
+    newest = released[0]
+
+    pubspec = (ROOT / "packages/dart/pubspec.yaml").read_text(encoding="utf-8")
+    m = re.search(r"^version: (\S+)", pubspec, re.M)
+    if m is None:
+        fail("packages/dart/pubspec.yaml 里找不到 version")
+        return
+    if m.group(1) != newest:
+        fail(
+            f"packages/dart 的版本是 {m.group(1)}，而 CHANGELOG 最新发布的是 "
+            f"{newest}——发版时这两处要一起改"
+        )
+
+
 def main() -> int:
     check_sdk_parity()
+    check_dart_package_version()
     check_every_export_is_documented()
     check_action_tables_agree()
     check_ui_nodes_agree()
