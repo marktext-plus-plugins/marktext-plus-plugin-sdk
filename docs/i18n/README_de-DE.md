@@ -16,8 +16,15 @@ Ein Plug-in läuft auf Maschinen, auf denen nur der Editor ist — kein Dart-SDK
 |---|---|---|---|
 | `lua` | eine `.lua`-Datei | jeder Plattform, ohne Build | der Normalfall: Menübefehle, Rückfragen, Textarbeit |
 | `js` | eine `.js`-Datei | jeder Plattform, ohne Build | dasselbe, falls Sie lieber JavaScript schreiben |
-| `process` | **eine ausführbare Datei je Plattform** | nur den Plattformen, für die Sie gebaut haben | Sie brauchen eine echte Toolchain, Bibliotheken oder lange laufende Arbeit |
+| `process` | **eine ausführbare Datei je Plattform** | nur den Plattformen, für die Sie gebaut haben | Sie brauchen eine echte Toolchain, Bibliotheken oder lange laufende Arbeit ‡ |
 | `data` | gar keinen Code | überall | Themes, Snippets, Wörterbücher |
+
+`‡` — der Editor startet ein kompiliertes Plugin **noch nicht**. Es lässt sich
+installieren, und der Aufruf eines seiner Befehle sagt genau das:
+*„has no script to run: its runtime is process"*. Das Protokoll unten ist das, was er
+sprechen wird, und die Seite, die es im Editor spricht, ist geschrieben und getestet;
+nur schickt nichts einen Befehl dorthin. Hier festgehalten, damit der Abend, den Sie
+mit dem Kompilieren verbringen, eine Entscheidung ist und keine Überraschung.
 
 Fangen Sie mit `lua` oder `js` an. So ein Plug-in ist **eine Skriptdatei und eine `manifest.json`, sonst nichts** — kein Build, kein Compiler, keine zweite Sprache, und dieselben zwei Dateien laufen unter Windows, macOS und Linux. Ein Skript kann den Editor auch nicht zum Absturz bringen.
 
@@ -487,10 +494,17 @@ Bitten Sie um das, was Sie benutzen. Ein Plug-in, das für einen Menüeintrag um
 ```json
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
-"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "panels":   [{"id": "…", "title": "…", "icon": "…"}],
+"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
+
+**`toolbar` und `pages` stehen mit Absicht zuletzt: nichts zeichnet sie bisher.**
+Ein hier deklarierter Werkzeugleisten-Knopf erscheint nicht, und `pages` wird gelesen
+und danach nie wieder angesehen — die eigene Einstellungsseite eines Plugins kommt aus
+`settings` weiter unten, und die wird gezeichnet. Beide bleiben im Manifest, weil sie
+dazugehören und eingelöst werden, sobald die Fähigkeit da ist — genau wie die
+`†`-Berechtigungen oben. Die drei davor werden heute gezeichnet.
 
 `title` darf ein Übersetzungsschlüssel sein. `location` ist ein Platz, den der Editor definiert — ein Plug-in stellt Dinge an benannte Plätze, nie an Pixelkoordinaten, und reicht dem Editor nie eigene Widgets.
 
@@ -518,6 +532,12 @@ Die Werte liegen in `settings.json` im eigenen Verzeichnis des Plug-ins, kein Pl
 `locales` ordnet einer Sprache Ihre eigenen Zeichenketten zu; `defaultLocale` sagt, worauf zurückgefallen wird. Lesende mit `zh_CN` bekommen `zh_CN`, falls Sie es mitgeliefert haben, dann `zh`, dann Ihre Vorgabe. Liefern Sie mit, welche Sprachen Sie wollen — das ist Ihre Tabelle, nicht die des Editors.
 
 ## Kompilierte Plug-ins (`runtime: "process"`)
+
+**Der Editor startet eines davon noch nicht** — siehe `‡` weiter oben. Was folgt,
+ist das Protokoll, das er sprechen wird; die Hälfte davon im Editor ist geschrieben:
+ein kompiliertes Plugin lässt sich installieren, und der Aufruf eines Befehls sagt,
+dass es kein Skript zum Ausführen hat. Alles in diesem Abschnitt beschreibt die
+Seite des Plugins.
 
 Die ausführbare Datei wird als Kindprozess gestartet und spricht JSON-RPC 2.0, ein JSON-Objekt je Zeile, auf stdin/stdout. Antworten geben die numerische `id` zurück. [`packages/dart/lib`](../../packages/dart/lib) in diesem Repository setzt das für Plug-ins um, die in Dart geschrieben und mit `dart compile exe` kompiliert werden.
 

@@ -16,8 +16,15 @@ Un complemento se ejecuta en máquinas donde solo está el editor: ni SDK de Dar
 |---|---|---|---|
 | `lua` | un archivo `.lua` | todas las plataformas, sin compilar | el caso normal: órdenes de menú, preguntas, trabajo con texto |
 | `js` | un archivo `.js` | todas las plataformas, sin compilar | lo mismo, si prefiere escribir JavaScript |
-| `process` | **un ejecutable por plataforma** | solo aquellas para las que compiló | necesita una cadena de herramientas real, bibliotecas o trabajo prolongado |
+| `process` | **un ejecutable por plataforma** | solo aquellas para las que compiló | necesita una cadena de herramientas real, bibliotecas o trabajo prolongado ‡ |
 | `data` | ningún código | en todas partes | temas, fragmentos, diccionarios |
+
+`‡` — el editor **todavía no arranca** un plugin compilado. Se instala, y ejecutar
+uno de sus comandos lo dice tal cual:
+*«has no script to run: its runtime is process»*. El protocolo de abajo es el que
+hablará, y la parte que lo habla dentro del editor está escrita y probada; solo que
+nada le entrega un comando. Anotado aquí para que la tarde que pasarías compilando
+sea una decisión y no una sorpresa.
 
 Empiece por `lua` o `js`. Un complemento así es **un archivo de script y un `manifest.json`, y nada más**: sin compilación, sin compilador, sin un segundo lenguaje, y esos dos archivos funcionan tal cual en Windows, macOS y Linux. Un script tampoco puede tumbar el editor.
 
@@ -488,10 +495,17 @@ Pida lo que use. Un complemento que pide `network.request` para añadir una entr
 ```json
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
-"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "panels":   [{"id": "…", "title": "…", "icon": "…"}],
+"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
+
+**`toolbar` y `pages` van últimos a propósito: nada los dibuja todavía.**
+Un botón de barra de herramientas declarado aquí no aparece, y `pages` se lee y no
+se vuelve a mirar — la página de ajustes propia de un plugin sale de `settings`
+más abajo, y esa sí se dibuja. Los dos siguen en el manifiesto porque forman parte
+de él y se honrarán cuando llegue la capacidad, igual que los permisos `†` de
+arriba. Los tres anteriores se dibujan hoy.
 
 `title` puede ser una clave de traducción. `location` es un hueco que define el editor: un complemento pone cosas en huecos con nombre, nunca en coordenadas de píxeles, y nunca le entrega al editor widgets propios.
 
@@ -519,6 +533,11 @@ Los valores viven en `settings.json`, dentro del directorio propio del complemen
 `locales` asocia a un idioma sus propias cadenas; `defaultLocale` dice a qué recurrir. Quien lee en `zh_CN` obtiene `zh_CN` si usted lo incluyó, luego `zh`, luego su idioma predeterminado. Incluya los idiomas que quiera: es su tabla, no la del editor.
 
 ## Complementos compilados (`runtime: "process"`)
+
+**El editor todavía no arranca ninguno** — véase `‡` más arriba. Lo que sigue es
+el protocolo que hablará, y la mitad que vive en el editor está escrita: un plugin
+compilado se instala, y ejecutar uno de sus comandos dice que no tiene script que
+ejecutar. Todo en esta sección describe el lado del plugin.
 
 El ejecutable se arranca como proceso hijo y habla JSON-RPC 2.0, un objeto JSON por línea, por stdin/stdout. Las respuestas devuelven el `id` numérico. [`packages/dart/lib`](../../packages/dart/lib), en este repositorio, lo implementa para complementos escritos en Dart y compilados con `dart compile exe`.
 

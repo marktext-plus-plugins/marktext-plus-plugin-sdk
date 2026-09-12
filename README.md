@@ -21,13 +21,20 @@ no Node, no Python. That single fact decides most of what follows.
 |---|---|---|---|
 | `lua` | one `.lua` file | every platform, no build | the default: menu commands, prompts, text work |
 | `js` | one `.js` file | every platform, no build | same, if you would rather write JavaScript |
-| `process` | one executable **per platform** | only the platforms you built for | you need a real toolchain, libraries, or long-running work |
+| `process` | one executable **per platform** | only the platforms you built for | you need a real toolchain, libraries, or long-running work ‡ |
 | `data` | no code at all | everywhere | themes, snippets, dictionaries |
 
 Start with `lua` or `js`. Such a plugin is **one script file and a
 `manifest.json`, and nothing else** — no build step, no compiler, no second
 language, and the same two files work on Windows, macOS and Linux at once. A
 script cannot crash the editor either.
+
+`‡` — the editor does not start a compiled plugin yet. One installs, and
+running a command from it says so: *"has no script to run: its runtime is
+process"*. The protocol below is what it will speak, and the host that speaks it
+is written and tested in the editor; nothing dispatches a command to it. Written
+here so that the evening you would spend compiling one is a decision rather than
+a surprise.
 
 Only reach for `process` when a script genuinely will not do.
 
@@ -643,14 +650,21 @@ is one the reader should decline.
 ```json
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
-"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "panels":   [{"id": "…", "title": "…", "icon": "…"}],
+"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
 
 `title` may be a translation key. `location` is a slot the editor defines —
 a plugin places things in named slots, never at pixel coordinates, and never
 by handing the editor widgets of its own.
+
+**`toolbar` and `pages` are the last two on purpose: nothing draws them yet.**
+A toolbar button declared here does not appear, and `pages` is read and then
+never looked at again — a plugin's own settings page comes from `settings`
+below, which is drawn. Both stay in the manifest because they are part of it and
+will be honoured when the capability arrives, the same as the `†` permissions
+above. The three before them are drawn today.
 
 `panels` puts an icon in the right-hand side bar; pressing it opens a drawer
 filled by running your command of the same `id`. It needs `ui.sidebar`, and it
@@ -698,6 +712,11 @@ then your default. Ship whichever languages you like — this is your table, not
 the editor's.
 
 ## Compiled plugins (`runtime: "process"`)
+
+**The editor does not start one yet** — see `‡` near the top. What follows is the
+protocol it will speak, and the half of it inside the editor is written: a
+compiled plugin installs, and running a command from it says it has no script to
+run. Everything in this section describes the plugin's side of that protocol.
 
 The executable is started as a child process and speaks JSON-RPC 2.0, one JSON
 object per line, on stdin/stdout. Responses echo the numeric request `id`. The

@@ -184,6 +184,87 @@ def check_schema() -> None:
 
 
 
+def check_contribution_points_agree() -> None:
+    """The contribution points block, against the schema and against itself.
+
+    The block is what an author copies. It listed five keys and three of them
+    were drawn by the editor; `toolbar` and `pages` were read and then never
+    looked at again, and nothing in the block said so — the `†` that means "the
+    permission is real and there is nothing behind it" lived two sections away,
+    in the permissions table, and `pages` has no permission to carry one.
+
+    So three readings, none of which existed:
+
+    * every key in the block is a property the schema has, and every array-of-
+      objects property the schema has is either in the block or excused here.
+      A field added to one and not the other is what put this repository's
+      README ahead of its own schema before.
+    * the eleven translations list the same keys in the same order. The action
+      table beside this has had that guard since a row went missing in
+      translation; the contribution points had not.
+    * they carry the same number of `‡` marks. That symbol is what tells an
+      author the editor does not run a compiled plugin yet, and a translation
+      that loses it costs somebody an evening.
+    """
+    schema = json.loads((ROOT / "schema/manifest.schema.json").read_text(encoding="utf-8"))
+    properties = schema.get("properties") or {}
+
+    # Documented in a section of its own rather than in the block.
+    elsewhere = {"settings"}
+    from_schema = {
+        name
+        for name, spec in properties.items()
+        if spec.get("type") == "array"
+        and (spec.get("items") or {}).get("type") == "object"
+    }
+    if not from_schema:
+        fail("schema 里读不出任何「数组套对象」的字段，取法要跟着改")
+        return
+
+    docs = [ROOT / "README.md", *sorted((ROOT / "docs/i18n").glob("README_*.md"))]
+    if len(docs) < 12:
+        fail(f"只找到 {len(docs)} 份文档，取法要跟着改")
+        return
+
+    english_keys: list[str] | None = None
+    english_marks: int | None = None
+    for path in docs:
+        text = path.read_text(encoding="utf-8")
+        keys = re.findall(r'^"(\w+)":', text, re.M)
+        marks = text.count("‡")
+        if not keys:
+            fail(f"{path.relative_to(ROOT)} 里读不出贡献点块，取法要跟着改")
+            continue
+
+        if english_keys is None:
+            english_keys, english_marks = keys, marks
+            missing = sorted(from_schema - set(keys) - elsewhere)
+            extra = sorted(set(keys) - from_schema)
+            if missing:
+                fail(
+                    f"schema 有这些贡献点而 README 的块里没有：{missing}——"
+                    "作者照块抄就不会知道它们存在"
+                )
+            if extra:
+                fail(
+                    f"README 的块里有这些而 schema 不认：{extra}——"
+                    "照块写出来的 manifest 装不上"
+                )
+            continue
+
+        if keys != english_keys:
+            fail(
+                f"{path.relative_to(ROOT)} 的贡献点与英文对不上："
+                f"{keys} vs {english_keys}"
+            )
+        if marks != english_marks:
+            fail(
+                f"{path.relative_to(ROOT)} 的 ‡ 标记数与英文对不上"
+                f"（{marks} vs {english_marks}）——"
+                "那个符号是在说编辑器还不会启动编译型插件，丢了要花掉别人一个晚上"
+            )
+
+
 def check_documented_paths() -> None:
     """Paths the READMEs point at have to be paths this repository has.
 
@@ -426,6 +507,7 @@ def main() -> int:
     check_commands_are_answered()
     check_no_bare_return()
     check_schema()
+    check_contribution_points_agree()
     check_documented_paths()
     if problems:
         print("检查没通过：")

@@ -4,6 +4,45 @@
 
 ### Changed
 
+- **The README says which contribution points the editor does not draw yet, and
+  that it does not start a compiled plugin.** Three promises this repository made
+  and the editor does not keep:
+
+  - `toolbar` — a button declared here does not appear. The `†` that means "the
+    permission is real and there is nothing behind it" was on `ui.toolbar` in the
+    permissions table two sections away; the Contribution points block, which is
+    the part an author copies, listed five points with nothing to tell three from
+    two.
+  - `pages` — read by the editor and then never looked at again, and explained
+    nowhere at all. A plugin's own settings page comes from `settings`, which is
+    drawn.
+  - `runtime: "process"` — the whole section was in the present tense, and this
+    repository ships `packages/dart` for it. A compiled plugin installs; running
+    one of its commands says *"has no script to run: its runtime is process"*.
+    The host that speaks the protocol is written and tested inside the editor,
+    and nothing dispatches a command to it.
+
+  Marked with `‡` in the runtime table, in a footnote under it, and at the head
+  of the compiled-plugins section, in the English README and all eleven
+  translations. `toolbar` and `pages` now sit last in the block with a paragraph
+  under it saying so. Nothing is removed: the fields stay part of the manifest
+  and will be honoured when the capability arrives, as the `†` permissions do.
+
+  The cost of not saying it is an author's evening — the field is accepted, the
+  plugin installs, and nothing happens.
+
+- **`check.py` reconciles the contribution points three ways.** The block
+  against the schema in both directions: a field the schema has and the block
+  does not is one an author copying the block will never learn about, and a field
+  the block has and the schema refuses produces a manifest that will not install.
+  The eleven translations against the English one for the same keys in the same
+  order — the action table beside it has had that guard since a row went missing
+  in translation, and the contribution points had not. And the count of `‡`
+  marks, because a translation that loses one costs the evening above.
+
+  The editor's repository carries the other half: it knows which fields it draws,
+  so it checks that these READMEs mark the ones it does not.
+
 - **`check.py` refuses a valueless `return` in any example.** On `lua_dardo` a
   `return` with no value inside a nested function is not a return: execution
   carries on to the next statement, so `if not ok then return end` — how every

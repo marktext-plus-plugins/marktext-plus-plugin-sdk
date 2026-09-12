@@ -16,8 +16,15 @@ Une extension tourne sur des machines où il n'y a que l'éditeur — pas de SDK
 |---|---|---|---|
 | `lua` | un fichier `.lua` | toutes les plateformes, sans compilation | le cas normal : commandes de menu, questions, travail sur le texte |
 | `js` | un fichier `.js` | toutes les plateformes, sans compilation | idem, si vous préférez écrire du JavaScript |
-| `process` | **un exécutable par plateforme** | seulement celles pour lesquelles vous avez compilé | il vous faut une vraie chaîne d'outils, des bibliothèques, ou un traitement long |
+| `process` | **un exécutable par plateforme** | seulement celles pour lesquelles vous avez compilé | il vous faut une vraie chaîne d'outils, des bibliothèques, ou un traitement long ‡ |
 | `data` | aucun code | partout | thèmes, extraits, dictionnaires |
+
+`‡` — l'éditeur ne démarre **pas encore** un plugin compilé. Il s'installe, et
+lancer une de ses commandes le dit franchement :
+*« has no script to run: its runtime is process »*. Le protocole ci-dessous est
+celui qu'il parlera, et l'hôte qui le parle est écrit et testé dans l'éditeur ;
+simplement, rien ne lui transmet de commande. Noté ici pour que la soirée passée
+à compiler soit une décision et non une surprise.
 
 Commencez par `lua` ou `js`. Une telle extension, c'est **un fichier de script et un `manifest.json`, rien d'autre** — pas de compilation, pas de compilateur, pas de seconde langue, et ces deux fichiers tournent tels quels sous Windows, macOS et Linux. Un script ne peut pas non plus faire tomber l'éditeur.
 
@@ -489,10 +496,17 @@ Ne demandez que ce que vous utilisez. Une extension qui demande `network.request
 ```json
 "menus":    [{"id": "…", "title": "…", "location": "editor.contextMenu", "when": "selection"}],
 "commands": [{"id": "…", "title": "…"}],
-"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "panels":   [{"id": "…", "title": "…", "icon": "…"}],
+"toolbar":  [{"id": "…", "title": "…", "icon": "…"}],
 "pages":    [{"id": "…", "title": "…"}]
 ```
+
+**`toolbar` et `pages` sont les deux derniers à dessein : rien ne les dessine encore.**
+Un bouton de barre d'outils déclaré ici n'apparaît pas, et `pages` est lu puis plus
+jamais consulté — la page de réglages propre à un plugin vient de `settings`
+ci-dessous, et celle-là est dessinée. Les deux restent dans le manifeste parce
+qu'ils en font partie et seront honorés quand la capacité arrivera, comme les
+permissions `†` ci-dessus. Les trois qui les précèdent sont dessinés aujourd'hui.
 
 `title` peut être une clé de traduction. `location` est un emplacement défini par l'éditeur — une extension pose des choses à des emplacements nommés, jamais à des coordonnées en pixels, et ne remet jamais ses propres widgets à l'éditeur.
 
@@ -520,6 +534,11 @@ Les valeurs vivent dans `settings.json`, dans le répertoire propre de l'extensi
 `locales` associe à une langue vos propres chaînes ; `defaultLocale` dit sur quoi se rabattre. Un lecteur en `zh_CN` obtient `zh_CN` si vous l'avez fourni, puis `zh`, puis votre langue par défaut. Fournissez les langues que vous voulez — c'est votre table, pas celle de l'éditeur.
 
 ## Extensions compilées (`runtime: "process"`)
+
+**L'éditeur n'en démarre pas encore** — voir `‡` plus haut. Ce qui suit est le
+protocole qu'il parlera, et la moitié qui vit dans l'éditeur est écrite : un plugin
+compilé s'installe, et lancer une de ses commandes dit qu'il n'a pas de script à
+exécuter. Tout ce qui suit décrit le côté du plugin.
 
 L'exécutable est lancé comme processus enfant et parle JSON-RPC 2.0, un objet JSON par ligne, sur stdin/stdout. Les réponses renvoient l'`id` numérique. [`packages/dart/lib`](../../packages/dart/lib), dans ce dépôt, met cela en œuvre pour les extensions écrites en Dart et compilées avec `dart compile exe`.
 
