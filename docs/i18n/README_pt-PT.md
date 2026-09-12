@@ -400,6 +400,8 @@ A forma segue quantas células há, e é simétrica em cada passo:
 
 Com três células e um documento que não está dividido, **você escolhe qual metade é dividida**: preencher `right` põe um quadro ao lado do documento, por isso a metade de cima divide-se e o outro quadro fica com a linha de baixo inteira; preencher apenas `bottom` e `corner` deixa ao documento a linha de cima inteira e divide a de baixo entre os dois. Quem lê pode depois mudá-lo a partir da barra de título do quadro — que metade está dividida é uma vista dos mesmos quadros, não uma decisão que você continua a tomar.
 
+◆Um documento lido em vista dividida ocupa duas dessas células, não uma — código e pré-visualização já são uma divisão. Ao lado de um documento dividido há espaço para dois painéis e não três: um terceiro slot não é desenhado até que o leitor saia da vista dividida.
+
 Os separadores arrastam-se, como o que há entre código-fonte e pré-visualização.
 
 Os nomes `right`, `bottom`, `corner` são também a morada por onde você volta a um quadro mais tarde, para lhe acrescentar ou substituir o que ele tem. Um quadro continua a ser um quadro: preencher apenas `corner` dá-lhe um quadro ao lado do documento, e não um canto com duas células vazias à frente. O sentido, esse, é o nome que o decide — preencher apenas `bottom` põe o quadro por baixo do documento, e qualquer outra casa põe-no ao lado —, porque uma reescrita do parágrafo que está a ler lê-se melhor por baixo, com a mesma largura de linha, onde o olhar desce em vez de atravessar. O leitor pode virá-lo a partir da barra de título do quadro. Um nome que o editor não conhece é recusado em vez de adivinhado: um quadro que aparece onde não o pediu, sem maneira de saber porquê, é pior do que uma recusa.

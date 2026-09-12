@@ -402,6 +402,8 @@ La forma la decide cuántas celdas hay, y es simétrica en cada paso:
 
 Con tres celdas y un documento que no está dividido, **eliges tú qué mitad se divide**: llenar `right` pone un cuadro junto al documento, así que la mitad de arriba se parte y el otro cuadro se lleva entera la fila de abajo; llenar sólo `bottom` y `corner` deja al documento entera la fila de arriba y reparte la de abajo entre los dos. Quien lee puede moverlo después desde la barra de título del cuadro: qué mitad está dividida es una vista de los mismos cuadros, no una decisión que sigas tomando tú.
 
+◆Un documento que se lee en vista dividida ocupa dos de esas celdas, no una: el código y la vista previa ya son una división. Junto a un documento dividido hay sitio para dos paneles y no para tres: un tercer hueco no se dibuja hasta que el lector sale de la vista dividida.
+
 Los divisores se arrastran, como el que hay entre fuente y vista previa.
 
 Los nombres `right`, `bottom`, `corner` son además la dirección con la que vuelves a un cuadro más tarde, para añadirle algo o sustituir lo que contiene. Un cuadro sigue siendo un cuadro: llenar sólo `corner` te da un cuadro junto al documento, no una esquina con dos celdas vacías delante. La dirección, en cambio, la decide el nombre: llenar sólo `bottom` pone el cuadro debajo del documento, y cualquier otra casilla lo pone al lado, porque una reescritura del párrafo que estás leyendo se lee mejor debajo, con el mismo ancho de línea, donde la vista baja en vez de cruzar. El lector puede darle la vuelta desde la barra de título del cuadro. Un nombre que el editor no conoce se rechaza en vez de adivinarse: un cuadro que aparece donde no lo pediste, sin manera de saber por qué, es peor que una negativa.

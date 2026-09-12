@@ -402,6 +402,8 @@ La forma segue quante celle ci sono, ed è simmetrica a ogni passo:
 
 Con tre celle e un documento non diviso, **scegli tu quale metà viene divisa**: riempire `right` mette un riquadro accanto al documento, così la parte alta si divide e l'altro riquadro prende tutta la riga bassa; riempire solo `bottom` e `corner` lascia al documento tutta la riga alta e divide la bassa fra i due. Chi legge può poi spostarlo dalla barra del titolo del riquadro — quale metà è divisa è una vista degli stessi riquadri, non una decisione che continui a prendere tu.
 
+◆Un documento letto in vista divisa occupa due di quelle celle, non una: sorgente e anteprima sono già una divisione. Accanto a un documento diviso c’è posto per due pannelli e non per tre: un terzo slot non viene disegnato finché il lettore non esce dalla vista divisa.
+
 I divisori si trascinano, come quello fra sorgente e anteprima.
 
 I nomi `right`, `bottom`, `corner` sono anche l'indirizzo con cui ritrovi un riquadro più tardi, per aggiungervi o sostituirne il contenuto. Un riquadro resta un riquadro: riempire solo `corner` ti dà un riquadro accanto al documento, non un angolo con due celle vuote davanti. Il verso, però, lo decide il nome — riempire solo `bottom` mette il riquadro sotto il documento, qualsiasi altra casella lo mette accanto —, perché una riscrittura del paragrafo che stai leggendo si legge meglio sotto: stessa larghezza di riga, e l'occhio scende invece di attraversare. Il lettore può ribaltarlo dalla barra del titolo del riquadro. Un nome che l'editor non conosce viene rifiutato anziché indovinato: un riquadro che compare dove non l'hai chiesto, senza modo di sapere perché, è peggio di un rifiuto.

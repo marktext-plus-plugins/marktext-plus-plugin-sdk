@@ -508,6 +508,11 @@ and the other pane takes the bottom row whole; filling only `bottom` and
 them. The reader can move it afterwards from the pane's title bar — which half
 is divided is a view of the same panes, not a decision you keep making.
 
+◆A document being read in split view is two of those cells, not one — source
+and preview are already a division. So beside a split document there is room for
+two panes and not three: fill a third slot and it is not drawn until the reader
+leaves split view.
+
 The dividers drag, like the one between source and preview.
 
 The slot names — `right`, `bottom`, `corner` — are also how you address a pane

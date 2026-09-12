@@ -4,6 +4,21 @@
 
 ### Changed
 
+- **The README says what happens to a third pane beside a document being read
+  in split view: it is not drawn.** Source and preview are already a division
+  and take a cell each, so only two of the three slots have a cell beside them.
+  This repository told authors how three cells divide "with a document that is
+  **not split**" and then said nothing about the case where it is — while
+  arguing, two paragraphs down, that a slot the editor does not know is
+  "refused rather than guessed at" because a pane appearing where you did not
+  ask for it, with no way to find out why, is worse than being told. A pane not
+  appearing at all is worse still.
+
+  The sentence carries a `◆` in all twelve documents, and the editor's
+  `the_sdk_says_what_the_editor_does_not_do_test` counts them — the editor is
+  the side that knows whether it is still true. `†` and `‡` already mark the
+  other two things this repository promises and the editor does not do.
+
 - **The README says which contribution points the editor does not draw yet, and
   that it does not start a compiled plugin.** Three promises this repository made
   and the editor does not keep:
